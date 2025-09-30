@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LeetCodeCompiler.API</name>
+    </assembly>
+    <members>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest)">
+            <summary>
+            Execute code in a specified language against multiple test cases.
+            </summary>
+            <param name="request">The code, language, and test cases.</param>
+            <returns>Results for each test case.</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteFlexibleCode(LeetCodeCompiler.API.Models.FlexibleCodeExecutionRequest)">
+            <summary>
+            Execute code with flexible problem templates - no new files needed!
+            </summary>
+            <param name="request">The code, language, test cases, and problem type.</param>
+            <returns>Results for each test case.</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCodeWithTracking(LeetCodeCompiler.API.Models.TrackedCodeExecutionRequest)">
+            <summary>
+            Execute code with activity tracking for user interactions.
+            </summary>
+            <param name="request">The tracked code execution request with user info.</param>
+            <returns>Results for each test case with activity tracking.</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodeExecutionController.SubmitCode(LeetCodeCompiler.API.Models.SubmitSolutionRequest)">
+            <summary>
+            Submit final solution with comprehensive activity tracking.
+            </summary>
+            <param name="request">The final submission request.</param>
+            <returns>Submission results with activity tracking.</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.CreateCodingTest(LeetCodeCompiler.API.Models.CreateCodingTestRequest)">
+            <summary>
+            Creates a new coding test
+            </summary>
+            <param name="request">The coding test creation request</param>
+            <returns>The created coding test</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetCodingTest(System.Int32)">
+            <summary>
+            Gets a coding test by ID
+            </summary>
+            <param name="id">The coding test ID</param>
+            <returns>The coding test details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetAllCodingTests">
+            <summary>
+            Gets all coding tests
+            </summary>
+            <returns>List of all coding tests</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.AssignCodingTest(LeetCodeCompiler.API.Models.AssignCodingTestRequest)">
+            <summary>
+            Assigns a coding test to a user
+            </summary>
+            <param name="request">Assignment request</param>
+            <returns>Assignment details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetAssignedTestsByUser(System.Int64,System.Byte,System.Nullable{System.Int32},System.Nullable{System.Int64})">
+            <summary>
+            Gets all assigned tests for a specific user
+            </summary>
+            <param name="userId">User ID</param>
+            <param name="userType">User type</param>
+            <param name="testType">Optional test type filter</param>
+            <param name="classId">Optional class ID filter</param>
+            <returns>List of assigned tests</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetAssignedTestsByTest(System.Int32)">
+            <summary>
+            Gets all users assigned to a specific test
+            </summary>
+            <param name="codingTestId">Coding test ID</param>
+            <returns>List of assigned users</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.UnassignCodingTest(System.Int64,System.Int64)">
+            <summary>
+            Unassigns a coding test from a user
+            </summary>
+            <param name="assignedId">Assignment ID</param>
+            <param name="unassignedByUserId">User ID who is unassigning</param>
+            <returns>Success status</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DomainController.GetAllDomains">
+            <summary>
+            Get all domains
+            </summary>
+            <returns>List of all domains</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DomainController.GetDomainById(System.Int32)">
+            <summary>
+            Get domain by ID
+            </summary>
+            <param name="id">Domain ID</param>
+            <returns>Domain with subdomains</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemsBySubdomainId(System.Int32)">
+            <summary>
+            Get all problems by subdomain ID
+            </summary>
+            <param name="subdomainId">Subdomain ID</param>
+            <returns>List of problems for the specified subdomain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.GetAllSubdomains">
+            <summary>
+            Get all subdomains
+            </summary>
+            <returns>List of all subdomains with their domain information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.GetSubdomainById(System.Int32)">
+            <summary>
+            Get subdomain by ID
+            </summary>
+            <param name="id">Subdomain ID</param>
+            <returns>Subdomain with domain information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.GetSubdomainsByDomainId(System.Int32)">
+            <summary>
+            Get all subdomains by domain ID
+            </summary>
+            <param name="domainId">Domain ID</param>
+            <returns>List of subdomains for the specified domain</returns>
+        </member>
+        <member name="T:LeetCodeCompiler.API.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeetCodeCompiler.API.Migrations.SeedProblems">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.SeedProblems.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.SeedProblems.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.SeedProblems.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeetCodeCompiler.API.Migrations.AddTestCasesAndStarterCode">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.AddTestCasesAndStarterCode.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.AddTestCasesAndStarterCode.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.AddTestCasesAndStarterCode.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeetCodeCompiler.API.Migrations.AddUserActivityTracking">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.AddUserActivityTracking.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.AddUserActivityTracking.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Migrations.AddUserActivityTracking.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeetCodeCompiler.API.Services.IContainerPoolService.GetContainerAsync(System.String)">
+            <summary>
+            Gets a container from the pool for the specified language
+            </summary>
+            <param name="language">Programming language (python, javascript, java, cpp)</param>
+            <returns>Container ID or null if no container available</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Services.IContainerPoolService.ReturnContainerAsync(System.String,System.String)">
+            <summary>
+            Returns a container to the pool after execution
+            </summary>
+            <param name="containerId">Container ID to return</param>
+            <param name="language">Programming language</param>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Services.IContainerPoolService.InitializePoolsAsync">
+            <summary>
+            Initializes the container pools for all languages
+            </summary>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Services.IContainerPoolService.GetPoolStatsAsync">
+            <summary>
+            Gets pool statistics for monitoring
+            </summary>
+        </member>
+    </members>
+</doc>

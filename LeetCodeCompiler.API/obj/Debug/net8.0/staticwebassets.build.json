@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "rsekg60MgyUfGYB9FOhiEg9nuEe1HY+ECKyjeU9RFUM=",
+  "Source": "LeetCodeCompiler.API",
+  "BasePath": "_content/LeetCodeCompiler.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

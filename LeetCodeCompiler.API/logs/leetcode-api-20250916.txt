@@ -1,0 +1,957 @@
+2025-09-16 13:03:40.676 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 13:03:40.898 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 13:03:40.947 +05:30 [INF] Creating key {08d7dc08-51f9-48c4-ab76-69da8995d574} with creation date 2025-09-16 07:33:40Z, activation date 2025-09-16 07:33:40Z, and expiration date 2025-12-15 07:33:40Z.
+2025-09-16 13:03:41.022 +05:30 [INF] Writing data to file 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys\key-08d7dc08-51f9-48c4-ab76-69da8995d574.xml'.
+2025-09-16 13:03:41.262 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 13:03:41.334 +05:30 [INF] Now listening on: http://localhost:5081
+2025-09-16 13:03:41.340 +05:30 [INF] Now listening on: https://localhost:7169
+2025-09-16 13:03:41.353 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 13:03:41.379 +05:30 [INF] Hosting environment: Development
+2025-09-16 13:03:41.394 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 13:17:58.316 +05:30 [INF] Application is shutting down...
+2025-09-16 13:18:17.203 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 13:18:17.415 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 13:18:17.685 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 13:18:17.757 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-09-16 13:18:17.762 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-09-16 13:18:17.770 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 13:18:17.772 +05:30 [INF] Hosting environment: Development
+2025-09-16 13:18:17.774 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 13:18:58.959 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:18:59.132 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 307 0 null 187.5123ms
+2025-09-16 13:21:21.860 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:21:21.886 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 307 0 null 25.904ms
+2025-09-16 13:27:21.276 +05:30 [INF] Application is shutting down...
+2025-09-16 13:28:05.918 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 13:28:06.268 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 13:28:06.581 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 13:28:06.626 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-09-16 13:28:06.631 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-09-16 13:28:06.644 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 13:28:06.652 +05:30 [INF] Hosting environment: Development
+2025-09-16 13:28:06.655 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 13:28:44.129 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:28:44.284 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 307 0 null 160.7357ms
+2025-09-16 13:33:18.383 +05:30 [INF] Application is shutting down...
+2025-09-16 13:36:36.732 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 13:36:36.930 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 13:36:37.143 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 13:36:37.189 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-09-16 13:36:37.193 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-09-16 13:36:37.208 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 13:36:37.215 +05:30 [INF] Hosting environment: Development
+2025-09-16 13:36:37.221 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 13:37:08.433 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:37:08.611 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 307 0 null 184.1735ms
+2025-09-16 13:40:41.000 +05:30 [INF] Application is shutting down...
+2025-09-16 13:40:54.861 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 13:40:55.053 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 13:40:55.254 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 13:40:55.296 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-09-16 13:40:55.298 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-09-16 13:40:55.314 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 13:40:55.320 +05:30 [INF] Hosting environment: Development
+2025-09-16 13:40:55.329 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 13:43:10.419 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:43:10.508 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:10.522 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 204 null null 112.7001ms
+2025-09-16 13:43:10.563 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:43:10.608 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:10.827 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:43:10.853 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:43:10.860 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 13:43:10.943 +05:30 [INF] Route matched with {action = "GetProblems", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblems() on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 13:43:12.903 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-09-16 13:43:13.536 +05:30 [INF] Executed DbCommand (60ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM [Problems] AS [p]
+LEFT JOIN [TestCases] AS [t] ON [p].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p].[Id] = [s].[ProblemId]
+ORDER BY [p].[Id], [t].[Id]
+2025-09-16 13:43:13.786 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.Problem, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-09-16 13:43:13.946 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API) in 2987.9226ms
+2025-09-16 13:43:13.957 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 13:43:13.997 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - 200 null application/json; charset=utf-8 3433.8352ms
+2025-09-16 13:43:36.028 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 13:43:36.086 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:36.114 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/1 - null null
+2025-09-16 13:43:36.419 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:36.379 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 350.3177ms
+2025-09-16 13:43:36.437 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/1 - 204 null null 323.5431ms
+2025-09-16 13:43:36.540 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/1 - null null
+2025-09-16 13:43:36.527 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 197
+2025-09-16 13:43:36.563 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:36.581 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:36.589 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:43:36.622 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:43:36.651 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:43:36.676 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:43:36.684 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 13:43:36.690 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:43:36.736 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 13:43:36.737 +05:30 [INF] Route matched with {action = "GetProblem", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblem(Int32) on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 13:43:36.908 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-09-16 13:43:37.154 +05:30 [INF] Executed DbCommand (76ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p0].[Id], [p0].[Constraints], [p0].[Description], [p0].[Examples], [p0].[TemplateCategory], [p0].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title]
+    FROM [Problems] AS [p]
+    WHERE [p].[Id] = @__id_0
+) AS [p0]
+LEFT JOIN [TestCases] AS [t] ON [p0].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p0].[Id] = [s].[ProblemId]
+ORDER BY [p0].[Id], [t].[Id]
+2025-09-16 13:43:37.207 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.Problem'.
+2025-09-16 13:43:37.239 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API) in 464.7488ms
+2025-09-16 13:43:37.269 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 13:43:37.342 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/1 - 200 null application/json; charset=utf-8 792.5407ms
+2025-09-16 13:43:38.229 +05:30 [INF] Executed DbCommand (63ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 13:43:38.502 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 13:43:38.634 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 1890.6214ms
+2025-09-16 13:43:38.645 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:43:38.657 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 2130.3491ms
+2025-09-16 13:43:41.349 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 200
+2025-09-16 13:43:41.423 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:41.439 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:43:41.472 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:43:41.480 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:43:41.492 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 13:43:41.544 +05:30 [INF] Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 13:43:41.577 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 13:43:41.592 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 85.6919ms
+2025-09-16 13:43:41.609 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:43:41.628 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 278.5412ms
+2025-09-16 13:43:41.682 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 13:43:41.698 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:41.702 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 19.517ms
+2025-09-16 13:43:41.723 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 596
+2025-09-16 13:43:41.798 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:43:41.812 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:43:41.834 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:43:41.841 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 13:43:41.872 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 13:43:41.881 +05:30 [ERR] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Multiple constructors accepting all given argument types have been found in type 'LeetCodeCompiler.API.Controllers.CodeExecutionController'. There should only be one applicable constructor.
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.TryFindMatchingConstructor(Type instanceType, Type[] argumentTypes, ConstructorInfo& matchingConstructor, Nullable`1[]& parameterMap)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.FindApplicableConstructor(Type instanceType, Type[] argumentTypes, ConstructorInfoEx[] constructors, ConstructorInfo& matchingConstructor, Nullable`1[]& matchingParameterMap)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateFactoryInternal(Type instanceType, Type[] argumentTypes, ParameterExpression& provider, ParameterExpression& argumentArray, Expression& factoryExpressionBody)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateFactory(Type instanceType, Type[] argumentTypes)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerActivatorProvider.CreateActivator(ControllerActionDescriptor descriptor)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerFactoryProvider.CreateControllerFactory(ControllerActionDescriptor descriptor)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvokerCache.GetCachedResult(ControllerContext controllerContext)
+   at Microsoft.AspNetCore.Mvc.Routing.ControllerRequestDelegateFactory.<>c__DisplayClass12_0.<CreateRequestDelegate>b__0(HttpContext context)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Program.<>c.<<<Main>$>b__0_6>d.MoveNext() in D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API\Program.cs:line 201
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-09-16 13:43:41.959 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 500 null text/plain; charset=utf-8 236.6764ms
+2025-09-16 13:47:18.611 +05:30 [INF] Application is shutting down...
+2025-09-16 13:54:42.024 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 13:54:42.256 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 13:54:42.524 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 13:54:42.574 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-09-16 13:54:42.577 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-09-16 13:54:42.593 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 13:54:42.596 +05:30 [INF] Hosting environment: Development
+2025-09-16 13:54:42.600 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 13:55:33.274 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:55:33.361 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:33.377 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 204 null null 106.5001ms
+2025-09-16 13:55:33.397 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 13:55:33.424 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:33.619 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:55:33.650 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:55:33.660 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 13:55:33.726 +05:30 [INF] Route matched with {action = "GetProblems", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblems() on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 13:55:35.467 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-09-16 13:55:35.979 +05:30 [INF] Executed DbCommand (45ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM [Problems] AS [p]
+LEFT JOIN [TestCases] AS [t] ON [p].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p].[Id] = [s].[ProblemId]
+ORDER BY [p].[Id], [t].[Id]
+2025-09-16 13:55:36.175 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.Problem, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-09-16 13:55:36.324 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API) in 2579.8312ms
+2025-09-16 13:55:36.328 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 13:55:36.370 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - 200 null application/json; charset=utf-8 2973.4433ms
+2025-09-16 13:55:39.301 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 13:55:39.317 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:39.324 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 22.6276ms
+2025-09-16 13:55:39.332 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 205
+2025-09-16 13:55:39.380 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/6 - null null
+2025-09-16 13:55:39.419 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:39.439 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:39.450 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:55:39.451 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/6 - 204 null null 71.219ms
+2025-09-16 13:55:39.503 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:55:39.528 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/6 - null null
+2025-09-16 13:55:39.533 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:55:39.555 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:39.575 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:55:39.590 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:55:39.596 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 13:55:39.620 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 13:55:39.621 +05:30 [INF] Route matched with {action = "GetProblem", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblem(Int32) on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 13:55:39.855 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-09-16 13:55:40.058 +05:30 [INF] Executed DbCommand (53ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p0].[Id], [p0].[Constraints], [p0].[Description], [p0].[Examples], [p0].[TemplateCategory], [p0].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title]
+    FROM [Problems] AS [p]
+    WHERE [p].[Id] = @__id_0
+) AS [p0]
+LEFT JOIN [TestCases] AS [t] ON [p0].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p0].[Id] = [s].[ProblemId]
+ORDER BY [p0].[Id], [t].[Id]
+2025-09-16 13:55:40.095 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.Problem'.
+2025-09-16 13:55:40.394 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API) in 751.6133ms
+2025-09-16 13:55:40.399 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 13:55:40.402 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/6 - 200 null application/json; charset=utf-8 873.8214ms
+2025-09-16 13:55:40.902 +05:30 [INF] Executed DbCommand (55ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 13:55:41.065 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 13:55:41.227 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 1598.4594ms
+2025-09-16 13:55:41.244 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:55:41.264 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 1931.7711ms
+2025-09-16 13:55:41.982 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 200
+2025-09-16 13:55:42.010 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:42.042 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:55:42.094 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:55:42.102 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:55:42.153 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 13:55:42.193 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 13:55:42.257 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 13:55:42.287 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 120.0013ms
+2025-09-16 13:55:42.291 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 13:55:42.304 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 321.863ms
+2025-09-16 13:55:42.337 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 13:55:42.387 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:42.392 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 54.5082ms
+2025-09-16 13:55:42.443 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 400
+2025-09-16 13:55:42.457 +05:30 [INF] CORS policy execution successful.
+2025-09-16 13:55:42.554 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 13:55:42.785 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 13:55:42.792 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 13:55:42.892 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 13:55:43.008 +05:30 [INF] Code execution started for language: python, code length: 51
+2025-09-16 13:55:53.842 +05:30 [INF] Code execution completed in 10829.9659ms
+2025-09-16 13:55:53.850 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 13:55:53.882 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 10967.5908ms
+2025-09-16 13:55:53.894 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 13:55:53.908 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 11465.5873ms
+2025-09-16 14:03:28.816 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 14:03:28.826 +05:30 [INF] CORS policy execution successful.
+2025-09-16 14:03:28.831 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 15.1714ms
+2025-09-16 14:03:28.848 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 216
+2025-09-16 14:03:28.867 +05:30 [INF] CORS policy execution successful.
+2025-09-16 14:03:28.877 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 14:03:28.894 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 14:03:28.902 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 14:03:28.909 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 14:03:29.037 +05:30 [INF] Executed DbCommand (41ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 14:03:29.048 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 14:03:29.055 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 132.9608ms
+2025-09-16 14:03:29.059 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 14:03:29.063 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 214.9657ms
+2025-09-16 14:03:29.911 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 198
+2025-09-16 14:03:29.921 +05:30 [INF] CORS policy execution successful.
+2025-09-16 14:03:29.925 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 14:03:29.930 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 14:03:29.949 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 14:03:29.966 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 14:03:30.005 +05:30 [INF] Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 14:03:30.016 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 14:03:30.024 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 44.8163ms
+2025-09-16 14:03:30.033 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 14:03:30.039 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 126.7411ms
+2025-09-16 14:03:30.059 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 14:03:30.068 +05:30 [INF] CORS policy execution successful.
+2025-09-16 14:03:30.080 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 20.6494ms
+2025-09-16 14:03:30.104 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 419
+2025-09-16 14:03:30.114 +05:30 [INF] CORS policy execution successful.
+2025-09-16 14:03:30.119 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 14:03:30.142 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 14:03:30.147 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 14:03:30.159 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 14:03:30.177 +05:30 [INF] Code execution started for language: java, code length: 71
+2025-09-16 14:03:46.805 +05:30 [INF] Code execution completed in 16624.0897ms
+2025-09-16 14:03:46.808 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 14:03:46.812 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 16642.4762ms
+2025-09-16 14:03:46.819 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 14:03:46.821 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 16717.1951ms
+2025-09-16 16:39:31.942 +05:30 [INF] Application is shutting down...
+2025-09-16 16:39:40.165 +05:30 [INF] Starting LeetCode Compiler API
+2025-09-16 16:39:40.227 +05:30 [INF] User profile is available. Using 'C:\Users\HP\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-16 16:39:40.322 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-16 16:39:40.340 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-09-16 16:39:40.341 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-09-16 16:39:40.345 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-16 16:39:40.347 +05:30 [INF] Hosting environment: Development
+2025-09-16 16:39:40.347 +05:30 [INF] Content root path: D:\GateTutor\GATEtutor-FinalRepo\LeetCodeCompiler.API
+2025-09-16 16:40:09.020 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 16:40:09.049 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:09.055 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 204 null null 35.6334ms
+2025-09-16 16:40:09.062 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 16:40:09.070 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:09.130 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:09.144 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:09.148 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 16:40:09.166 +05:30 [INF] Route matched with {action = "GetProblems", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblems() on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 16:40:09.902 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-09-16 16:40:10.139 +05:30 [INF] Executed DbCommand (41ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM [Problems] AS [p]
+LEFT JOIN [TestCases] AS [t] ON [p].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p].[Id] = [s].[ProblemId]
+ORDER BY [p].[Id], [t].[Id]
+2025-09-16 16:40:10.227 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.Problem, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-09-16 16:40:10.318 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API) in 1128.1939ms
+2025-09-16 16:40:10.381 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 16:40:10.394 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - 200 null application/json; charset=utf-8 1331.9237ms
+2025-09-16 16:40:11.906 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 16:40:11.910 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:11.913 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 7.0672ms
+2025-09-16 16:40:11.914 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/6 - null null
+2025-09-16 16:40:11.917 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 205
+2025-09-16 16:40:11.918 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:11.921 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/6 - 204 null null 7.2535ms
+2025-09-16 16:40:11.921 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:11.924 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/6 - null null
+2025-09-16 16:40:11.927 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:11.927 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:11.932 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:11.932 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:11.934 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:11.937 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:11.939 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 16:40:11.946 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:11.946 +05:30 [INF] Route matched with {action = "GetProblem", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblem(Int32) on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 16:40:11.992 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-09-16 16:40:12.034 +05:30 [INF] Executed DbCommand (15ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p0].[Id], [p0].[Constraints], [p0].[Description], [p0].[Examples], [p0].[TemplateCategory], [p0].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title]
+    FROM [Problems] AS [p]
+    WHERE [p].[Id] = @__id_0
+) AS [p0]
+LEFT JOIN [TestCases] AS [t] ON [p0].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p0].[Id] = [s].[ProblemId]
+ORDER BY [p0].[Id], [t].[Id]
+2025-09-16 16:40:12.042 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.Problem'.
+2025-09-16 16:40:12.046 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API) in 95.2376ms
+2025-09-16 16:40:12.048 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 16:40:12.050 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/6 - 200 null application/json; charset=utf-8 126.2519ms
+2025-09-16 16:40:12.195 +05:30 [INF] Executed DbCommand (17ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:12.233 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:12.257 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 307.6286ms
+2025-09-16 16:40:12.259 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:12.264 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 347.8492ms
+2025-09-16 16:40:14.793 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 200
+2025-09-16 16:40:14.796 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:14.797 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:14.801 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:14.809 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:14.813 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:14.824 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:14.829 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:14.834 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 18.7886ms
+2025-09-16 16:40:14.836 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:14.838 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 44.5596ms
+2025-09-16 16:40:14.845 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 16:40:14.848 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:14.849 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 4.5684ms
+2025-09-16 16:40:14.853 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 400
+2025-09-16 16:40:14.857 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:14.861 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:14.867 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:14.869 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:14.880 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 16:40:14.947 +05:30 [INF] Code execution started for language: python, code length: 51
+2025-09-16 16:40:22.761 +05:30 [INF] Code execution completed in 7810.9977ms
+2025-09-16 16:40:22.763 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 16:40:22.780 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 7898.1662ms
+2025-09-16 16:40:22.787 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:22.790 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 7936.2578ms
+2025-09-16 16:40:24.411 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 16:40:24.436 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:24.466 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 53.9917ms
+2025-09-16 16:40:24.485 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 200
+2025-09-16 16:40:24.499 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:24.505 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:24.518 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:24.521 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:24.523 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:24.537 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:24.543 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:24.553 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 25.4261ms
+2025-09-16 16:40:24.558 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:24.569 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 82.5369ms
+2025-09-16 16:40:24.594 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 16:40:24.618 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:24.621 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 26.6933ms
+2025-09-16 16:40:24.634 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 400
+2025-09-16 16:40:24.641 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:24.647 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:24.654 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:24.659 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:24.663 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 16:40:24.689 +05:30 [INF] Code execution started for language: python, code length: 51
+2025-09-16 16:40:34.428 +05:30 [INF] Code execution completed in 9735.6508ms
+2025-09-16 16:40:34.431 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 16:40:34.438 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 9753.7414ms
+2025-09-16 16:40:34.448 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:34.460 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 9826.2616ms
+2025-09-16 16:40:40.037 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 16:40:40.041 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:40.042 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems - 204 null null 4.8617ms
+2025-09-16 16:40:40.045 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - null null
+2025-09-16 16:40:40.047 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:40.049 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:40.052 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:40.053 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 16:40:40.053 +05:30 [INF] Route matched with {action = "GetProblems", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblems() on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 16:40:40.059 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM [Problems] AS [p]
+LEFT JOIN [TestCases] AS [t] ON [p].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p].[Id] = [s].[ProblemId]
+ORDER BY [p].[Id], [t].[Id]
+2025-09-16 16:40:40.067 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.Problem, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-09-16 16:40:40.069 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API) in 14.3171ms
+2025-09-16 16:40:40.070 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblems (LeetCodeCompiler.API)'
+2025-09-16 16:40:40.071 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems - 200 null application/json; charset=utf-8 25.826ms
+2025-09-16 16:40:41.697 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 16:40:41.701 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:41.702 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 5.0305ms
+2025-09-16 16:40:41.703 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/6 - null null
+2025-09-16 16:40:41.705 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 205
+2025-09-16 16:40:41.707 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:41.710 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:41.711 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/Problems/6 - 204 null null 8.2479ms
+2025-09-16 16:40:41.713 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:41.717 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/6 - null null
+2025-09-16 16:40:41.719 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:41.721 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:41.722 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:41.723 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:41.723 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:41.725 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:41.727 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 16:40:41.728 +05:30 [INF] Route matched with {action = "GetProblem", controller = "Problems"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetProblem(Int32) on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-09-16 16:40:41.731 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:41.734 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:41.736 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 9.3523ms
+2025-09-16 16:40:41.737 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:41.739 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 33.8965ms
+2025-09-16 16:40:41.741 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p0].[Id], [p0].[Constraints], [p0].[Description], [p0].[Examples], [p0].[TemplateCategory], [p0].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Constraints], [p].[Description], [p].[Examples], [p].[TemplateCategory], [p].[Title]
+    FROM [Problems] AS [p]
+    WHERE [p].[Id] = @__id_0
+) AS [p0]
+LEFT JOIN [TestCases] AS [t] ON [p0].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p0].[Id] = [s].[ProblemId]
+ORDER BY [p0].[Id], [t].[Id]
+2025-09-16 16:40:41.746 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.Problem'.
+2025-09-16 16:40:41.747 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API) in 16.9288ms
+2025-09-16 16:40:41.748 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblem (LeetCodeCompiler.API)'
+2025-09-16 16:40:41.750 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.132:5081/api/Problems/6 - 200 null application/json; charset=utf-8 32.9976ms
+2025-09-16 16:40:44.699 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 16:40:44.704 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:44.704 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 4.9994ms
+2025-09-16 16:40:44.707 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 198
+2025-09-16 16:40:44.709 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:44.710 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:44.712 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:44.713 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:44.714 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:44.720 +05:30 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:44.722 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:44.723 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 8.5709ms
+2025-09-16 16:40:44.725 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:44.726 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 19.6026ms
+2025-09-16 16:40:44.731 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 16:40:44.734 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:44.735 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 4.5341ms
+2025-09-16 16:40:44.738 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 419
+2025-09-16 16:40:44.740 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:44.741 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:44.744 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:44.746 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:44.747 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 16:40:44.751 +05:30 [INF] Code execution started for language: java, code length: 71
+2025-09-16 16:40:46.339 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 200
+2025-09-16 16:40:46.344 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:46.348 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:46.370 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:46.372 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:46.374 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:46.386 +05:30 [INF] Executed DbCommand (5ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:46.394 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:46.397 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 19.6755ms
+2025-09-16 16:40:46.407 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:46.409 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 70.3175ms
+2025-09-16 16:40:46.420 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - null null
+2025-09-16 16:40:46.425 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:46.426 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/CodeExecution - 204 null null 6.0825ms
+2025-09-16 16:40:46.430 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 400
+2025-09-16 16:40:46.435 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:46.436 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:46.439 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:46.441 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:46.442 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 16:40:46.447 +05:30 [INF] Code execution started for language: python, code length: 51
+2025-09-16 16:40:47.868 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - null null
+2025-09-16 16:40:47.888 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:47.892 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.132:5081/api/UserActivity/log - 204 null null 24.1174ms
+2025-09-16 16:40:47.898 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - application/json 200
+2025-09-16 16:40:47.903 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:47.905 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:47.911 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:47.914 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:47.916 +05:30 [INF] Route matched with {action = "LogUserActivity", controller = "UserActivity"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] LogUserActivity(LeetCodeCompiler.API.Controllers.LogUserActivityRequest) on controller LeetCodeCompiler.API.Controllers.UserActivityController (LeetCodeCompiler.API).
+2025-09-16 16:40:47.928 +05:30 [INF] Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (Size = 4000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32), @p14='?' (Size = 4000), @p15='?' (DbType = Int32), @p16='?' (DbType = DateTime2), @p17='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserCodingActivityLog] ([AttemptNumber], [CreatedAt], [EndTime], [EraseCount], [FailedTestCaseIDs], [IsSessionAbandoned], [LanguageSwitchCount], [LoginLogoutCount], [PassedTestCaseIDs], [ProblemId], [RunClickCount], [SaveCount], [StartTime], [SubmitClickCount], [TestType], [TimeTakenSeconds], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-09-16 16:40:47.935 +05:30 [INF] Executing CreatedAtActionResult, writing value of type 'LeetCodeCompiler.API.Models.UserCodingActivityLog'.
+2025-09-16 16:40:47.940 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API) in 18.2541ms
+2025-09-16 16:40:47.943 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.UserActivityController.LogUserActivity (LeetCodeCompiler.API)'
+2025-09-16 16:40:47.946 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/UserActivity/log - 201 null application/json; charset=utf-8 47.592ms
+2025-09-16 16:40:47.961 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - application/json 400
+2025-09-16 16:40:47.965 +05:30 [INF] CORS policy execution successful.
+2025-09-16 16:40:47.967 +05:30 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-09-16 16:40:47.972 +05:30 [INF] Bearer was not authenticated. Failure message: IDX10503: Signature validation failed. Token does not have a kid. Keys tried: '[PII of type 'System.Text.StringBuilder' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2025-09-16 16:40:47.974 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:47.977 +05:30 [INF] Route matched with {action = "ExecuteCode", controller = "CodeExecution"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ExecuteCode(LeetCodeCompiler.API.Models.CodeExecutionRequest) on controller LeetCodeCompiler.API.Controllers.CodeExecutionController (LeetCodeCompiler.API).
+2025-09-16 16:40:47.982 +05:30 [INF] Code execution started for language: python, code length: 51
+2025-09-16 16:40:55.904 +05:30 [INF] Code execution completed in 9455.0683ms
+2025-09-16 16:40:55.907 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 16:40:55.911 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 9464.6614ms
+2025-09-16 16:40:55.915 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:55.917 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 9487.0352ms
+2025-09-16 16:40:58.280 +05:30 [INF] Code execution completed in 10295.8809ms
+2025-09-16 16:40:58.282 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 16:40:58.294 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 10314.7158ms
+2025-09-16 16:40:58.296 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:40:58.298 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 10337.5578ms
+2025-09-16 16:41:39.370 +05:30 [INF] Code execution completed in 54617.8399ms
+2025-09-16 16:41:39.372 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CodeExecutionResponse'.
+2025-09-16 16:41:39.374 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API) in 54625.1083ms
+2025-09-16 16:41:39.376 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.CodeExecutionController.ExecuteCode (LeetCodeCompiler.API)'
+2025-09-16 16:41:39.377 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.132:5081/api/CodeExecution - 200 null application/json; charset=utf-8 54639.2973ms

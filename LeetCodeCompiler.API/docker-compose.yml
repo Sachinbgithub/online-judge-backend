@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  leetcode-api:
+    build: .
+    ports:
+      - "5081:5081"
+      - "7169:7169"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://0.0.0.0:5081;http://0.0.0.0:7169
+    networks:
+      - leetcode-network
+
+networks:
+  leetcode-network:
+    driver: bridge 

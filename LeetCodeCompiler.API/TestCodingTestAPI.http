@@ -1,0 +1,99 @@
+### Test Coding Test API Endpoints
+### Make sure the application is running on http://localhost:5081
+
+### 1. Get all coding tests
+GET http://localhost:5081/api/CodingTest
+Content-Type: application/json
+
+###
+
+### 2. Get coding test by ID (replace 1 with actual test ID)
+GET http://localhost:5081/api/CodingTest/1
+Content-Type: application/json
+
+###
+
+### 3. Create a new coding test
+POST http://localhost:5081/api/CodingTest
+Content-Type: application/json
+
+{
+  "testName": "Test API Coding Test",
+  "createdBy": 1,
+  "startDate": "2024-01-20T10:00:00Z",
+  "endDate": "2024-01-20T12:00:00Z",
+  "durationMinutes": 60,
+  "totalQuestions": 2,
+  "totalMarks": 40,
+  "testType": 1002,
+  "allowMultipleAttempts": true,
+  "maxAttempts": 3,
+  "showResultsImmediately": true,
+  "allowCodeReview": false,
+  "accessCode": "TEST123",
+  "tags": "api,testing",
+  "isResultPublishAutomatically": true,
+  "applyBreachRule": true,
+  "breachRuleLimit": 0,
+  "hostIP": "192.168.1.100",
+  "classId": 1,
+  "topicData": [
+    {
+      "sectionId": 1,
+      "domainId": 1,
+      "subdomainId": 1
+    }
+  ],
+  "questions": [
+    {
+      "problemId": 1,
+      "questionOrder": 1,
+      "marks": 20,
+      "timeLimitMinutes": 30,
+      "customInstructions": "Test question 1"
+    },
+    {
+      "problemId": 2,
+      "questionOrder": 2,
+      "marks": 20,
+      "timeLimitMinutes": 30,
+      "customInstructions": "Test question 2"
+    }
+  ]
+}
+
+###
+
+### 4. Get coding tests by status
+GET http://localhost:5081/api/CodingTest/status/active
+Content-Type: application/json
+
+###
+
+###
+
+### 5. Validate access code
+POST http://localhost:5081/api/CodingTest/1/validate-access
+Content-Type: application/json
+
+"TEST123"
+
+###
+
+### 6. Check if user can attempt test
+GET http://localhost:5081/api/CodingTest/1/can-attempt?userId=1
+Content-Type: application/json
+
+###
+
+### 7. Check if test is active
+GET http://localhost:5081/api/CodingTest/1/is-active
+Content-Type: application/json
+
+###
+
+### 8. Check if test is expired
+GET http://localhost:5081/api/CodingTest/1/is-expired
+Content-Type: application/json
+
+###
