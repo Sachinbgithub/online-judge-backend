@@ -1,0 +1,182 @@
+2025-10-08 15:02:32.942 +05:30 [INF] Starting LeetCode Compiler API
+2025-10-08 15:02:33.031 +05:30 [INF] Initializing container pools...
+2025-10-08 15:02:33.055 +05:30 [INF] Creating 0 containers for cpp using image gcc:11
+2025-10-08 15:02:33.063 +05:30 [INF] Created 0 containers for cpp
+2025-10-08 15:02:33.065 +05:30 [INF] Creating 0 containers for javascript using image node:18
+2025-10-08 15:02:33.066 +05:30 [INF] Created 0 containers for javascript
+2025-10-08 15:02:33.068 +05:30 [INF] Creating 1 containers for python using image python:3.11-alpine
+2025-10-08 15:02:33.119 +05:30 [INF] Creating 1 containers for java using image openjdk:17
+2025-10-08 15:02:33.595 +05:30 [ERR] Failed to start container for python: docker: error during connect: Head "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/_ping": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+
+Run 'docker run --help' for more information
+
+2025-10-08 15:02:33.595 +05:30 [ERR] Failed to start container for java: docker: error during connect: Head "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/_ping": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+
+Run 'docker run --help' for more information
+
+2025-10-08 15:02:33.602 +05:30 [INF] Created 1 containers for python
+2025-10-08 15:02:33.602 +05:30 [INF] Created 1 containers for java
+2025-10-08 15:02:33.606 +05:30 [INF] Pool initialized: cpp = 0 containers
+2025-10-08 15:02:33.610 +05:30 [INF] Pool initialized: javascript = 0 containers
+2025-10-08 15:02:33.611 +05:30 [INF] Pool initialized: python = 1 containers
+2025-10-08 15:02:33.613 +05:30 [INF] Pool initialized: java = 1 containers
+2025-10-08 15:02:33.615 +05:30 [INF] 🚀 TOTAL CAPACITY: 2 containers, 64MB RAM, 0.2 CPU cores
+2025-10-08 15:02:33.619 +05:30 [INF] 🎯 ESTIMATED USER CAPACITY: 35 concurrent users (0.67 exec/min per user)
+2025-10-08 15:02:33.623 +05:30 [INF] Container pools initialized successfully
+2025-10-08 15:02:33.624 +05:30 [INF] Container pools initialized successfully
+2025-10-08 15:02:33.671 +05:30 [INF] User profile is available. Using 'C:\Users\navgh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-10-08 15:02:34.005 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-10-08 15:02:34.009 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-10-08 15:02:34.032 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-10-08 15:02:34.036 +05:30 [INF] Hosting environment: Development
+2025-10-08 15:02:34.047 +05:30 [INF] Content root path: E:\LeetCodeCompiler.API_steady_23_09_25\LeetCodeCompiler.API
+2025-10-08 16:41:48.177 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/swagger/index.html - null null
+2025-10-08 16:41:48.521 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/swagger/index.html - 200 null text/html;charset=utf-8 349.9603ms
+2025-10-08 16:41:48.765 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/swagger/v1/swagger.json - null null
+2025-10-08 16:41:49.114 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 347.8129ms
+2025-10-08 16:45:22.447 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/api/Domain - null null
+2025-10-08 16:45:22.474 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:45:22.496 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.DomainController.GetAllDomains (LeetCodeCompiler.API)'
+2025-10-08 16:45:22.593 +05:30 [INF] Route matched with {action = "GetAllDomains", controller = "Domain"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAllDomains() on controller LeetCodeCompiler.API.Controllers.DomainController (LeetCodeCompiler.API).
+2025-10-08 16:45:26.542 +05:30 [INF] Executed DbCommand (152ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[DomainId], [d].[Domain], [s].[SubdomainId], [s].[DomainId], [s].[Subdomain]
+FROM [Domain] AS [d]
+LEFT JOIN [Subdomain] AS [s] ON [d].[DomainId] = [s].[DomainId]
+ORDER BY [d].[DomainId]
+2025-10-08 16:45:26.610 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.DomainDto, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-10-08 16:45:26.656 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.DomainController.GetAllDomains (LeetCodeCompiler.API) in 4055.9387ms
+2025-10-08 16:45:26.658 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.DomainController.GetAllDomains (LeetCodeCompiler.API)'
+2025-10-08 16:45:26.669 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/api/Domain - 200 null application/json; charset=utf-8 4221.4191ms
+2025-10-08 16:45:30.568 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/api/SubDomain?domainId=1 - null null
+2025-10-08 16:45:30.584 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:45:30.587 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.SubdomainController.GetAllSubdomains (LeetCodeCompiler.API)'
+2025-10-08 16:45:30.596 +05:30 [INF] Route matched with {action = "GetAllSubdomains", controller = "Subdomain"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAllSubdomains() on controller LeetCodeCompiler.API.Controllers.SubdomainController (LeetCodeCompiler.API).
+2025-10-08 16:45:30.706 +05:30 [INF] Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [s].[SubdomainId], [s].[DomainId], [s].[Subdomain], CAST(1 AS bit), [d].[DomainId], [d].[Domain]
+FROM [Subdomain] AS [s]
+INNER JOIN [Domain] AS [d] ON [s].[DomainId] = [d].[DomainId]
+2025-10-08 16:45:30.712 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.SubdomainDto, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-10-08 16:45:30.718 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.SubdomainController.GetAllSubdomains (LeetCodeCompiler.API) in 118.2467ms
+2025-10-08 16:45:30.720 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.SubdomainController.GetAllSubdomains (LeetCodeCompiler.API)'
+2025-10-08 16:45:30.723 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/api/SubDomain?domainId=1 - 200 null application/json; charset=utf-8 154.2659ms
+2025-10-08 16:45:56.740 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/api/Problems/subdomain/7 - null null
+2025-10-08 16:45:56.749 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:45:56.754 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemsBySubdomainId (LeetCodeCompiler.API)'
+2025-10-08 16:45:56.782 +05:30 [INF] Route matched with {action = "GetProblemsBySubdomainId", controller = "Problems"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetProblemsBySubdomainId(Int32) on controller LeetCodeCompiler.API.Controllers.ProblemsController (LeetCodeCompiler.API).
+2025-10-08 16:45:57.075 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-10-08 16:45:57.380 +05:30 [INF] Executed DbCommand (247ms) [Parameters=[@__subdomainId_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id], [p].[Constraints], [p].[Description], [p].[Difficulty], [p].[Examples], [p].[Hints], [p].[MemoryLimit], [p].[SubdomainId], [p].[TimeLimit], [p].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM [Problems] AS [p]
+LEFT JOIN [TestCases] AS [t] ON [p].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p].[Id] = [s].[ProblemId]
+WHERE [p].[SubdomainId] = @__subdomainId_0
+ORDER BY [p].[Id], [t].[Id]
+2025-10-08 16:45:57.527 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[LeetCodeCompiler.API.Models.Problem, LeetCodeCompiler.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-10-08 16:45:57.554 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemsBySubdomainId (LeetCodeCompiler.API) in 763.9562ms
+2025-10-08 16:45:57.561 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemsBySubdomainId (LeetCodeCompiler.API)'
+2025-10-08 16:45:57.564 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/api/Problems/subdomain/7 - 200 null application/json; charset=utf-8 823.6828ms
+2025-10-08 16:46:53.636 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.239:5081/api/PracticeTest/create - null null
+2025-10-08 16:46:53.643 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:46:53.650 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.239:5081/api/PracticeTest/create - 204 null null 13.6825ms
+2025-10-08 16:46:53.663 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.239:5081/api/PracticeTest/create - application/json 635
+2025-10-08 16:46:53.671 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:46:53.675 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.PracticeTestController.CreatePracticeTest (LeetCodeCompiler.API)'
+2025-10-08 16:46:53.684 +05:30 [INF] Route matched with {action = "CreatePracticeTest", controller = "PracticeTest"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreatePracticeTest(LeetCodeCompiler.API.Models.CreatePracticeTestRequest) on controller LeetCodeCompiler.API.Controllers.PracticeTestController (LeetCodeCompiler.API).
+2025-10-08 16:46:53.870 +05:30 [INF] Executed DbCommand (32ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DomainId], [d].[Domain]
+FROM [Domain] AS [d]
+WHERE [d].[DomainId] = @__p_0
+2025-10-08 16:46:53.917 +05:30 [INF] Executed DbCommand (11ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubdomainId], [s].[DomainId], [s].[Subdomain]
+FROM [Subdomain] AS [s]
+WHERE [s].[SubdomainId] = @__p_0
+2025-10-08 16:46:54.080 +05:30 [INF] Executed DbCommand (61ms) [Parameters=[@__problemIds_0='?' (Size = 4000)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p].[Id]
+FROM [Problems] AS [p]
+WHERE [p].[Id] IN (
+    SELECT [p0].[value]
+    FROM OPENJSON(@__problemIds_0) WITH ([value] int '$') AS [p0]
+)
+2025-10-08 16:46:54.426 +05:30 [INF] Executed DbCommand (59ms) [Parameters=[@p0='?' (DbType = Boolean), @p1='?' (DbType = DateTime2), @p2='?' (DbType = Int32), @p3='?' (Size = 1000), @p4='?' (Size = 20), @p5='?' (DbType = Int32), @p6='?' (DbType = Int32), @p7='?' (Size = 2000), @p8='?' (DbType = Boolean), @p9='?' (DbType = Boolean), @p10='?' (DbType = Int32), @p11='?' (Precision = 5) (Scale = 2) (DbType = Decimal), @p12='?' (DbType = Boolean), @p13='?' (DbType = Int32), @p14='?' (Size = 200), @p15='?' (Size = 200), @p16='?' (DbType = Int32), @p17='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [PracticeTests] ([AllowMultipleAttempts], [CreatedAt], [CreatedBy], [Description], [DifficultyLevel], [DomainId], [DurationMinutes], [Instructions], [IsActive], [IsPublished], [MaxAttempts], [PassingPercentage], [ShowResultsImmediately], [SubdomainId], [Tags], [TestName], [TotalMarks], [UpdatedAt])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17);
+2025-10-08 16:46:54.549 +05:30 [INF] Executed DbCommand (37ms) [Parameters=[@p0='?' (DbType = DateTime2), @p1='?' (Size = 1000), @p2='?' (DbType = Int32), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (DbType = Int32), @p7='?' (DbType = DateTime2), @p8='?' (Size = 1000), @p9='?' (DbType = Int32), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = Int32), @p13='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+MERGE [PracticeTestQuestions] USING (
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, 0),
+(@p7, @p8, @p9, @p10, @p11, @p12, @p13, 1)) AS i ([CreatedAt], [CustomInstructions], [Marks], [PracticeTestId], [ProblemId], [QuestionOrder], [TimeLimitMinutes], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([CreatedAt], [CustomInstructions], [Marks], [PracticeTestId], [ProblemId], [QuestionOrder], [TimeLimitMinutes])
+VALUES (i.[CreatedAt], i.[CustomInstructions], i.[Marks], i.[PracticeTestId], i.[ProblemId], i.[QuestionOrder], i.[TimeLimitMinutes])
+OUTPUT INSERTED.[Id], i._Position;
+2025-10-08 16:46:54.557 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.CreatePracticeTestResponse'.
+2025-10-08 16:46:54.562 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.PracticeTestController.CreatePracticeTest (LeetCodeCompiler.API) in 873.7972ms
+2025-10-08 16:46:54.567 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.PracticeTestController.CreatePracticeTest (LeetCodeCompiler.API)'
+2025-10-08 16:46:54.570 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.239:5081/api/PracticeTest/create - 200 null application/json; charset=utf-8 907.2489ms
+2025-10-08 16:51:02.487 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/api/PracticeTest/start?practiceTestId=1&userId=40115 - null null
+2025-10-08 16:51:02.492 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:51:02.493 +05:30 [INF] Executing endpoint 'LeetCodeCompiler.API.Controllers.PracticeTestController.StartPracticeTest (LeetCodeCompiler.API)'
+2025-10-08 16:51:02.501 +05:30 [INF] Route matched with {action = "StartPracticeTest", controller = "PracticeTest"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] StartPracticeTest(Int32, Int32) on controller LeetCodeCompiler.API.Controllers.PracticeTestController (LeetCodeCompiler.API).
+2025-10-08 16:51:02.668 +05:30 [INF] Executed DbCommand (57ms) [Parameters=[@__request_PracticeTestId_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [s0].[Id], [s0].[AllowMultipleAttempts], [s0].[CreatedAt], [s0].[CreatedBy], [s0].[Description], [s0].[DifficultyLevel], [s0].[DomainId], [s0].[DurationMinutes], [s0].[Instructions], [s0].[IsActive], [s0].[IsPublished], [s0].[MaxAttempts], [s0].[PassingPercentage], [s0].[ShowResultsImmediately], [s0].[SubdomainId], [s0].[Tags], [s0].[TestName], [s0].[TotalMarks], [s0].[UpdatedAt], [s0].[DomainId0], [s0].[SubdomainId0], [s1].[Id], [s1].[CreatedAt], [s1].[CustomInstructions], [s1].[Marks], [s1].[PracticeTestId], [s1].[ProblemId], [s1].[QuestionOrder], [s1].[TimeLimitMinutes], [s1].[Id0], [s1].[Constraints], [s1].[Description], [s1].[Difficulty], [s1].[Examples], [s1].[Hints], [s1].[MemoryLimit], [s1].[SubdomainId], [s1].[TimeLimit], [s1].[Title], [s0].[Domain], [s0].[DomainId1], [s0].[Subdomain]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[AllowMultipleAttempts], [p].[CreatedAt], [p].[CreatedBy], [p].[Description], [p].[DifficultyLevel], [p].[DomainId], [p].[DurationMinutes], [p].[Instructions], [p].[IsActive], [p].[IsPublished], [p].[MaxAttempts], [p].[PassingPercentage], [p].[ShowResultsImmediately], [p].[SubdomainId], [p].[Tags], [p].[TestName], [p].[TotalMarks], [p].[UpdatedAt], [d].[DomainId] AS [DomainId0], [d].[Domain], [s].[SubdomainId] AS [SubdomainId0], [s].[DomainId] AS [DomainId1], [s].[Subdomain]
+    FROM [PracticeTests] AS [p]
+    INNER JOIN [Domain] AS [d] ON [p].[DomainId] = [d].[DomainId]
+    INNER JOIN [Subdomain] AS [s] ON [p].[SubdomainId] = [s].[SubdomainId]
+    WHERE [p].[Id] = @__request_PracticeTestId_0
+) AS [s0]
+LEFT JOIN (
+    SELECT [p0].[Id], [p0].[CreatedAt], [p0].[CustomInstructions], [p0].[Marks], [p0].[PracticeTestId], [p0].[ProblemId], [p0].[QuestionOrder], [p0].[TimeLimitMinutes], [p1].[Id] AS [Id0], [p1].[Constraints], [p1].[Description], [p1].[Difficulty], [p1].[Examples], [p1].[Hints], [p1].[MemoryLimit], [p1].[SubdomainId], [p1].[TimeLimit], [p1].[Title]
+    FROM [PracticeTestQuestions] AS [p0]
+    INNER JOIN [Problems] AS [p1] ON [p0].[ProblemId] = [p1].[Id]
+) AS [s1] ON [s0].[Id] = [s1].[PracticeTestId]
+ORDER BY [s0].[Id], [s0].[DomainId0], [s0].[SubdomainId0], [s1].[Id]
+2025-10-08 16:51:02.714 +05:30 [INF] Executed DbCommand (7ms) [Parameters=[@__request_PracticeTestId_0='?' (DbType = Int32), @__request_UserId_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [PracticeTestResults] AS [p]
+WHERE [p].[PracticeTestId] = @__request_PracticeTestId_0 AND [p].[UserId] = @__request_UserId_1
+2025-10-08 16:51:02.784 +05:30 [INF] Executed DbCommand (10ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (DbType = DateTime2), @p3='?' (DbType = Boolean), @p4='?' (Precision = 10) (Scale = 2) (DbType = Decimal), @p5='?' (Precision = 5) (Scale = 2) (DbType = Decimal), @p6='?' (DbType = Int32), @p7='?' (DbType = DateTime2), @p8='?' (Size = 20), @p9='?' (Size = 4000), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [PracticeTestResults] ([AttemptNumber], [CompletedAt], [CreatedAt], [IsPassed], [ObtainedMarks], [Percentage], [PracticeTestId], [StartedAt], [Status], [SubmissionData], [TimeTakenMinutes], [TotalMarks], [UpdatedAt], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13);
+2025-10-08 16:51:02.804 +05:30 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-10-08 16:51:02.868 +05:30 [INF] Executed DbCommand (13ms) [Parameters=[@__question_ProblemId_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p0].[Id], [p0].[Constraints], [p0].[Description], [p0].[Difficulty], [p0].[Examples], [p0].[Hints], [p0].[MemoryLimit], [p0].[SubdomainId], [p0].[TimeLimit], [p0].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Constraints], [p].[Description], [p].[Difficulty], [p].[Examples], [p].[Hints], [p].[MemoryLimit], [p].[SubdomainId], [p].[TimeLimit], [p].[Title]
+    FROM [Problems] AS [p]
+    WHERE [p].[Id] = @__question_ProblemId_0
+) AS [p0]
+LEFT JOIN [TestCases] AS [t] ON [p0].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p0].[Id] = [s].[ProblemId]
+ORDER BY [p0].[Id], [t].[Id]
+2025-10-08 16:51:02.901 +05:30 [INF] Executed DbCommand (1ms) [Parameters=[@__question_ProblemId_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [p0].[Id], [p0].[Constraints], [p0].[Description], [p0].[Difficulty], [p0].[Examples], [p0].[Hints], [p0].[MemoryLimit], [p0].[SubdomainId], [p0].[TimeLimit], [p0].[Title], [t].[Id], [t].[ExpectedOutput], [t].[Input], [t].[ProblemId], [s].[Id], [s].[Code], [s].[Language], [s].[ProblemId]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Constraints], [p].[Description], [p].[Difficulty], [p].[Examples], [p].[Hints], [p].[MemoryLimit], [p].[SubdomainId], [p].[TimeLimit], [p].[Title]
+    FROM [Problems] AS [p]
+    WHERE [p].[Id] = @__question_ProblemId_0
+) AS [p0]
+LEFT JOIN [TestCases] AS [t] ON [p0].[Id] = [t].[ProblemId]
+LEFT JOIN [StarterCodes] AS [s] ON [p0].[Id] = [s].[ProblemId]
+ORDER BY [p0].[Id], [t].[Id]
+2025-10-08 16:51:02.913 +05:30 [INF] Executing OkObjectResult, writing value of type 'LeetCodeCompiler.API.Models.StartPracticeTestResponse'.
+2025-10-08 16:51:02.944 +05:30 [INF] Executed action LeetCodeCompiler.API.Controllers.PracticeTestController.StartPracticeTest (LeetCodeCompiler.API) in 438.704ms
+2025-10-08 16:51:02.946 +05:30 [INF] Executed endpoint 'LeetCodeCompiler.API.Controllers.PracticeTestController.StartPracticeTest (LeetCodeCompiler.API)'
+2025-10-08 16:51:02.949 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/api/PracticeTest/start?practiceTestId=1&userId=40115 - 200 null application/json; charset=utf-8 462.0317ms
+2025-10-08 16:51:42.258 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://192.168.0.239:5081/api/SimplePracticeTest/submit-result - null null
+2025-10-08 16:51:42.267 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:51:42.270 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://192.168.0.239:5081/api/SimplePracticeTest/submit-result - 204 null null 12.2306ms
+2025-10-08 16:51:42.279 +05:30 [INF] Request starting HTTP/1.1 POST http://192.168.0.239:5081/api/SimplePracticeTest/submit-result - application/json 3569
+2025-10-08 16:51:42.295 +05:30 [INF] CORS policy execution successful.
+2025-10-08 16:51:42.305 +05:30 [INF] Request finished HTTP/1.1 POST http://192.168.0.239:5081/api/SimplePracticeTest/submit-result - 404 0 null 25.6116ms
+2025-10-08 16:51:42.324 +05:30 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: POST http://192.168.0.239:5081/api/SimplePracticeTest/submit-result, Response status code: 404
+2025-10-08 16:56:31.240 +05:30 [INF] Application is shutting down...
+2025-10-08 16:56:31.341 +05:30 [INF] Disposing container pool service...

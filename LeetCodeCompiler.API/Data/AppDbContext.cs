@@ -26,6 +26,15 @@ namespace LeetCodeCompiler.API.Data
         public DbSet<CodingTestQuestionAttempt> CodingTestQuestionAttempts { get; set; }
         public DbSet<CodingTestTopicData> CodingTestTopicData { get; set; }
         public DbSet<AssignedCodingTest> AssignedCodingTests { get; set; }
+        public DbSet<CodingTestSubmission> CodingTestSubmissions { get; set; }
+        public DbSet<CodingTestSubmissionResult> CodingTestSubmissionResults { get; set; }
+
+        // Practice Test Tables
+        public DbSet<PracticeTest> PracticeTests { get; set; }
+        public DbSet<PracticeTestQuestion> PracticeTestQuestions { get; set; }
+        public DbSet<PracticeTestResult> PracticeTestResults { get; set; }
+        public DbSet<PracticeTestQuestionResult> PracticeTestQuestionResults { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -150,6 +159,59 @@ namespace LeetCodeCompiler.API.Data
                 .Property(e => e.AssignedDate)
                 .HasDefaultValueSql("GETDATE()");
 
+            // CodingTestSubmission configurations
+            modelBuilder.Entity<CodingTestSubmission>()
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<CodingTestSubmission>()
+                .Property(e => e.SubmissionTime)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            // CodingTestSubmissionResult configurations
+            modelBuilder.Entity<CodingTestSubmissionResult>()
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            // CodingTestSubmission relationships
+            modelBuilder.Entity<CodingTestSubmission>()
+                .HasOne(s => s.CodingTest)
+                .WithMany()
+                .HasForeignKey(s => s.CodingTestId);
+
+            modelBuilder.Entity<CodingTestSubmission>()
+                .HasOne(s => s.CodingTestAttempt)
+                .WithMany()
+                .HasForeignKey(s => s.CodingTestAttemptId);
+
+            modelBuilder.Entity<CodingTestSubmission>()
+                .HasOne(s => s.CodingTestQuestionAttempt)
+                .WithMany()
+                .HasForeignKey(s => s.CodingTestQuestionAttemptId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<CodingTestSubmission>()
+                .HasOne(s => s.Problem)
+                .WithMany()
+                .HasForeignKey(s => s.ProblemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<CodingTestSubmission>()
+                .HasMany(s => s.SubmissionResults)
+                .WithOne(r => r.Submission)
+                .HasForeignKey(r => r.SubmissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CodingTestSubmissionResult>()
+                .HasOne(r => r.TestCase)
+                .WithMany()
+                .HasForeignKey(r => r.TestCaseId);
+
+            modelBuilder.Entity<CodingTestSubmissionResult>()
+                .HasOne(r => r.Problem)
+                .WithMany()
+                .HasForeignKey(r => r.ProblemId);
+
             // Domain and Subdomain table mappings and relationships
             modelBuilder.Entity<Domain>().ToTable("Domain");
             modelBuilder.Entity<Domain>()
@@ -183,6 +245,7 @@ namespace LeetCodeCompiler.API.Data
             modelBuilder.Entity<Problem>()
                 .Property(p => p.Difficulty)
                 .HasColumnName("Difficulty");
+
 
             // Remove old seeding for Problems.StarterCode
             modelBuilder.Entity<Problem>().HasData(

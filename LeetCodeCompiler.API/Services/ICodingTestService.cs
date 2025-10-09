@@ -18,7 +18,8 @@ namespace LeetCodeCompiler.API.Services
         Task<CodingTestAttemptResponse> StartCodingTestAsync(StartCodingTestRequest request);
         Task<CodingTestAttemptResponse> GetCodingTestAttemptAsync(int attemptId);
         Task<List<CodingTestAttemptResponse>> GetUserCodingTestAttemptsAsync(int userId, int codingTestId);
-        Task<CodingTestAttemptResponse> SubmitCodingTestAsync(SubmitCodingTestRequest request);
+        Task<SubmitCodingTestResponse> SubmitCodingTestAsync(SubmitCodingTestRequest request);
+        Task<SubmitWholeCodingTestResponse> SubmitWholeCodingTestAsync(SubmitWholeCodingTestRequest request);
         Task<bool> AbandonCodingTestAsync(int attemptId, int userId);
 
         // Question Attempts
@@ -43,5 +44,18 @@ namespace LeetCodeCompiler.API.Services
         Task<bool> CanUserAttemptTestAsync(int userId, int codingTestId);
         Task<bool> IsTestActiveAsync(int codingTestId);
         Task<bool> IsTestExpiredAsync(int codingTestId);
+
+        // Submission methods
+        Task<List<CodingTestSubmissionSummaryResponse>> GetCodingTestSubmissionsAsync(GetCodingTestSubmissionsRequest request);
+        Task<SubmitCodingTestResponse> GetCodingTestSubmissionByIdAsync(long submissionId);
+        Task<CodingTestStatisticsResponse> GetCodingTestStatisticsAsync(int codingTestId);
+        Task<List<SubmissionTestCaseResult>> GetSubmissionTestCaseResultsAsync(long submissionId);
+
+        // Test Status Management
+        Task<TestStatusResponse> EndTestAsync(EndTestRequest request);
+
+        // Comprehensive Test Results
+        Task<ComprehensiveTestResultResponse> GetComprehensiveTestResultsAsync(GetTestResultsRequest request);
+        Task<object> GetDebugDataAsync(long userId, int codingTestId, int? problemId = null);
     }
 }

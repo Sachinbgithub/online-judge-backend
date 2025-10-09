@@ -42,6 +42,8 @@ namespace LeetCodeCompiler.API.Models
 
         public bool AllowCodeReview { get; set; } = false;
 
+        public bool IsPublished { get; set; } = false;
+
         [StringLength(100)]
         public string AccessCode { get; set; } = "";
 
@@ -150,6 +152,20 @@ namespace LeetCodeCompiler.API.Models
 
         [StringLength(200)]
         public string? Tags { get; set; }
+
+        // Question updates
+        public List<QuestionUpdateRequest>? Questions { get; set; }
+    }
+
+    public class QuestionUpdateRequest
+    {
+        public int? Id { get; set; } // If null, it's a new question
+        public int? ProblemId { get; set; }
+        public int? QuestionOrder { get; set; }
+        public int? Marks { get; set; }
+        public int? TimeLimitMinutes { get; set; }
+        public string? CustomInstructions { get; set; }
+        public bool? IsDeleted { get; set; } // If true, remove this question
     }
 
     public class StartCodingTestRequest
@@ -167,13 +183,214 @@ namespace LeetCodeCompiler.API.Models
     public class SubmitCodingTestRequest
     {
         [Required]
-        public int CodingTestAttemptId { get; set; }
-
-        [Required]
         public int UserId { get; set; }
 
-        [StringLength(500)]
-        public string? Notes { get; set; }
+        public int? CodingTestId { get; set; } // Optional: Specify which test to submit for
+
+        [Required]
+        public int ProblemId { get; set; }
+
+        [Required]
+        public int AttemptNumber { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string LanguageUsed { get; set; } = "";
+
+        [Required]
+        public string FinalCodeSnapshot { get; set; } = "";
+
+        public int TotalTestCases { get; set; } = 0;
+        public int PassedTestCases { get; set; } = 0;
+        public int FailedTestCases { get; set; } = 0;
+        public bool RequestedHelp { get; set; } = false;
+        
+        // Activity tracking properties
+        public int LanguageSwitchCount { get; set; } = 0;
+        public int RunClickCount { get; set; } = 0;
+        public int SubmitClickCount { get; set; } = 0;
+        public int EraseCount { get; set; } = 0;
+        public int SaveCount { get; set; } = 0;
+        public int LoginLogoutCount { get; set; } = 0;
+        public bool IsSessionAbandoned { get; set; } = false;
+        public int? ClassId { get; set; }
+    }
+
+    public class SubmitCodingTestResponse
+    {
+        public long SubmissionId { get; set; }
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public int ProblemId { get; set; }
+        public string ProblemTitle { get; set; } = "";
+        public int UserId { get; set; }
+        public int AttemptNumber { get; set; }
+        public string LanguageUsed { get; set; } = "";
+        public int TotalTestCases { get; set; }
+        public int PassedTestCases { get; set; }
+        public int FailedTestCases { get; set; }
+        public int Score { get; set; }
+        public int MaxScore { get; set; }
+        public bool IsCorrect { get; set; }
+        public bool IsLateSubmission { get; set; }
+        public DateTime SubmissionTime { get; set; }
+        public int ExecutionTimeMs { get; set; }
+        public int MemoryUsedKB { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? ErrorType { get; set; }
+        public List<SubmissionTestCaseResult> TestCaseResults { get; set; } = new List<SubmissionTestCaseResult>();
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class SubmissionTestCaseResult
+    {
+        public long ResultId { get; set; }
+        public int TestCaseId { get; set; }
+        public int TestCaseOrder { get; set; }
+        public string Input { get; set; } = "";
+        public string ExpectedOutput { get; set; } = "";
+        public string? ActualOutput { get; set; }
+        public bool IsPassed { get; set; }
+        public int ExecutionTimeMs { get; set; }
+        public int MemoryUsedKB { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? ErrorType { get; set; }
+    }
+
+    public class CodingTestSubmissionSummaryResponse
+    {
+        public long SubmissionId { get; set; }
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public int ProblemId { get; set; }
+        public string ProblemTitle { get; set; } = "";
+        public int UserId { get; set; }
+        public int AttemptNumber { get; set; }
+        public string LanguageUsed { get; set; } = "";
+        public int TotalTestCases { get; set; }
+        public int PassedTestCases { get; set; }
+        public int FailedTestCases { get; set; }
+        public int Score { get; set; }
+        public int MaxScore { get; set; }
+        public bool IsCorrect { get; set; }
+        public bool IsLateSubmission { get; set; }
+        public DateTime SubmissionTime { get; set; }
+        public int ExecutionTimeMs { get; set; }
+        public int MemoryUsedKB { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? ErrorType { get; set; }
+        public int LanguageSwitchCount { get; set; }
+        public int RunClickCount { get; set; }
+        public int SubmitClickCount { get; set; }
+        public int EraseCount { get; set; }
+        public int SaveCount { get; set; }
+        public int LoginLogoutCount { get; set; }
+        public bool IsSessionAbandoned { get; set; }
+        public int? ClassId { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class GetCodingTestSubmissionsRequest
+    {
+        public int? UserId { get; set; }
+        public int? CodingTestId { get; set; }
+        public int? ProblemId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class CodingTestStatisticsResponse
+    {
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public int TotalSubmissions { get; set; }
+        public int UniqueUsers { get; set; }
+        public int UniqueProblems { get; set; }
+        public double AverageSuccessRate { get; set; }
+        public double AverageScoreRate { get; set; }
+        public double AverageExecutionTimeMs { get; set; }
+        public double AverageMemoryUsedKB { get; set; }
+        public int TotalLanguageSwitches { get; set; }
+        public int TotalRunClicks { get; set; }
+        public int TotalSubmitClicks { get; set; }
+        public int TotalEraseCount { get; set; }
+        public int TotalSaveCount { get; set; }
+        public int TotalLoginLogoutCount { get; set; }
+        public int AbandonedSessions { get; set; }
+        public int LateSubmissions { get; set; }
+    }
+
+    // =============================================
+    // Test Status Management DTOs
+    // =============================================
+
+    public class StartTestRequest
+    {
+        [Required]
+        public long UserId { get; set; }
+
+        [Required]
+        public int CodingTestId { get; set; }
+    }
+
+    public class EndTestRequest
+    {
+        [Required]
+        public long UserId { get; set; }
+
+        [Required]
+        public int CodingTestId { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string Status { get; set; } = "Completed"; // Completed, Expired, Abandoned
+
+        public DateTime? StartedAt { get; set; }
+        
+        public DateTime? CompletedAt { get; set; }
+        
+        [Required]
+        public int TimeSpentMinutes { get; set; }
+        
+        [Required]
+        public bool IsLateSubmission { get; set; }
+    }
+
+    public class TestStatusResponse
+    {
+        public long AssignedId { get; set; }
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public long UserId { get; set; }
+        public string Status { get; set; } = ""; // Assigned, InProgress, Completed, Expired
+        public DateTime AssignedDate { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public int TimeSpentMinutes { get; set; }
+        public bool IsLateSubmission { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int DurationMinutes { get; set; }
+        public int TotalQuestions { get; set; }
+        public int TotalMarks { get; set; }
+        public bool CanStart { get; set; }
+        public bool CanEnd { get; set; }
+        public bool IsExpired { get; set; }
+        public string Message { get; set; } = "";
+    }
+
+    public class UpdateTestStatusRequest
+    {
+        [Required]
+        public long AssignedId { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string Status { get; set; } = ""; // Assigned, InProgress, Completed, Expired
+
+        public int TimeSpentMinutes { get; set; } = 0;
     }
 
     public class SubmitQuestionRequest
@@ -261,6 +478,15 @@ namespace LeetCodeCompiler.API.Models
         public string Constraints { get; set; } = "";
         public string Difficulty { get; set; } = "";
         public List<TestCaseResponse> TestCases { get; set; } = new List<TestCaseResponse>();
+        public List<StarterCodeResponse> StarterCodes { get; set; } = new List<StarterCodeResponse>();
+    }
+
+    public class StarterCodeResponse
+    {
+        public int Id { get; set; }
+        public int ProblemId { get; set; }
+        public string Language { get; set; } = "";
+        public string Code { get; set; } = "";
     }
 
     public class TestCaseResponse
@@ -421,5 +647,254 @@ namespace LeetCodeCompiler.API.Models
 
         [Required]
         public long UnassignedByUserId { get; set; }
+    }
+
+    // =============================================
+    // Whole Test Submission DTOs
+    // =============================================
+
+    public class SubmitWholeCodingTestRequest
+    {
+        [Required]
+        public int UserId { get; set; }
+
+        [Required]
+        public int CodingTestId { get; set; }
+
+        [Required]
+        public int AttemptNumber { get; set; }
+
+        [Required]
+        public List<QuestionSubmission> QuestionSubmissions { get; set; } = new List<QuestionSubmission>();
+
+        // Overall test metrics
+        public int TotalTimeSpentMinutes { get; set; } = 0;
+        public bool IsLateSubmission { get; set; } = false;
+        public int? ClassId { get; set; }
+    }
+
+    public class QuestionSubmission
+    {
+        [Required]
+        public int ProblemId { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string LanguageUsed { get; set; } = "";
+
+        [Required]
+        public string FinalCodeSnapshot { get; set; } = "";
+
+        public int TotalTestCases { get; set; } = 0;
+        public int PassedTestCases { get; set; } = 0;
+        public int FailedTestCases { get; set; } = 0;
+        public int Score { get; set; } = 0;
+        public bool RequestedHelp { get; set; } = false;
+
+        // Activity tracking properties
+        public int LanguageSwitchCount { get; set; } = 0;
+        public int RunClickCount { get; set; } = 0;
+        public int SubmitClickCount { get; set; } = 0;
+        public int EraseCount { get; set; } = 0;
+        public int SaveCount { get; set; } = 0;
+        public int LoginLogoutCount { get; set; } = 0;
+        public bool IsSessionAbandoned { get; set; } = false;
+
+        // Test case results for this question
+        public List<TestCaseSubmissionResult> TestCaseResults { get; set; } = new List<TestCaseSubmissionResult>();
+    }
+
+    public class TestCaseSubmissionResult
+    {
+        [Required]
+        public int TestCaseId { get; set; }
+
+        [Required]
+        public int TestCaseOrder { get; set; }
+
+        [Required]
+        public string Input { get; set; } = "";
+
+        [Required]
+        public string ExpectedOutput { get; set; } = "";
+
+        public string? ActualOutput { get; set; }
+        public bool IsPassed { get; set; } = false;
+        public int ExecutionTimeMs { get; set; } = 0;
+        public int MemoryUsedKB { get; set; } = 0;
+        public string? ErrorMessage { get; set; }
+        public string? ErrorType { get; set; } // CompilationError, RuntimeError, TimeoutError, WrongAnswer
+    }
+
+    public class SubmitWholeCodingTestResponse
+    {
+        public long SubmissionId { get; set; }
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public int UserId { get; set; }
+        public int AttemptNumber { get; set; }
+        public int TotalQuestions { get; set; }
+        public int TotalScore { get; set; }
+        public int MaxScore { get; set; }
+        public double Percentage { get; set; }
+        public bool IsLateSubmission { get; set; }
+        public DateTime SubmissionTime { get; set; }
+        public List<QuestionSubmissionResponse> QuestionSubmissions { get; set; } = new List<QuestionSubmissionResponse>();
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class QuestionSubmissionResponse
+    {
+        public int ProblemId { get; set; }
+        public string ProblemTitle { get; set; } = "";
+        public string LanguageUsed { get; set; } = "";
+        public int TotalTestCases { get; set; }
+        public int PassedTestCases { get; set; }
+        public int FailedTestCases { get; set; }
+        public int Score { get; set; }
+        public int MaxScore { get; set; }
+        public bool IsCorrect { get; set; }
+        public List<TestCaseSubmissionResult> TestCaseResults { get; set; } = new List<TestCaseSubmissionResult>();
+    }
+
+    // =============================================
+    // Comprehensive Test Results DTOs
+    // =============================================
+
+    public class GetTestResultsRequest
+    {
+        [Required]
+        public long UserId { get; set; }
+
+        [Required]
+        public int CodingTestId { get; set; }
+
+        public int? AttemptNumber { get; set; } // Optional: Get specific attempt
+    }
+
+    public class ComprehensiveTestResultResponse
+    {
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public long UserId { get; set; }
+        public int TotalQuestions { get; set; }
+        public int TotalMarks { get; set; }
+        public int TotalScore { get; set; } // User's total score across all questions
+        public double Percentage { get; set; } // Percentage score (TotalScore / TotalMarks * 100)
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int DurationMinutes { get; set; }
+        public List<ProblemTestResult> ProblemResults { get; set; } = new List<ProblemTestResult>();
+        public TestSummary Summary { get; set; } = new TestSummary();
+    }
+
+    public class ProblemTestResult
+    {
+        public int ProblemId { get; set; }
+        public string ProblemTitle { get; set; } = "";
+        public int QuestionOrder { get; set; }
+        public int MaxScore { get; set; }
+        public string LanguageUsed { get; set; } = "";
+        public string FinalCodeSnapshot { get; set; } = "";
+        public string CodeSource { get; set; } = ""; // Source of the code: "submission", "question_attempt", "core_result", or "none"
+        public string DebugInfo { get; set; } = ""; // Debug information about what data was found
+        public int TotalTestCases { get; set; }
+        public int PassedTestCases { get; set; }
+        public int FailedTestCases { get; set; }
+        public int Score { get; set; }
+        public bool IsCorrect { get; set; }
+        public bool IsLateSubmission { get; set; }
+        public DateTime SubmissionTime { get; set; }
+        public int ExecutionTimeMs { get; set; }
+        public int MemoryUsedKB { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? ErrorType { get; set; }
+        
+        // Activity tracking metrics
+        public int LanguageSwitchCount { get; set; }
+        public int RunClickCount { get; set; }
+        public int SubmitClickCount { get; set; }
+        public int EraseCount { get; set; }
+        public int SaveCount { get; set; }
+        public int LoginLogoutCount { get; set; }
+        public bool IsSessionAbandoned { get; set; }
+        
+        // Question/Problem details
+        public QuestionDetails QuestionDetails { get; set; } = new QuestionDetails();
+        
+        // Detailed test case results
+        public List<DetailedTestCaseResult> TestCaseResults { get; set; } = new List<DetailedTestCaseResult>();
+    }
+
+    public class QuestionDetails
+    {
+        public int ProblemId { get; set; }
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Examples { get; set; } = "";
+        public string Constraints { get; set; } = "";
+        public string? Hints { get; set; }
+        public int? TimeLimit { get; set; }
+        public int? MemoryLimit { get; set; }
+        public int? SubdomainId { get; set; }
+        public int? Difficulty { get; set; }
+        public List<TestCaseDetails> TestCases { get; set; } = new List<TestCaseDetails>();
+        public List<StarterCodeDetails> StarterCodes { get; set; } = new List<StarterCodeDetails>();
+    }
+
+    public class TestCaseDetails
+    {
+        public int Id { get; set; }
+        public int ProblemId { get; set; }
+        public string Input { get; set; } = "";
+        public string ExpectedOutput { get; set; } = "";
+    }
+
+    public class StarterCodeDetails
+    {
+        public int Id { get; set; }
+        public int ProblemId { get; set; }
+        public string Language { get; set; } = "";
+        public string Code { get; set; } = "";
+    }
+
+    public class DetailedTestCaseResult
+    {
+        public long ResultId { get; set; }
+        public int TestCaseId { get; set; }
+        public int TestCaseOrder { get; set; }
+        public string Input { get; set; } = "";
+        public string ExpectedOutput { get; set; } = "";
+        public string? ActualOutput { get; set; }
+        public bool IsPassed { get; set; }
+        public int ExecutionTimeMs { get; set; }
+        public int MemoryUsedKB { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? ErrorType { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class TestSummary
+    {
+        public int TotalScore { get; set; }
+        public int MaxPossibleScore { get; set; }
+        public double Percentage { get; set; }
+        public int TotalTestCases { get; set; }
+        public int PassedTestCases { get; set; }
+        public int FailedTestCases { get; set; }
+        public int CorrectProblems { get; set; }
+        public int TotalProblems { get; set; }
+        public double AverageExecutionTimeMs { get; set; }
+        public double AverageMemoryUsedKB { get; set; }
+        public int TotalLanguageSwitches { get; set; }
+        public int TotalRunClicks { get; set; }
+        public int TotalSubmitClicks { get; set; }
+        public int TotalEraseCount { get; set; }
+        public int TotalSaveCount { get; set; }
+        public int TotalLoginLogoutCount { get; set; }
+        public int AbandonedSessions { get; set; }
+        public int LateSubmissions { get; set; }
+        public DateTime? FirstSubmissionTime { get; set; }
+        public DateTime? LastSubmissionTime { get; set; }
     }
 }

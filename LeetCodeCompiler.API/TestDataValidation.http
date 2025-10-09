@@ -1,0 +1,68 @@
+### Test Data Validation for Submit Whole Test
+### This file helps validate the data before submitting
+
+@baseUrl = https://localhost:7000/api/CodingTest
+
+### Check if Coding Test exists
+GET {{baseUrl}}/1000019
+
+### Check if Problems exist
+GET {{baseUrl}}/problems/6
+GET {{baseUrl}}/problems/7
+
+### Check if User can attempt the test
+GET {{baseUrl}}/1000019/can-attempt?userId=40115
+
+### Check if Test is Active
+GET {{baseUrl}}/1000019/is-active
+
+### Check if Test is Expired
+GET {{baseUrl}}/1000019/is-expired
+
+### Diagnose User Access
+GET {{baseUrl}}/1000019/diagnose-user-access/40115
+
+### Test with minimal data first
+POST {{baseUrl}}/submit-whole-test
+Content-Type: application/json
+
+{
+  "userId": 40115,
+  "codingTestId": 1000019,
+  "attemptNumber": 1,
+  "questionSubmissions": [
+    {
+      "problemId": 6,
+      "languageUsed": "python",
+      "finalCodeSnapshot": "def test(): pass",
+      "totalTestCases": 1,
+      "passedTestCases": 0,
+      "failedTestCases": 1,
+      "requestedHelp": false,
+      "languageSwitchCount": 0,
+      "runClickCount": 1,
+      "submitClickCount": 1,
+      "eraseCount": 0,
+      "saveCount": 0,
+      "loginLogoutCount": 0,
+      "isSessionAbandoned": false,
+      "testCaseResults": [
+        {
+          "testCaseId": 1,
+          "testCaseOrder": 1,
+          "input": "123",
+          "expectedOutput": "321",
+          "actualOutput": "",
+          "isPassed": false,
+          "executionTimeMs": 0,
+          "memoryUsedKB": 0,
+          "errorMessage": "Test error",
+          "errorType": "runtime"
+        }
+      ]
+    }
+  ],
+  "totalTimeSpentMinutes": 10,
+  "isLateSubmission": false,
+  "classId": 0
+}

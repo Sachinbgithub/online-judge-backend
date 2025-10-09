@@ -34,6 +34,15 @@ namespace LeetCodeCompiler.API.Models
         public bool IsDeleted { get; set; } = false;
 
         [Required]
+        [StringLength(50)]
+        public string Status { get; set; } = "Assigned"; // Assigned, InProgress, Completed, Expired
+        
+        public DateTime? StartedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public int TimeSpentMinutes { get; set; } = 0;
+        public bool IsLateSubmission { get; set; } = false;
+
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }

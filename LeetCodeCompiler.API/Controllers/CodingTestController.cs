@@ -255,6 +255,162 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+        [HttpPost("submit-whole-test")]
+        public async Task<IActionResult> SubmitWholeCodingTest([FromBody] SubmitWholeCodingTestRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _codingTestService.SubmitWholeCodingTestAsync(request);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to submit whole coding test", details = ex.Message });
+            }
+        }
+
+        // =============================================
+        // Submission Results Endpoints
+        // =============================================
+
+        /// <summary>
+        /// Gets coding test submissions with optional filters
+        /// </summary>
+        /// <param name="request">Filter request</param>
+        /// <returns>List of submissions</returns>
+        [HttpPost("submissions")]
+        public async Task<IActionResult> GetCodingTestSubmissions([FromBody] GetCodingTestSubmissionsRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _codingTestService.GetCodingTestSubmissionsAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve submissions", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets a specific submission by ID
+        /// </summary>
+        /// <param name="submissionId">Submission ID</param>
+        /// <returns>Submission details</returns>
+        [HttpGet("submissions/{submissionId}")]
+        public async Task<IActionResult> GetCodingTestSubmissionById(long submissionId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetCodingTestSubmissionByIdAsync(submissionId);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve submission", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets test case results for a specific submission
+        /// </summary>
+        /// <param name="submissionId">Submission ID</param>
+        /// <returns>List of test case results</returns>
+        [HttpGet("submissions/{submissionId}/test-cases")]
+        public async Task<IActionResult> GetSubmissionTestCaseResults(long submissionId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetSubmissionTestCaseResultsAsync(submissionId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve test case results", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets statistics for a coding test
+        /// </summary>
+        /// <param name="codingTestId">Coding test ID</param>
+        /// <returns>Test statistics</returns>
+        [HttpGet("{codingTestId}/statistics")]
+        public async Task<IActionResult> GetCodingTestStatistics(int codingTestId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetCodingTestStatisticsAsync(codingTestId);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve statistics", details = ex.Message });
+            }
+        }
+
+        // =============================================
+        // Test Status Management Endpoint
+        // =============================================
+
+        /// <summary>
+        /// Ends a coding test for a user
+        /// </summary>
+        /// <param name="request">End test request with status</param>
+        /// <returns>Test status</returns>
+        [HttpPost("end-test")]
+        public async Task<IActionResult> EndTest([FromBody] EndTestRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _codingTestService.EndTestAsync(request);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to end test", details = ex.Message });
+            }
+        }
+
         [HttpPost("attempt/{attemptId}/abandon")]
         public async Task<IActionResult> AbandonCodingTest(int attemptId, [FromBody] int userId)
         {
@@ -559,6 +715,144 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to unassign coding test", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Diagnostic endpoint to check why a user cannot attempt a test
+        /// </summary>
+        /// <param name="codingTestId">Test ID</param>
+        /// <param name="userId">User ID</param>
+        /// <returns>Detailed diagnostic information</returns>
+        [HttpGet("{codingTestId}/diagnose-user-access/{userId}")]
+        public async Task<IActionResult> DiagnoseUserAccess(int codingTestId, int userId)
+        {
+            try
+            {
+                var codingTest = await _codingTestService.GetCodingTestByIdAsync(codingTestId);
+                var now = DateTime.UtcNow;
+                
+                // Check assignment
+                var assignments = await _codingTestService.GetAssignedTestsByUserAsync(userId, 25, 1002, null);
+                var userAssignment = assignments.FirstOrDefault(a => a.CodingTestId == codingTestId);
+                
+                // Check existing attempts
+                var existingAttempts = await _codingTestService.GetUserCodingTestAttemptsAsync(userId, codingTestId);
+                
+                var result = new
+                {
+                    canAttempt = await _codingTestService.CanUserAttemptTestAsync(userId, codingTestId),
+                    testExists = codingTest != null,
+                    testActive = codingTest?.IsActive ?? false,
+                    testPublished = codingTest?.IsPublished ?? false,
+                    withinDateRange = codingTest != null && now >= codingTest.StartDate && now <= codingTest.EndDate,
+                    startDate = codingTest?.StartDate,
+                    endDate = codingTest?.EndDate,
+                    currentTime = now,
+                    allowMultipleAttempts = codingTest?.AllowMultipleAttempts ?? false,
+                    maxAttempts = codingTest?.MaxAttempts ?? 0,
+                    existingAttemptCount = existingAttempts.Count,
+                    hasReachedAttemptLimit = !(codingTest?.AllowMultipleAttempts ?? false) ? existingAttempts.Any() : existingAttempts.Count >= (codingTest?.MaxAttempts ?? 0),
+                    assignment = userAssignment != null ? new
+                    {
+                        assignedId = userAssignment.AssignedId,
+                        assignedDate = userAssignment.AssignedDate,
+                        testType = userAssignment.TestType,
+                        testMode = userAssignment.TestMode,
+                        status = userAssignment.Status
+                    } : null,
+                    allAssignments = assignments.Select(a => new { a.AssignedId, a.CodingTestId, a.TestName, a.Status }).ToList()
+                };
+                
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to diagnose user access", details = ex.Message });
+            }
+        }
+
+        // =============================================
+        // Comprehensive Test Results Endpoint
+        // =============================================
+
+        /// <summary>
+        /// Gets comprehensive test results for a user and test, combining data from both CodingTestSubmissions and CodingTestSubmissionResults tables
+        /// </summary>
+        /// <param name="request">Request containing UserId, CodingTestId, and optional AttemptNumber</param>
+        /// <returns>Comprehensive test results with detailed test case results and summary</returns>
+        [HttpPost("results/comprehensive")]
+        public async Task<IActionResult> GetComprehensiveTestResults([FromBody] GetTestResultsRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _codingTestService.GetComprehensiveTestResultsAsync(request);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve comprehensive test results", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets comprehensive test results for a user and test using query parameters (alternative endpoint)
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="codingTestId">Coding Test ID</param>
+        /// <param name="attemptNumber">Optional attempt number</param>
+        /// <returns>Comprehensive test results with detailed test case results and summary</returns>
+        [HttpGet("results/comprehensive")]
+        public async Task<IActionResult> GetComprehensiveTestResultsByQuery(
+            [FromQuery] long userId, 
+            [FromQuery] int codingTestId, 
+            [FromQuery] int? attemptNumber = null)
+        {
+            try
+            {
+                var request = new GetTestResultsRequest
+                {
+                    UserId = userId,
+                    CodingTestId = codingTestId,
+                    AttemptNumber = attemptNumber
+                };
+
+                var result = await _codingTestService.GetComprehensiveTestResultsAsync(request);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve comprehensive test results", details = ex.Message });
+            }
+        }
+
+        [HttpGet("debug/data")]
+        public async Task<IActionResult> GetDebugData(
+            [FromQuery] long userId, 
+            [FromQuery] int codingTestId, 
+            [FromQuery] int? problemId = null)
+        {
+            try
+            {
+                var debugInfo = await _codingTestService.GetDebugDataAsync(userId, codingTestId, problemId);
+                return Ok(debugInfo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve debug data", details = ex.Message });
             }
         }
     }

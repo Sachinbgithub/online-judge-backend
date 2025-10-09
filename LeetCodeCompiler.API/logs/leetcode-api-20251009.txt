@@ -1,0 +1,38 @@
+2025-10-09 14:01:22.404 +05:30 [INF] Starting LeetCode Compiler API
+2025-10-09 14:01:22.612 +05:30 [INF] Initializing container pools...
+2025-10-09 14:01:22.650 +05:30 [INF] Creating 0 containers for cpp using image gcc:11
+2025-10-09 14:01:22.663 +05:30 [INF] Created 0 containers for cpp
+2025-10-09 14:01:22.668 +05:30 [INF] Creating 0 containers for javascript using image node:18
+2025-10-09 14:01:22.671 +05:30 [INF] Created 0 containers for javascript
+2025-10-09 14:01:22.674 +05:30 [INF] Creating 1 containers for python using image python:3.11-alpine
+2025-10-09 14:01:22.750 +05:30 [INF] Creating 1 containers for java using image openjdk:17
+2025-10-09 14:01:22.999 +05:30 [ERR] Failed to start container for python: docker: error during connect: Head "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/_ping": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+
+Run 'docker run --help' for more information
+
+2025-10-09 14:01:23.001 +05:30 [ERR] Failed to start container for java: docker: error during connect: Head "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/_ping": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+
+Run 'docker run --help' for more information
+
+2025-10-09 14:01:23.012 +05:30 [INF] Created 1 containers for java
+2025-10-09 14:01:23.012 +05:30 [INF] Created 1 containers for python
+2025-10-09 14:01:23.022 +05:30 [INF] Pool initialized: cpp = 0 containers
+2025-10-09 14:01:23.027 +05:30 [INF] Pool initialized: javascript = 0 containers
+2025-10-09 14:01:23.032 +05:30 [INF] Pool initialized: python = 1 containers
+2025-10-09 14:01:23.036 +05:30 [INF] Pool initialized: java = 1 containers
+2025-10-09 14:01:23.040 +05:30 [INF] 🚀 TOTAL CAPACITY: 2 containers, 64MB RAM, 0.2 CPU cores
+2025-10-09 14:01:23.051 +05:30 [INF] 🎯 ESTIMATED USER CAPACITY: 35 concurrent users (0.67 exec/min per user)
+2025-10-09 14:01:23.056 +05:30 [INF] Container pools initialized successfully
+2025-10-09 14:01:23.060 +05:30 [INF] Container pools initialized successfully
+2025-10-09 14:01:23.148 +05:30 [INF] User profile is available. Using 'C:\Users\navgh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-10-09 14:01:23.605 +05:30 [INF] Now listening on: http://0.0.0.0:5081
+2025-10-09 14:01:23.608 +05:30 [INF] Now listening on: https://0.0.0.0:7169
+2025-10-09 14:01:23.614 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-10-09 14:01:23.616 +05:30 [INF] Hosting environment: Development
+2025-10-09 14:01:23.620 +05:30 [INF] Content root path: E:\LeetCodeCompiler.API_steady_23_09_25\LeetCodeCompiler.API
+2025-10-09 14:02:01.695 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/swagger/index.html - null null
+2025-10-09 14:02:02.064 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/swagger/index.html - 200 null text/html;charset=utf-8 373.607ms
+2025-10-09 14:02:02.426 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.239:5081/swagger/v1/swagger.json - null null
+2025-10-09 14:02:02.871 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.239:5081/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 445.3589ms
+2025-10-09 14:20:44.898 +05:30 [INF] Application is shutting down...
+2025-10-09 14:20:45.128 +05:30 [INF] Disposing container pool service...

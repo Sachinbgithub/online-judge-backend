@@ -52,6 +52,41 @@
             </summary>
             <returns>List of all coding tests</returns>
         </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetCodingTestSubmissions(LeetCodeCompiler.API.Models.GetCodingTestSubmissionsRequest)">
+            <summary>
+            Gets coding test submissions with optional filters
+            </summary>
+            <param name="request">Filter request</param>
+            <returns>List of submissions</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetCodingTestSubmissionById(System.Int64)">
+            <summary>
+            Gets a specific submission by ID
+            </summary>
+            <param name="submissionId">Submission ID</param>
+            <returns>Submission details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetSubmissionTestCaseResults(System.Int64)">
+            <summary>
+            Gets test case results for a specific submission
+            </summary>
+            <param name="submissionId">Submission ID</param>
+            <returns>List of test case results</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetCodingTestStatistics(System.Int32)">
+            <summary>
+            Gets statistics for a coding test
+            </summary>
+            <param name="codingTestId">Coding test ID</param>
+            <returns>Test statistics</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.EndTest(LeetCodeCompiler.API.Models.EndTestRequest)">
+            <summary>
+            Ends a coding test for a user
+            </summary>
+            <param name="request">End test request with status</param>
+            <returns>Test status</returns>
+        </member>
         <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.AssignCodingTest(LeetCodeCompiler.API.Models.AssignCodingTestRequest)">
             <summary>
             Assigns a coding test to a user
@@ -84,6 +119,30 @@
             <param name="unassignedByUserId">User ID who is unassigning</param>
             <returns>Success status</returns>
         </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.DiagnoseUserAccess(System.Int32,System.Int32)">
+            <summary>
+            Diagnostic endpoint to check why a user cannot attempt a test
+            </summary>
+            <param name="codingTestId">Test ID</param>
+            <param name="userId">User ID</param>
+            <returns>Detailed diagnostic information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetComprehensiveTestResults(LeetCodeCompiler.API.Models.GetTestResultsRequest)">
+            <summary>
+            Gets comprehensive test results for a user and test, combining data from both CodingTestSubmissions and CodingTestSubmissionResults tables
+            </summary>
+            <param name="request">Request containing UserId, CodingTestId, and optional AttemptNumber</param>
+            <returns>Comprehensive test results with detailed test case results and summary</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.CodingTestController.GetComprehensiveTestResultsByQuery(System.Int64,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            Gets comprehensive test results for a user and test using query parameters (alternative endpoint)
+            </summary>
+            <param name="userId">User ID</param>
+            <param name="codingTestId">Coding Test ID</param>
+            <param name="attemptNumber">Optional attempt number</param>
+            <returns>Comprehensive test results with detailed test case results and summary</returns>
+        </member>
         <member name="M:LeetCodeCompiler.API.Controllers.DomainController.GetAllDomains">
             <summary>
             Get all domains
@@ -96,6 +155,31 @@
             </summary>
             <param name="id">Domain ID</param>
             <returns>Domain with subdomains</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.CreatePracticeTest(LeetCodeCompiler.API.Models.CreatePracticeTestRequest)">
+            <summary>
+            Create a new practice test
+            </summary>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.StartPracticeTest(System.Int32,System.Int32)">
+            <summary>
+            Start a practice test for a user
+            </summary>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.SubmitPracticeTestResult(LeetCodeCompiler.API.Models.SubmitPracticeTestResultRequest)">
+            <summary>
+            Submit practice test results
+            </summary>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.GetPracticeTestResult(System.Int32,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            Get practice test results
+            </summary>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.ValidatePracticeTest(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Validate practice test and attempt before submitting
+            </summary>
         </member>
         <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemsBySubdomainId(System.Int32)">
             <summary>

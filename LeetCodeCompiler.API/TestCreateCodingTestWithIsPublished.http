@@ -1,0 +1,110 @@
+### Test Create Coding Test API with IsPublished parameter
+### This file tests the updated POST /api/CodingTest endpoint with the new IsPublished parameter
+
+@baseUrl = https://localhost:7000/api/CodingTest
+
+### Create Coding Test with IsPublished = false (default)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "testName": "Sample Coding Test - Draft",
+  "createdBy": 12345,
+  "startDate": "2024-02-01T00:00:00Z",
+  "endDate": "2024-02-28T23:59:59Z",
+  "durationMinutes": 120,
+  "totalQuestions": 2,
+  "totalMarks": 100,
+  "testType": 1,
+  "allowMultipleAttempts": true,
+  "maxAttempts": 3,
+  "showResultsImmediately": true,
+  "allowCodeReview": false,
+  "isPublished": false,
+  "accessCode": "TEST123",
+  "tags": "programming,algorithm,test",
+  "isResultPublishAutomatically": true,
+  "applyBreachRule": true,
+  "breachRuleLimit": 5,
+  "hostIP": "192.168.1.100",
+  "classId": 1001,
+  "topicData": [
+    {
+      "sectionId": 1,
+      "domainId": 2,
+      "subdomainId": 3
+    }
+  ],
+  "questions": [
+    {
+      "problemId": 1,
+      "questionOrder": 1,
+      "marks": 50,
+      "timeLimitMinutes": 60,
+      "customInstructions": "Solve this problem efficiently"
+    },
+    {
+      "problemId": 2,
+      "questionOrder": 2,
+      "marks": 50,
+      "timeLimitMinutes": 60,
+      "customInstructions": "Focus on algorithm optimization"
+    }
+  ]
+}
+
+### Create Coding Test with IsPublished = true
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "testName": "Sample Coding Test - Published",
+  "createdBy": 12345,
+  "startDate": "2024-02-01T00:00:00Z",
+  "endDate": "2024-02-28T23:59:59Z",
+  "durationMinutes": 120,
+  "totalQuestions": 2,
+  "totalMarks": 100,
+  "testType": 1,
+  "allowMultipleAttempts": true,
+  "maxAttempts": 3,
+  "showResultsImmediately": true,
+  "allowCodeReview": false,
+  "isPublished": true,
+  "accessCode": "PUBLISHED123",
+  "tags": "programming,algorithm,test,published",
+  "isResultPublishAutomatically": true,
+  "applyBreachRule": true,
+  "breachRuleLimit": 5,
+  "hostIP": "192.168.1.100",
+  "classId": 1001,
+  "topicData": [
+    {
+      "sectionId": 1,
+      "domainId": 2,
+      "subdomainId": 3
+    }
+  ],
+  "questions": [
+    {
+      "problemId": 1,
+      "questionOrder": 1,
+      "marks": 50,
+      "timeLimitMinutes": 60,
+      "customInstructions": "Solve this problem efficiently"
+    },
+    {
+      "problemId": 2,
+      "questionOrder": 2,
+      "marks": 50,
+      "timeLimitMinutes": 60,
+      "customInstructions": "Focus on algorithm optimization"
+    }
+  ]
+}
+
+### Get all coding tests to verify IsPublished status
+GET {{baseUrl}}
+
+### Get coding test by ID (replace {id} with actual ID from create response)
+GET {{baseUrl}}/{id}

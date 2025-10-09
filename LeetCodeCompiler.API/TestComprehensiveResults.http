@@ -1,0 +1,107 @@
+### Test Comprehensive Results API - Question-wise Grouping
+### This file tests the comprehensive results endpoint with question-wise test case grouping
+
+@baseUrl = http://localhost:5081/api/CodingTest
+
+### Test GET comprehensive results with query parameters
+### This should return data grouped by questions/problems with all test cases for each question
+GET {{baseUrl}}/results/comprehensive?userId=1&codingTestId=1&attemptNumber=1
+
+### Test GET comprehensive results without attempt number
+### This will return the latest attempt for each question
+GET {{baseUrl}}/results/comprehensive?userId=1&codingTestId=1
+
+### Test POST comprehensive results with request body
+POST {{baseUrl}}/results/comprehensive
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "codingTestId": 1,
+  "attemptNumber": 1
+}
+
+### Test POST comprehensive results without attempt number
+POST {{baseUrl}}/results/comprehensive
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "codingTestId": 1
+}
+
+### Test with different user and test
+GET {{baseUrl}}/results/comprehensive?userId=2&codingTestId=2
+
+### Test with a test that has multiple questions
+GET {{baseUrl}}/results/comprehensive?userId=1&codingTestId=3
+
+### Test error handling - invalid test ID
+GET {{baseUrl}}/results/comprehensive?userId=1&codingTestId=999
+
+### Test error handling - invalid user ID
+GET {{baseUrl}}/results/comprehensive?userId=999&codingTestId=1
+
+### Debug endpoint to check what data exists in the database
+GET {{baseUrl}}/debug/data?userId=1&codingTestId=1
+
+### Debug endpoint for specific problem
+GET {{baseUrl}}/debug/data?userId=1&codingTestId=1&problemId=1
+
+### Expected Response Structure:
+### {
+###   "codingTestId": 1,
+###   "testName": "Test Name",
+###   "userId": 1,
+###   "totalQuestions": 2,
+###   "totalMarks": 100,
+###   "totalScore": 75,           // User's total score across all questions
+###   "percentage": 75.0,         // Percentage score (totalScore / totalMarks * 100)
+###   "problemResults": [
+###     {
+###       "problemId": 1,
+###       "problemTitle": "Question 1",
+###       "questionOrder": 1,
+###       "maxScore": 50,
+###       "languageUsed": "python",
+###       "finalCodeSnapshot": "def solution():\n    return 'Hello World'",
+###       "codeSource": "submission",  // Source: "submission", "question_attempt", "core_result", or "none"
+###       "debugInfo": "Submission: Found, QuestionAttempt: Found, CoreResult: Found, SubmissionCode: Has code, AttemptCode: No code, CoreCode: No code"
+###       "totalTestCases": 3,
+###       "passedTestCases": 2,
+###       "failedTestCases": 1,
+###       "score": 40,
+###       "isCorrect": false,
+###       "questionDetails": {
+###         "problemId": 1,
+###         "title": "Question 1",
+###         "description": "Problem description...",
+###         "examples": "Examples...",
+###         "constraints": "Constraints...",
+###         "testCases": [
+###           {
+###             "id": 1,
+###             "problemId": 1,
+###             "input": "input1",
+###             "expectedOutput": "output1"
+###           }
+###         ],
+###         "starterCodes": [...]
+###       },
+###       "testCaseResults": [
+###         {
+###           "resultId": 1,
+###           "testCaseId": 1,
+###           "testCaseOrder": 1,
+###           "input": "input1",
+###           "expectedOutput": "output1",
+###           "actualOutput": "actual1",
+###           "isPassed": true,
+###           "executionTimeMs": 100,
+###           "memoryUsedKB": 1024
+###         }
+###       ]
+###     }
+###   ],
+###   "summary": {...}
+### }

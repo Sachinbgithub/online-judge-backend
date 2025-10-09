@@ -204,6 +204,7 @@ builder.Services.Configure<ContainerPoolOptions>(builder.Configuration.GetSectio
 // Register services
 builder.Services.AddScoped<IActivityTrackingService, ActivityTrackingService>();
 builder.Services.AddScoped<ICodingTestService, CodingTestService>();
+builder.Services.AddScoped<IPracticeTestService, PracticeTestService>();
 builder.Services.AddSingleton<IContainerPoolService, ContainerPoolService>();
 
 // Register execution services
