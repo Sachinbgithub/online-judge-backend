@@ -94,5 +94,76 @@ namespace LeetCodeCompiler.API.Controllers
             
             return Ok(subdomains);
         }
+
+        /// <summary>
+        /// Create a new subdomain
+        /// </summary>
+        /// <param name="request">Subdomain creation request</param>
+        /// <returns>Created subdomain</returns>
+        [HttpPost]
+        public async Task<IActionResult> CreateSubdomain([FromBody] CreateSubdomainRequest request)
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(request.SubdomainName))
+                {
+                    return BadRequest(new { error = "Subdomain name is required" });
+                }
+
+                if (request.DomainId <= 0)
+                {
+                    return BadRequest(new { error = "Valid DomainId is required" });
+                }
+
+                // Check if domain exists
+                var domain = await _context.Domains
+                    .FirstOrDefaultAsync(d => d.DomainId == request.DomainId);
+                
+                if (domain == null)
+                {
+                    return NotFound(new { error = $"Domain with ID {request.DomainId} not found" });
+                }
+
+                // Check if subdomain already exists within the same domain
+                var existingSubdomain = await _context.Subdomains
+                    .FirstOrDefaultAsync(s => s.DomainId == request.DomainId && 
+                                            s.SubdomainName.ToLower() == request.SubdomainName.ToLower());
+                
+                if (existingSubdomain != null)
+                {
+                    return Conflict(new { error = $"Subdomain '{request.SubdomainName}' already exists in domain '{domain.DomainName}'" });
+                }
+
+                // Create new subdomain
+                var newSubdomain = new Subdomain
+                {
+                    DomainId = request.DomainId,
+                    SubdomainName = request.SubdomainName.Trim()
+                };
+
+                _context.Subdomains.Add(newSubdomain);
+                await _context.SaveChangesAsync();
+
+                // Return the created subdomain with domain information
+                var createdSubdomain = new SubdomainDto
+                {
+                    SubdomainId = newSubdomain.SubdomainId,
+                    DomainId = newSubdomain.DomainId,
+                    SubdomainName = newSubdomain.SubdomainName,
+                    Domain = new DomainBasicDto
+                    {
+                        DomainId = domain.DomainId,
+                        DomainName = domain.DomainName
+                    }
+                };
+
+                return CreatedAtAction(nameof(GetSubdomainById), new { id = newSubdomain.SubdomainId }, createdSubdomain);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while creating the subdomain", details = ex.Message });
+            }
+        }
     }
 }

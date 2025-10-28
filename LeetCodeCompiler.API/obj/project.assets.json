@@ -5694,31 +5694,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\navgh\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\HP\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\LeetCodeCompiler.API_steady_23_09_25\\LeetCodeCompiler.API\\LeetCodeCompiler.API.csproj",
+      "projectUniqueName": "D:\\sachin\\Projects\\online-judge-backend\\LeetCodeCompiler.API\\LeetCodeCompiler.API.csproj",
       "projectName": "LeetCodeCompiler.API",
-      "projectPath": "E:\\LeetCodeCompiler.API_steady_23_09_25\\LeetCodeCompiler.API\\LeetCodeCompiler.API.csproj",
-      "packagesPath": "C:\\Users\\navgh\\.nuget\\packages\\",
-      "outputPath": "E:\\LeetCodeCompiler.API_steady_23_09_25\\LeetCodeCompiler.API\\obj\\",
+      "projectPath": "D:\\sachin\\Projects\\online-judge-backend\\LeetCodeCompiler.API\\LeetCodeCompiler.API.csproj",
+      "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
+      "outputPath": "D:\\sachin\\Projects\\online-judge-backend\\LeetCodeCompiler.API\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\navgh\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5736,8 +5729,7 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.300"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -5805,7 +5797,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.411/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

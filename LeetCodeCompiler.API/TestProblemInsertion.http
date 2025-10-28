@@ -1,0 +1,245 @@
+### Test Problem Insertion API
+
+### Prerequisites: Create domains and subdomains first
+### 1. Create a domain
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Data Structures"
+}
+
+### 2. Create another domain
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Algorithms"
+}
+
+### 3. Get all domains to see their IDs
+GET {{baseUrl}}/api/Domain
+
+### 4. Create subdomains under Data Structures domain (assuming domainId = 1)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Arrays"
+}
+
+### 5. Create another subdomain under Data Structures domain
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Linked Lists"
+}
+
+### 6. Create subdomain under Algorithms domain (assuming domainId = 2)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 2,
+  "subdomainName": "Sorting"
+}
+
+### 7. Get all subdomains to see their IDs
+GET {{baseUrl}}/api/Subdomain
+
+### 7b. Create subdomain with ID 9 for default testing
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Default Subdomain"
+}
+
+### Problem Insertion Tests
+
+### 8. Create a problem under Arrays subdomain (assuming subdomainId = 1)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Two Sum",
+  "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
+  "examples": "Input: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].",
+  "constraints": "2 ≤ nums.length ≤ 10⁴\n-10⁹ ≤ nums[i] ≤ 10⁹\n-10⁹ ≤ target ≤ 10⁹\nOnly one valid answer exists.",
+  "hints": 1,
+  "timeLimit": 5,
+  "memoryLimit": 256,
+  "subdomainId": 1,
+  "difficulty": 1
+}
+
+### 9. Create another problem under Arrays subdomain
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Best Time to Buy and Sell Stock",
+  "description": "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.",
+  "examples": "Input: prices = [7,1,5,3,6,4]\nOutput: 5\nExplanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.",
+  "constraints": "1 ≤ prices.length ≤ 10⁵\n0 ≤ prices[i] ≤ 10⁴",
+  "timeLimit": 3,
+  "memoryLimit": 128,
+  "subdomainId": 1,
+  "difficulty": 2
+}
+
+### 10. Create a problem under Sorting subdomain (assuming subdomainId = 3)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Merge Sort Implementation",
+  "description": "Implement the merge sort algorithm to sort an array of integers in ascending order.",
+  "examples": "Input: [64, 34, 25, 12, 22, 11, 90]\nOutput: [11, 12, 22, 25, 34, 64, 90]",
+  "constraints": "1 ≤ n ≤ 10⁵\n-10⁹ ≤ arr[i] ≤ 10⁹",
+  "hints": 2,
+  "timeLimit": 10,
+  "memoryLimit": 512,
+  "subdomainId": 3,
+  "difficulty": 3
+}
+
+### 11. Create a problem with default values (no hints, default subdomain ID 9)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Binary Search",
+  "description": "Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1.",
+  "examples": "Input: nums = [-1,0,3,5,9,12], target = 9\nOutput: 4\nExplanation: 9 exists in nums and its index is 4",
+  "constraints": "1 ≤ nums.length ≤ 10⁴\n-10⁴ < nums[i] < 10⁴\nAll the integers in nums are unique.\nnums is sorted in ascending order.",
+  "difficulty": 2
+}
+
+### 11b. Create a problem with minimal required fields (using all defaults)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Minimal Problem",
+  "description": "This is a minimal problem with only required fields",
+  "examples": "Input: [1,2,3]\nOutput: 6",
+  "constraints": "1 ≤ n ≤ 100",
+  "difficulty": 1
+}
+
+### Error Cases
+
+### 12. Try to create problem with empty title (should return 400 Bad Request)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "Test description",
+  "examples": "Test examples",
+  "constraints": "Test constraints",
+  "subdomainId": 1,
+  "difficulty": 1
+}
+
+### 13. Try to create problem with invalid difficulty (should return 400 Bad Request)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Test Problem",
+  "description": "Test description",
+  "examples": "Test examples",
+  "constraints": "Test constraints",
+  "subdomainId": 1,
+  "difficulty": 5
+}
+
+### 14. Try to create problem with invalid time limit (should return 400 Bad Request)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Test Problem",
+  "description": "Test description",
+  "examples": "Test examples",
+  "constraints": "Test constraints",
+  "timeLimit": 100,
+  "subdomainId": 1,
+  "difficulty": 1
+}
+
+### 15. Try to create problem with invalid memory limit (should return 400 Bad Request)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Test Problem",
+  "description": "Test description",
+  "examples": "Test examples",
+  "constraints": "Test constraints",
+  "memoryLimit": 10,
+  "subdomainId": 1,
+  "difficulty": 1
+}
+
+### 16. Try to create problem with non-existent subdomain (should return 404 Not Found)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Test Problem",
+  "description": "Test description",
+  "examples": "Test examples",
+  "constraints": "Test constraints",
+  "subdomainId": 999,
+  "difficulty": 1
+}
+
+### 17. Try to create duplicate problem title in same subdomain (should return 409 Conflict)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Two Sum",
+  "description": "Different description",
+  "examples": "Different examples",
+  "constraints": "Different constraints",
+  "subdomainId": 1,
+  "difficulty": 1
+}
+
+### 18. Try to create problem with same title in different subdomain (should succeed)
+POST {{baseUrl}}/api/Problems
+Content-Type: application/json
+
+{
+  "title": "Two Sum",
+  "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+  "examples": "Input: nums = [2,7,11,15], target = 9\nOutput: [0,1]",
+  "constraints": "2 ≤ nums.length ≤ 10⁴\n-10⁹ ≤ nums[i] ≤ 10⁹",
+  "subdomainId": 2,
+  "difficulty": 1
+}
+
+### Verification Tests
+
+### 19. Get all problems to see the created ones
+GET {{baseUrl}}/api/Problems
+
+### 20. Get problems by subdomain ID (Arrays)
+GET {{baseUrl}}/api/Problems/subdomain/1
+
+### 21. Get problems by subdomain ID (Sorting)
+GET {{baseUrl}}/api/Problems/subdomain/3
+
+### 22. Get specific problem by ID
+GET {{baseUrl}}/api/Problems/1
+
+### Variables
+@baseUrl = http://localhost:5081

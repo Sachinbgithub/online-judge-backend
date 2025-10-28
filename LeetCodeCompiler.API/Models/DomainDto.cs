@@ -20,4 +20,15 @@ namespace LeetCodeCompiler.API.Models
         public int DomainId { get; set; }
         public string DomainName { get; set; } = string.Empty;
     }
+
+    public class CreateDomainRequest
+    {
+        public string DomainName { get; set; } = string.Empty;
+    }
+
+    public class CreateSubdomainRequest
+    {
+        public int DomainId { get; set; }
+        public string SubdomainName { get; set; } = string.Empty;
+    }
 }

@@ -1421,7 +1421,7 @@ namespace LeetCodeCompiler.API.Services
                 Description = problem.Description,
                 Examples = problem.Examples,
                 Constraints = problem.Constraints,
-                Difficulty = problem.Difficulty?.ToString() ?? "Unknown",
+                Difficulty = problem.Difficulty.ToString(),
                 TestCases = problem.TestCases.Select(MapToTestCaseResponse).ToList(),
                 StarterCodes = problem.StarterCodes.Select(MapToStarterCodeResponse).ToList()
             };
@@ -2061,7 +2061,7 @@ namespace LeetCodeCompiler.API.Services
                 Description = problem.Description,
                 Examples = problem.Examples,
                 Constraints = problem.Constraints,
-                Hints = problem.Hints,
+                Hints = problem.Hints?.ToString() ?? "",
                 TimeLimit = problem.TimeLimit,
                 MemoryLimit = problem.MemoryLimit,
                 SubdomainId = problem.SubdomainId,

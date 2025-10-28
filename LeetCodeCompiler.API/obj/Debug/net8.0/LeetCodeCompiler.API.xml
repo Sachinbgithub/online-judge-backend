@@ -156,6 +156,13 @@
             <param name="id">Domain ID</param>
             <returns>Domain with subdomains</returns>
         </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DomainController.CreateDomain(LeetCodeCompiler.API.Models.CreateDomainRequest)">
+            <summary>
+            Create a new domain
+            </summary>
+            <param name="request">Domain creation request</param>
+            <returns>Created domain</returns>
+        </member>
         <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.CreatePracticeTest(LeetCodeCompiler.API.Models.CreatePracticeTestRequest)">
             <summary>
             Create a new practice test
@@ -188,6 +195,61 @@
             <param name="subdomainId">Subdomain ID</param>
             <returns>List of problems for the specified subdomain</returns>
         </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.CreateProblem(LeetCodeCompiler.API.Models.CreateProblemRequest)">
+            <summary>
+            Create a new problem
+            </summary>
+            <param name="request">Problem creation request</param>
+            <returns>Created problem</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.CheckDatabaseSchema">
+            <summary>
+            Check database schema for StarterCodes table
+            </summary>
+            <returns>Database schema information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.GetAllStarterCodes">
+            <summary>
+            Get all starter codes
+            </summary>
+            <returns>List of all starter codes with problem information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.GetStarterCodeById(System.Int32)">
+            <summary>
+            Get starter code by ID
+            </summary>
+            <param name="id">Starter code ID</param>
+            <returns>Starter code with problem information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.GetStarterCodesByProblemId(System.Int32)">
+            <summary>
+            Get all starter codes for a specific problem
+            </summary>
+            <param name="problemId">Problem ID</param>
+            <returns>List of starter codes for the specified problem</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.CreateStarterCode(LeetCodeCompiler.API.Models.CreateStarterCodeRequest)">
+            <summary>
+            Create a new starter code
+            </summary>
+            <param name="request">Starter code creation request</param>
+            <returns>Created starter code</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.UpdateStarterCode(System.Int32,LeetCodeCompiler.API.Models.UpdateStarterCodeRequest)">
+            <summary>
+            Update an existing starter code
+            </summary>
+            <param name="id">Starter code ID</param>
+            <param name="request">Update request</param>
+            <returns>Updated starter code</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.DeleteStarterCode(System.Int32)">
+            <summary>
+            Delete a starter code
+            </summary>
+            <param name="id">Starter code ID</param>
+            <returns>Success message</returns>
+        </member>
         <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.GetAllSubdomains">
             <summary>
             Get all subdomains
@@ -207,6 +269,62 @@
             </summary>
             <param name="domainId">Domain ID</param>
             <returns>List of subdomains for the specified domain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.CreateSubdomain(LeetCodeCompiler.API.Models.CreateSubdomainRequest)">
+            <summary>
+            Create a new subdomain
+            </summary>
+            <param name="request">Subdomain creation request</param>
+            <returns>Created subdomain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.GetAllTestCases">
+            <summary>
+            Get all test cases
+            </summary>
+            <returns>List of all test cases with problem information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.GetTestCaseById(System.Int32)">
+            <summary>
+            Get test case by ID
+            </summary>
+            <param name="id">Test case ID</param>
+            <returns>Test case details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.GetTestCasesByProblemId(System.Int32)">
+            <summary>
+            Get test cases by problem ID
+            </summary>
+            <param name="problemId">Problem ID</param>
+            <returns>List of test cases for the specified problem</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.CreateTestCase(LeetCodeCompiler.API.Models.CreateTestCaseRequest)">
+            <summary>
+            Create a new test case
+            </summary>
+            <param name="request">Test case creation request</param>
+            <returns>Created test case</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.UpdateTestCase(System.Int32,LeetCodeCompiler.API.Models.UpdateTestCaseRequest)">
+            <summary>
+            Update an existing test case
+            </summary>
+            <param name="id">Test case ID</param>
+            <param name="request">Test case update request</param>
+            <returns>Updated test case</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.DeleteTestCase(System.Int32)">
+            <summary>
+            Delete a test case
+            </summary>
+            <param name="id">Test case ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.DeleteTestCasesByProblemId(System.Int32)">
+            <summary>
+            Delete all test cases for a specific problem
+            </summary>
+            <param name="problemId">Problem ID</param>
+            <returns>Success message with count of deleted test cases</returns>
         </member>
         <member name="T:LeetCodeCompiler.API.Migrations.InitialCreate">
             <inheritdoc />

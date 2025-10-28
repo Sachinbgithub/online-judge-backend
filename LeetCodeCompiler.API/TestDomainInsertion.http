@@ -1,0 +1,58 @@
+### Test Domain Insertion API
+
+### 1. Create a new domain
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Data Structures"
+}
+
+### 2. Create another domain
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Algorithms"
+}
+
+### 3. Create a domain with special characters
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Dynamic Programming"
+}
+
+### 4. Try to create duplicate domain (should return 409 Conflict)
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Data Structures"
+}
+
+### 5. Try to create domain with empty name (should return 400 Bad Request)
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": ""
+}
+
+### 6. Try to create domain with whitespace only (should return 400 Bad Request)
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "   "
+}
+
+### 7. Get all domains to see the created ones
+GET {{baseUrl}}/api/Domain
+
+### 8. Get specific domain by ID
+GET {{baseUrl}}/api/Domain/1
+
+### Variables
+@baseUrl = http://localhost:5081

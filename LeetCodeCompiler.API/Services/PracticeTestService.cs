@@ -243,7 +243,7 @@ namespace LeetCodeCompiler.API.Services
                         StarterCodes = problem.StarterCodes.Select(sc => new StarterCodeInfo
                         {
                             Id = sc.Id,
-                            Language = sc.Language,
+                            Language = sc.Language.ToString(),
                             Code = sc.Code
                         }).ToList()
                     };

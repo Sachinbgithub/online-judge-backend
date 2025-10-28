@@ -1,0 +1,44 @@
+### Test StarterCode Schema and Data Types
+
+### 1. Test with explicit integer values
+POST {{baseUrl}}/api/StarterCode
+Content-Type: application/json
+
+{
+  "problemId": 1,
+  "language": 1,
+  "code": "def test():\n    pass"
+}
+
+### 2. Test with string language (should fail validation)
+POST {{baseUrl}}/api/StarterCode
+Content-Type: application/json
+
+{
+  "problemId": 1,
+  "language": "1",
+  "code": "def test():\n    pass"
+}
+
+### 3. Test with invalid language type
+POST {{baseUrl}}/api/StarterCode
+Content-Type: application/json
+
+{
+  "problemId": 1,
+  "language": "python",
+  "code": "def test():\n    pass"
+}
+
+### 4. Test with different integer values
+POST {{baseUrl}}/api/StarterCode
+Content-Type: application/json
+
+{
+  "problemId": 1,
+  "language": 2,
+  "code": "function test() {\n    // test\n}"
+}
+
+### Variables
+@baseUrl = http://localhost:5081

@@ -22,6 +22,598 @@ namespace LeetCodeCompiler.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.AssignedCodingTest", b =>
+                {
+                    b.Property<long>("AssignedId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AssignedId"));
+
+                    b.Property<long>("AssignedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<long>("AssignedToUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte>("AssignedToUserType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("CodingTestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLateSubmission")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<byte>("TestMode")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("TestType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TimeSpentMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("AssignedId");
+
+                    b.HasIndex("CodingTestId");
+
+                    b.ToTable("AssignedCodingTests");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccessCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("AllowCodeReview")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowMultipleAttempts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ApplyBreachRule")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("BreachRuleLimit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("HostIP")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsResultPublishAutomatically")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ShowResultsImmediately")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TestName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("TestType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalMarks")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalQuestions")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CodingTests");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestAttempt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttemptNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodingTestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<bool>("IsLateSubmission")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("Percentage")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TimeSpentMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalScore")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodingTestId");
+
+                    b.ToTable("CodingTestAttempts");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CodingTestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("CustomInstructions")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Marks")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TimeLimitMinutes")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodingTestId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("CodingTestQuestions");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestQuestionAttempt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodeSubmitted")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CodingTestAttemptId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodingTestQuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("ErrorMessage")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<double>("ExecutionTime")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LanguageUsed")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxScore")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RunCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SubmitCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TestCasesPassed")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalTestCases")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodingTestAttemptId");
+
+                    b.HasIndex("CodingTestQuestionId");
+
+                    b.ToTable("CodingTestQuestionAttempts");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestSubmission", b =>
+                {
+                    b.Property<long>("SubmissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SubmissionId"));
+
+                    b.Property<int>("AttemptNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BrowserInfo")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodingTestAttemptId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodingTestId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CodingTestQuestionAttemptId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompilationError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("DeviceInfo")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("EraseCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ErrorType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ExecutionTimeMs")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FailedTestCases")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FinalCodeSnapshot")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLateSubmission")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSessionAbandoned")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LanguageSwitchCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LanguageUsed")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("LoginLogoutCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxScore")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemoryUsedKB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PassedTestCases")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("RequestedHelp")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RunClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RuntimeError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("SaveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmissionTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("SubmitClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalTestCases")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserIP")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("SubmissionId");
+
+                    b.HasIndex("CodingTestAttemptId");
+
+                    b.HasIndex("CodingTestId");
+
+                    b.HasIndex("CodingTestQuestionAttemptId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("CodingTestSubmissions");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestSubmissionResult", b =>
+                {
+                    b.Property<long>("ResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ResultId"));
+
+                    b.Property<string>("ActualOutput")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ErrorType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ExecutionTimeMs")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExpectedOutput")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Input")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPassed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MemoryUsedKB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SubmissionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TestCaseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TestCaseOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("ResultId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.HasIndex("SubmissionId");
+
+                    b.HasIndex("TestCaseId");
+
+                    b.ToTable("CodingTestSubmissionResults");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestTopicData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CodingTestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("DomainId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubdomainId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodingTestId");
+
+                    b.ToTable("CodingTestTopicData");
+                });
+
             modelBuilder.Entity("LeetCodeCompiler.API.Models.CoreQuestionResult", b =>
                 {
                     b.Property<int>("Id")
@@ -73,7 +665,7 @@ namespace LeetCodeCompiler.API.Migrations
 
                     b.HasIndex("ProblemId");
 
-                    b.ToTable("CoreQuestionResults", (string)null);
+                    b.ToTable("CoreQuestionResult", (string)null);
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.CoreTestCaseResult", b =>
@@ -119,7 +711,301 @@ namespace LeetCodeCompiler.API.Migrations
 
                     b.HasIndex("CoreQuestionResultId");
 
-                    b.ToTable("CoreTestCaseResults", (string)null);
+                    b.ToTable("CoreTestCaseResult", (string)null);
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.Difficulty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DifficultyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DifficultyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Difficulty");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Difficulty", (string)null);
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.Domain", b =>
+                {
+                    b.Property<int>("DomainId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DomainId"));
+
+                    b.Property<string>("DomainName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Domain");
+
+                    b.HasKey("DomainId");
+
+                    b.ToTable("Domain", (string)null);
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowMultipleAttempts")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("DifficultyLevel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("DomainId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PassingPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("ShowResultsImmediately")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SubdomainId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TestName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("TotalMarks")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DomainId");
+
+                    b.HasIndex("SubdomainId");
+
+                    b.ToTable("PracticeTests");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomInstructions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Marks")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PracticeTestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeLimitMinutes")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PracticeTestId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("PracticeTestQuestions");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestQuestionResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CompilationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExecutionStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("ExecutionTime")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Marks")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MemoryUsed")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ObtainedMarks")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("PracticeTestQuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PracticeTestResultId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SubmittedCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TestCasesPassed")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeTakenMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalTestCases")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PracticeTestQuestionId");
+
+                    b.HasIndex("PracticeTestResultId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("PracticeTestQuestionResults");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttemptNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsPassed")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("ObtainedMarks")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("Percentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("PracticeTestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("SubmissionData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TimeTakenMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalMarks")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PracticeTestId");
+
+                    b.ToTable("PracticeTestResults");
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.Problem", b =>
@@ -138,9 +1024,29 @@ namespace LeetCodeCompiler.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("int")
+                        .HasColumnName("Difficulty");
+
                     b.Property<string>("Examples")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Hints")
+                        .HasColumnType("int")
+                        .HasColumnName("Hints");
+
+                    b.Property<int>("MemoryLimit")
+                        .HasColumnType("int")
+                        .HasColumnName("MemoryLimit");
+
+                    b.Property<int>("SubdomainId")
+                        .HasColumnType("int")
+                        .HasColumnName("SubdomainId");
+
+                    b.Property<int>("TimeLimit")
+                        .HasColumnType("int")
+                        .HasColumnName("TimeLimit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -156,7 +1062,11 @@ namespace LeetCodeCompiler.API.Migrations
                             Id = 1,
                             Constraints = "2 ≤ nums.length ≤ 10⁴\n-10⁹ ≤ nums[i] ≤ 10⁹\n-10⁹ ≤ target ≤ 10⁹\nOnly one valid answer exists.",
                             Description = "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
+                            Difficulty = 1,
                             Examples = "Input: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].",
+                            MemoryLimit = 256,
+                            SubdomainId = 9,
+                            TimeLimit = 5,
                             Title = "Two Sum"
                         },
                         new
@@ -164,7 +1074,11 @@ namespace LeetCodeCompiler.API.Migrations
                             Id = 2,
                             Constraints = "1 ≤ s.length ≤ 10⁵",
                             Description = "Write a function that reverses a string. The input string is given as an array of characters s.",
+                            Difficulty = 1,
                             Examples = "Input: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]",
+                            MemoryLimit = 128,
+                            SubdomainId = 9,
+                            TimeLimit = 3,
                             Title = "Reverse String"
                         });
                 });
@@ -179,20 +1093,45 @@ namespace LeetCodeCompiler.API.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Code");
 
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Language")
+                        .HasColumnType("int")
+                        .HasColumnName("Language");
 
                     b.Property<int>("ProblemId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ProblemId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProblemId");
 
                     b.ToTable("StarterCodes", (string)null);
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.Subdomain", b =>
+                {
+                    b.Property<int>("SubdomainId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubdomainId"));
+
+                    b.Property<int>("DomainId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SubdomainName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Subdomain");
+
+                    b.HasKey("SubdomainId");
+
+                    b.HasIndex("DomainId");
+
+                    b.ToTable("Subdomain", (string)null);
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.TestCase", b =>
@@ -218,7 +1157,7 @@ namespace LeetCodeCompiler.API.Migrations
 
                     b.HasIndex("ProblemId");
 
-                    b.ToTable("TestCases", (string)null);
+                    b.ToTable("TestCases");
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.UserCodingActivityLog", b =>
@@ -236,6 +1175,9 @@ namespace LeetCodeCompiler.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("EraseCount")
                         .HasColumnType("int");
@@ -266,6 +1208,9 @@ namespace LeetCodeCompiler.API.Migrations
                     b.Property<int>("SaveCount")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("SubmitClickCount")
                         .HasColumnType("int");
 
@@ -273,8 +1218,8 @@ namespace LeetCodeCompiler.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("TimeTakenSeconds")
-                        .HasColumnType("float");
+                    b.Property<int>("TimeTakenSeconds")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -288,7 +1233,138 @@ namespace LeetCodeCompiler.API.Migrations
 
                     b.HasIndex("ProblemId");
 
-                    b.ToTable("UserCodingActivityLogs", (string)null);
+                    b.ToTable("UserCodingActivityLog", (string)null);
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.AssignedCodingTest", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTest", "CodingTest")
+                        .WithMany()
+                        .HasForeignKey("CodingTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CodingTest");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestAttempt", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTest", "CodingTest")
+                        .WithMany("Attempts")
+                        .HasForeignKey("CodingTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CodingTest");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestQuestion", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTest", "CodingTest")
+                        .WithMany("Questions")
+                        .HasForeignKey("CodingTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.Problem", "Problem")
+                        .WithMany()
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CodingTest");
+
+                    b.Navigation("Problem");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestQuestionAttempt", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTestAttempt", "CodingTestAttempt")
+                        .WithMany("QuestionAttempts")
+                        .HasForeignKey("CodingTestAttemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTestQuestion", "CodingTestQuestion")
+                        .WithMany()
+                        .HasForeignKey("CodingTestQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CodingTestAttempt");
+
+                    b.Navigation("CodingTestQuestion");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestSubmission", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTestAttempt", "CodingTestAttempt")
+                        .WithMany()
+                        .HasForeignKey("CodingTestAttemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTest", "CodingTest")
+                        .WithMany()
+                        .HasForeignKey("CodingTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTestQuestionAttempt", "CodingTestQuestionAttempt")
+                        .WithMany()
+                        .HasForeignKey("CodingTestQuestionAttemptId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("LeetCodeCompiler.API.Models.Problem", "Problem")
+                        .WithMany()
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("CodingTest");
+
+                    b.Navigation("CodingTestAttempt");
+
+                    b.Navigation("CodingTestQuestionAttempt");
+
+                    b.Navigation("Problem");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestSubmissionResult", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.Problem", "Problem")
+                        .WithMany()
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTestSubmission", "Submission")
+                        .WithMany("SubmissionResults")
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.TestCase", "TestCase")
+                        .WithMany()
+                        .HasForeignKey("TestCaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Problem");
+
+                    b.Navigation("Submission");
+
+                    b.Navigation("TestCase");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestTopicData", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.CodingTest", "CodingTest")
+                        .WithMany("TopicData")
+                        .HasForeignKey("CodingTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CodingTest");
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.CoreQuestionResult", b =>
@@ -309,13 +1385,102 @@ namespace LeetCodeCompiler.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTest", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.Domain", "Domain")
+                        .WithMany()
+                        .HasForeignKey("DomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.Subdomain", "Subdomain")
+                        .WithMany()
+                        .HasForeignKey("SubdomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Domain");
+
+                    b.Navigation("Subdomain");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestQuestion", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.PracticeTest", "PracticeTest")
+                        .WithMany("Questions")
+                        .HasForeignKey("PracticeTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.Problem", "Problem")
+                        .WithMany()
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PracticeTest");
+
+                    b.Navigation("Problem");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestQuestionResult", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.PracticeTestQuestion", "PracticeTestQuestion")
+                        .WithMany("QuestionResults")
+                        .HasForeignKey("PracticeTestQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.PracticeTestResult", "PracticeTestResult")
+                        .WithMany("QuestionResults")
+                        .HasForeignKey("PracticeTestResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LeetCodeCompiler.API.Models.Problem", "Problem")
+                        .WithMany()
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PracticeTestQuestion");
+
+                    b.Navigation("PracticeTestResult");
+
+                    b.Navigation("Problem");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestResult", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.PracticeTest", "PracticeTest")
+                        .WithMany("Results")
+                        .HasForeignKey("PracticeTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PracticeTest");
+                });
+
             modelBuilder.Entity("LeetCodeCompiler.API.Models.StarterCode", b =>
                 {
-                    b.HasOne("LeetCodeCompiler.API.Models.Problem", null)
+                    b.HasOne("LeetCodeCompiler.API.Models.Problem", "Problem")
                         .WithMany("StarterCodes")
                         .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Problem");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.Subdomain", b =>
+                {
+                    b.HasOne("LeetCodeCompiler.API.Models.Domain", "Domain")
+                        .WithMany("Subdomains")
+                        .HasForeignKey("DomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Domain");
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.TestCase", b =>
@@ -334,6 +1499,47 @@ namespace LeetCodeCompiler.API.Migrations
                         .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTest", b =>
+                {
+                    b.Navigation("Attempts");
+
+                    b.Navigation("Questions");
+
+                    b.Navigation("TopicData");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestAttempt", b =>
+                {
+                    b.Navigation("QuestionAttempts");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.CodingTestSubmission", b =>
+                {
+                    b.Navigation("SubmissionResults");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.Domain", b =>
+                {
+                    b.Navigation("Subdomains");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTest", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("Results");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestQuestion", b =>
+                {
+                    b.Navigation("QuestionResults");
+                });
+
+            modelBuilder.Entity("LeetCodeCompiler.API.Models.PracticeTestResult", b =>
+                {
+                    b.Navigation("QuestionResults");
                 });
 
             modelBuilder.Entity("LeetCodeCompiler.API.Models.Problem", b =>

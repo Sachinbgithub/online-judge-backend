@@ -1,0 +1,132 @@
+### Test Subdomain Insertion API
+
+### Prerequisites: Create domains first
+### 1. Create a domain for testing
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Data Structures"
+}
+
+### 2. Create another domain
+POST {{baseUrl}}/api/Domain
+Content-Type: application/json
+
+{
+  "domainName": "Algorithms"
+}
+
+### 3. Get all domains to see their IDs
+GET {{baseUrl}}/api/Domain
+
+### Subdomain Insertion Tests
+
+### 4. Create a subdomain under Data Structures domain (assuming domainId = 1)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Arrays"
+}
+
+### 5. Create another subdomain under Data Structures domain
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Linked Lists"
+}
+
+### 6. Create subdomain under Algorithms domain (assuming domainId = 2)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 2,
+  "subdomainName": "Sorting"
+}
+
+### 7. Create another subdomain under Algorithms domain
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 2,
+  "subdomainName": "Searching"
+}
+
+### 8. Create subdomain with special characters
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Binary Trees"
+}
+
+### Error Cases
+
+### 9. Try to create subdomain with empty name (should return 400 Bad Request)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": ""
+}
+
+### 10. Try to create subdomain with invalid domain ID (should return 400 Bad Request)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 0,
+  "subdomainName": "Test Subdomain"
+}
+
+### 11. Try to create subdomain with non-existent domain ID (should return 404 Not Found)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 999,
+  "subdomainName": "Test Subdomain"
+}
+
+### 12. Try to create duplicate subdomain in same domain (should return 409 Conflict)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "Arrays"
+}
+
+### 13. Try to create subdomain with whitespace only (should return 400 Bad Request)
+POST {{baseUrl}}/api/Subdomain
+Content-Type: application/json
+
+{
+  "domainId": 1,
+  "subdomainName": "   "
+}
+
+### Verification Tests
+
+### 14. Get all subdomains to see the created ones
+GET {{baseUrl}}/api/Subdomain
+
+### 15. Get subdomains by domain ID (Data Structures)
+GET {{baseUrl}}/api/Subdomain/domain/1
+
+### 16. Get subdomains by domain ID (Algorithms)
+GET {{baseUrl}}/api/Subdomain/domain/2
+
+### 17. Get specific subdomain by ID
+GET {{baseUrl}}/api/Subdomain/1
+
+### Variables
+@baseUrl = http://localhost:5081

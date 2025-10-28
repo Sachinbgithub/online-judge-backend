@@ -1,0 +1,7 @@
+2025-10-28 10:56:04.561 +05:30 [INF] Starting LeetCode Compiler API
+2025-10-28 10:56:04.651 +05:30 [INF] Initializing container pools...
+2025-10-28 10:56:04.676 +05:30 [INF] Creating 0 containers for cpp using image gcc:11
+2025-10-28 10:56:04.683 +05:30 [INF] Created 0 containers for cpp
+2025-10-28 10:56:04.686 +05:30 [INF] Creating 0 containers for javascript using image node:18
+2025-10-28 10:56:04.689 +05:30 [INF] Created 0 containers for javascript
+2025-10-28 10:56:04.691 +05:30 [INF] Creating 1 containers for python using image python:3.11-alpine

@@ -485,7 +485,7 @@ namespace LeetCodeCompiler.API.Models
     {
         public int Id { get; set; }
         public int ProblemId { get; set; }
-        public string Language { get; set; } = "";
+        public int Language { get; set; }
         public string Code { get; set; } = "";
     }
 
@@ -854,7 +854,7 @@ namespace LeetCodeCompiler.API.Models
     {
         public int Id { get; set; }
         public int ProblemId { get; set; }
-        public string Language { get; set; } = "";
+        public int Language { get; set; }
         public string Code { get; set; } = "";
     }
 
