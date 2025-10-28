@@ -31,3 +31,7 @@ Run 'docker run --help' for more information
 2025-10-28 10:56:05.173 +05:30 [INF] Application started. Press Ctrl+C to shut down.
 2025-10-28 10:56:05.174 +05:30 [INF] Hosting environment: Development
 2025-10-28 10:56:05.175 +05:30 [INF] Content root path: D:\sachin\Projects\online-judge-backend\LeetCodeCompiler.API
+2025-10-28 11:03:39.316 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.101:5081/swagger/index.html - null null
+2025-10-28 11:03:39.674 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.101:5081/swagger/index.html - 200 null text/html;charset=utf-8 361.3103ms
+2025-10-28 11:03:40.144 +05:30 [INF] Request starting HTTP/1.1 GET http://192.168.0.101:5081/swagger/v1/swagger.json - null null
+2025-10-28 11:03:40.825 +05:30 [INF] Request finished HTTP/1.1 GET http://192.168.0.101:5081/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 680.9888ms

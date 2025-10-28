@@ -417,8 +417,3 @@ coverage/
 # Performance logs
 *.perflog
 
-# Application specific
-appsettings.*.json
-!appsettings.json
-!appsettings.Development.json
-!appsettings.Production.json
