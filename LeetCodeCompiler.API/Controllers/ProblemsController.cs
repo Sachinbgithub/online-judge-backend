@@ -148,5 +148,216 @@ namespace LeetCodeCompiler.API.Controllers
                 return StatusCode(500, new { error = "An error occurred while creating the problem", details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Update an existing problem
+        /// </summary>
+        /// <param name="id">Problem ID</param>
+        /// <param name="request">Problem update request</param>
+        /// <returns>Updated problem</returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProblem(int id, [FromBody] UpdateProblemRequest request)
+        {
+            try
+            {
+                // Validate model state
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new { error = "Validation failed", details = errors });
+                }
+
+                // Find the problem
+                var problem = await _context.Problems
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (problem == null)
+                {
+                    return NotFound(new { error = $"Problem with ID {id} not found" });
+                }
+
+                // Check if subdomain exists
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == request.SubdomainId);
+                
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {request.SubdomainId} not found" });
+                }
+
+                // Check if difficulty exists (1-3 range)
+                if (request.Difficulty < 1 || request.Difficulty > 3)
+                {
+                    return BadRequest(new { error = "Difficulty must be between 1 and 3" });
+                }
+
+                // Check if another problem with the same title exists in the same subdomain (case-insensitive)
+                var existingProblem = await _context.Problems
+                    .FirstOrDefaultAsync(p => p.Id != id && 
+                                            p.SubdomainId == request.SubdomainId && 
+                                            p.Title.ToLower() == request.Title.ToLower());
+
+                if (existingProblem != null)
+                {
+                    return Conflict(new { error = $"Problem with title '{request.Title}' already exists in subdomain '{subdomain.SubdomainName}'" });
+                }
+
+                // Update the problem
+                problem.Title = request.Title.Trim();
+                problem.Description = request.Description.Trim();
+                problem.Examples = request.Examples.Trim();
+                problem.Constraints = request.Constraints.Trim();
+                problem.Hints = request.Hints;
+                problem.TimeLimit = request.TimeLimit;
+                problem.MemoryLimit = request.MemoryLimit;
+                problem.SubdomainId = request.SubdomainId;
+                problem.Difficulty = request.Difficulty;
+
+                await _context.SaveChangesAsync();
+
+                // Get test cases and starter codes for response
+                var testCases = await _context.TestCases
+                    .Where(tc => tc.ProblemId == id)
+                    .ToListAsync();
+
+                var starterCodes = await _context.StarterCodes
+                    .Where(sc => sc.ProblemId == id)
+                    .ToListAsync();
+
+                // Return the updated problem
+                var updatedProblem = new CreateProblemResponse
+                {
+                    Id = problem.Id,
+                    Title = problem.Title,
+                    Description = problem.Description,
+                    Examples = problem.Examples,
+                    Constraints = problem.Constraints,
+                    Hints = problem.Hints,
+                    TimeLimit = problem.TimeLimit,
+                    MemoryLimit = problem.MemoryLimit,
+                    SubdomainId = problem.SubdomainId,
+                    Difficulty = problem.Difficulty,
+                    SubdomainName = subdomain.SubdomainName,
+                    DomainName = subdomain.Domain?.DomainName ?? "",
+                    TestCases = testCases,
+                    StarterCodes = starterCodes
+                };
+
+                return Ok(updatedProblem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating the problem", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Delete a problem
+        /// </summary>
+        /// <param name="id">Problem ID</param>
+        /// <returns>Success message</returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProblem(int id)
+        {
+            try
+            {
+                var problem = await _context.Problems
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (problem == null)
+                {
+                    return NotFound(new { error = $"Problem with ID {id} not found" });
+                }
+
+                // Get related data counts for information
+                var testCasesCount = await _context.TestCases
+                    .CountAsync(tc => tc.ProblemId == id);
+
+                var starterCodesCount = await _context.StarterCodes
+                    .CountAsync(sc => sc.ProblemId == id);
+
+                var problemHintsCount = await _context.ProblemHints
+                    .CountAsync(ph => ph.ProblemId == id);
+
+                // Delete the problem (cascade will handle related data)
+                _context.Problems.Remove(problem);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { 
+                    message = $"Problem '{problem.Title}' has been deleted successfully",
+                    deletedData = new {
+                        testCases = testCasesCount,
+                        starterCodes = starterCodesCount,
+                        problemHints = problemHintsCount
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while deleting the problem", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get problem usage statistics
+        /// </summary>
+        /// <param name="id">Problem ID</param>
+        /// <returns>Problem usage statistics</returns>
+        [HttpGet("{id}/usage")]
+        public async Task<IActionResult> GetProblemUsage(int id)
+        {
+            try
+            {
+                var problem = await _context.Problems
+                    .Include(p => _context.Subdomains.Where(s => s.SubdomainId == p.SubdomainId))
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (problem == null)
+                {
+                    return NotFound(new { error = $"Problem with ID {id} not found" });
+                }
+
+                var testCasesCount = await _context.TestCases
+                    .CountAsync(tc => tc.ProblemId == id);
+
+                var starterCodesCount = await _context.StarterCodes
+                    .CountAsync(sc => sc.ProblemId == id);
+
+                var problemHintsCount = await _context.ProblemHints
+                    .CountAsync(ph => ph.ProblemId == id);
+
+                // Get subdomain and domain info
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == problem.SubdomainId);
+
+                var usageStats = new
+                {
+                    ProblemId = problem.Id,
+                    Title = problem.Title,
+                    SubdomainId = problem.SubdomainId,
+                    SubdomainName = subdomain?.SubdomainName ?? "Unknown",
+                    DomainId = subdomain?.DomainId ?? 0,
+                    DomainName = subdomain?.Domain?.DomainName ?? "Unknown",
+                    TestCasesCount = testCasesCount,
+                    StarterCodesCount = starterCodesCount,
+                    ProblemHintsCount = problemHintsCount,
+                    Difficulty = problem.Difficulty,
+                    TimeLimit = problem.TimeLimit,
+                    MemoryLimit = problem.MemoryLimit,
+                    IsUsed = testCasesCount > 0 || starterCodesCount > 0 || problemHintsCount > 0
+                };
+
+                return Ok(usageStats);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving problem usage statistics", details = ex.Message });
+            }
+        }
     }
 }

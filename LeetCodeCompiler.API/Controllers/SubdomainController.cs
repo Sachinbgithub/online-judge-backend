@@ -165,5 +165,168 @@ namespace LeetCodeCompiler.API.Controllers
                 return StatusCode(500, new { error = "An error occurred while creating the subdomain", details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Update an existing subdomain
+        /// </summary>
+        /// <param name="id">Subdomain ID</param>
+        /// <param name="request">Subdomain update request</param>
+        /// <returns>Updated subdomain</returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSubdomain(int id, [FromBody] UpdateSubdomainRequest request)
+        {
+            try
+            {
+                // Validate model state
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new { error = "Validation failed", details = errors });
+                }
+
+                // Find the subdomain
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == id);
+
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {id} not found" });
+                }
+
+                // Check if another subdomain with the same name exists within the same domain (case-insensitive)
+                var existingSubdomain = await _context.Subdomains
+                    .FirstOrDefaultAsync(s => s.SubdomainId != id && 
+                                            s.DomainId == subdomain.DomainId && 
+                                            s.SubdomainName.ToLower() == request.SubdomainName.ToLower());
+
+                if (existingSubdomain != null)
+                {
+                    return Conflict(new { error = $"Subdomain '{request.SubdomainName}' already exists in domain '{subdomain.Domain?.DomainName}'" });
+                }
+
+                // Update the subdomain
+                subdomain.SubdomainName = request.SubdomainName.Trim();
+
+                await _context.SaveChangesAsync();
+
+                // Return the updated subdomain
+                var updatedSubdomain = new SubdomainDto
+                {
+                    SubdomainId = subdomain.SubdomainId,
+                    DomainId = subdomain.DomainId,
+                    SubdomainName = subdomain.SubdomainName,
+                    Domain = subdomain.Domain != null ? new DomainBasicDto
+                    {
+                        DomainId = subdomain.Domain.DomainId,
+                        DomainName = subdomain.Domain.DomainName
+                    } : null
+                };
+
+                return Ok(updatedSubdomain);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating the subdomain", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Delete a subdomain
+        /// </summary>
+        /// <param name="id">Subdomain ID</param>
+        /// <returns>Success message</returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSubdomain(int id)
+        {
+            try
+            {
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == id);
+
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {id} not found" });
+                }
+
+                // Check if subdomain has problems
+                var hasProblems = await _context.Problems
+                    .AnyAsync(p => p.SubdomainId == id);
+
+                if (hasProblems)
+                {
+                    return Conflict(new { error = $"Cannot delete subdomain '{subdomain.SubdomainName}' because it has problems. Please delete all problems first." });
+                }
+
+                _context.Subdomains.Remove(subdomain);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = $"Subdomain '{subdomain.SubdomainName}' has been deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while deleting the subdomain", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get subdomain usage statistics
+        /// </summary>
+        /// <param name="id">Subdomain ID</param>
+        /// <returns>Subdomain usage statistics</returns>
+        [HttpGet("{id}/usage")]
+        public async Task<IActionResult> GetSubdomainUsage(int id)
+        {
+            try
+            {
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == id);
+
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {id} not found" });
+                }
+
+                var problemsCount = await _context.Problems
+                    .CountAsync(p => p.SubdomainId == id);
+
+                var testCasesCount = await _context.TestCases
+                    .Where(tc => _context.Problems
+                        .Where(p => p.SubdomainId == id)
+                        .Select(p => p.Id)
+                        .Contains(tc.ProblemId))
+                    .CountAsync();
+
+                var starterCodesCount = await _context.StarterCodes
+                    .Where(sc => _context.Problems
+                        .Where(p => p.SubdomainId == id)
+                        .Select(p => p.Id)
+                        .Contains(sc.ProblemId))
+                    .CountAsync();
+
+                var usageStats = new
+                {
+                    SubdomainId = subdomain.SubdomainId,
+                    SubdomainName = subdomain.SubdomainName,
+                    DomainId = subdomain.DomainId,
+                    DomainName = subdomain.Domain?.DomainName ?? "Unknown",
+                    ProblemsCount = problemsCount,
+                    TestCasesCount = testCasesCount,
+                    StarterCodesCount = starterCodesCount,
+                    IsUsed = problemsCount > 0
+                };
+
+                return Ok(usageStats);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving subdomain usage statistics", details = ex.Message });
+            }
+        }
     }
 }

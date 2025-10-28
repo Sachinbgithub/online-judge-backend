@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace LeetCodeCompiler.API.Models
 {
     public class DomainDto
@@ -29,6 +31,20 @@ namespace LeetCodeCompiler.API.Models
     public class CreateSubdomainRequest
     {
         public int DomainId { get; set; }
+        public string SubdomainName { get; set; } = string.Empty;
+    }
+
+    public class UpdateDomainRequest
+    {
+        [Required(ErrorMessage = "Domain name is required")]
+        [StringLength(100, ErrorMessage = "Domain name cannot exceed 100 characters")]
+        public string DomainName { get; set; } = string.Empty;
+    }
+
+    public class UpdateSubdomainRequest
+    {
+        [Required(ErrorMessage = "Subdomain name is required")]
+        [StringLength(100, ErrorMessage = "Subdomain name cannot exceed 100 characters")]
         public string SubdomainName { get; set; } = string.Empty;
     }
 }

@@ -9,6 +9,7 @@ namespace LeetCodeCompiler.API.Data
         public DbSet<Problem> Problems { get; set; }
         public DbSet<TestCase> TestCases { get; set; }
         public DbSet<StarterCode> StarterCodes { get; set; }
+        public DbSet<ProblemHint> ProblemHints { get; set; }
         
         // Domain and Subdomain DbSets
         public DbSet<Domain> Domains { get; set; }
@@ -58,12 +59,28 @@ namespace LeetCodeCompiler.API.Data
                 .HasForeignKey(sc => sc.ProblemId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure Language entity
+            modelBuilder.Entity<Language>().ToTable("Languages");
+            modelBuilder.Entity<Language>()
+                .Property(l => l.Id)
+                .ValueGeneratedNever(); // Manual ID generation
+            modelBuilder.Entity<Language>()
+                .Property(l => l.LanguageName)
+                .HasColumnName("Language");
+
             // Configure Language relationship
             modelBuilder.Entity<StarterCode>()
                 .HasOne(sc => sc.LanguageNavigation)
                 .WithMany()
                 .HasForeignKey(sc => sc.Language)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure ProblemHint relationship
+            modelBuilder.Entity<ProblemHint>()
+                .HasOne(ph => ph.Problem)
+                .WithMany()
+                .HasForeignKey(ph => ph.ProblemId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // New relationships for activity tracking
             modelBuilder.Entity<CoreTestCaseResult>()
@@ -281,13 +298,14 @@ namespace LeetCodeCompiler.API.Data
                 .HasColumnName("Code");
 
 
-            // Seed Languages data
-            modelBuilder.Entity<Language>().HasData(
-                new Language { Id = 1, LanguageName = "Python" },
-                new Language { Id = 2, LanguageName = "Java" },
-                new Language { Id = 3, LanguageName = "JavaScript" },
-                new Language { Id = 4, LanguageName = "C++" },
-                new Language { Id = 5, LanguageName = "C" }
+            // Note: Language seed data removed to avoid ID conflicts
+            // Languages will be created through the API endpoints
+
+            // Seed Difficulty data
+            modelBuilder.Entity<Difficulty>().HasData(
+                new Difficulty { Id = 1, DifficultyId = 1, DifficultyName = "Easy" },
+                new Difficulty { Id = 2, DifficultyId = 2, DifficultyName = "Medium" },
+                new Difficulty { Id = 3, DifficultyId = 3, DifficultyName = "Hard" }
             );
 
             // Remove old seeding for Problems.StarterCode

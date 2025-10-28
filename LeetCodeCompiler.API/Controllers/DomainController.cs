@@ -117,5 +117,159 @@ namespace LeetCodeCompiler.API.Controllers
                 return StatusCode(500, new { error = "An error occurred while creating the domain", details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Update an existing domain
+        /// </summary>
+        /// <param name="id">Domain ID</param>
+        /// <param name="request">Domain update request</param>
+        /// <returns>Updated domain</returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateDomain(int id, [FromBody] UpdateDomainRequest request)
+        {
+            try
+            {
+                // Validate model state
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new { error = "Validation failed", details = errors });
+                }
+
+                // Find the domain
+                var domain = await _context.Domains
+                    .FirstOrDefaultAsync(d => d.DomainId == id);
+
+                if (domain == null)
+                {
+                    return NotFound(new { error = $"Domain with ID {id} not found" });
+                }
+
+                // Check if another domain with the same name exists (case-insensitive)
+                var existingDomain = await _context.Domains
+                    .FirstOrDefaultAsync(d => d.DomainId != id && d.DomainName.ToLower() == request.DomainName.ToLower());
+
+                if (existingDomain != null)
+                {
+                    return Conflict(new { error = $"Domain '{request.DomainName}' already exists" });
+                }
+
+                // Update the domain
+                domain.DomainName = request.DomainName.Trim();
+
+                await _context.SaveChangesAsync();
+
+                // Get subdomains for response
+                var subdomains = await _context.Subdomains
+                    .Where(s => s.DomainId == id)
+                    .Select(s => new SubdomainDto
+                    {
+                        SubdomainId = s.SubdomainId,
+                        DomainId = s.DomainId,
+                        SubdomainName = s.SubdomainName
+                    })
+                    .ToListAsync();
+
+                // Return the updated domain
+                var updatedDomain = new DomainDto
+                {
+                    DomainId = domain.DomainId,
+                    DomainName = domain.DomainName,
+                    Subdomains = subdomains
+                };
+
+                return Ok(updatedDomain);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating the domain", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Delete a domain
+        /// </summary>
+        /// <param name="id">Domain ID</param>
+        /// <returns>Success message</returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteDomain(int id)
+        {
+            try
+            {
+                var domain = await _context.Domains
+                    .FirstOrDefaultAsync(d => d.DomainId == id);
+
+                if (domain == null)
+                {
+                    return NotFound(new { error = $"Domain with ID {id} not found" });
+                }
+
+                // Check if domain has subdomains
+                var hasSubdomains = await _context.Subdomains
+                    .AnyAsync(s => s.DomainId == id);
+
+                if (hasSubdomains)
+                {
+                    return Conflict(new { error = $"Cannot delete domain '{domain.DomainName}' because it has subdomains. Please delete all subdomains first." });
+                }
+
+                _context.Domains.Remove(domain);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = $"Domain '{domain.DomainName}' has been deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while deleting the domain", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get domain usage statistics
+        /// </summary>
+        /// <param name="id">Domain ID</param>
+        /// <returns>Domain usage statistics</returns>
+        [HttpGet("{id}/usage")]
+        public async Task<IActionResult> GetDomainUsage(int id)
+        {
+            try
+            {
+                var domain = await _context.Domains
+                    .FirstOrDefaultAsync(d => d.DomainId == id);
+
+                if (domain == null)
+                {
+                    return NotFound(new { error = $"Domain with ID {id} not found" });
+                }
+
+                var subdomainsCount = await _context.Subdomains
+                    .CountAsync(s => s.DomainId == id);
+
+                var problemsCount = await _context.Problems
+                    .Where(p => _context.Subdomains
+                        .Where(s => s.DomainId == id)
+                        .Select(s => s.SubdomainId)
+                        .Contains(p.SubdomainId))
+                    .CountAsync();
+
+                var usageStats = new
+                {
+                    DomainId = domain.DomainId,
+                    DomainName = domain.DomainName,
+                    SubdomainsCount = subdomainsCount,
+                    ProblemsCount = problemsCount,
+                    IsUsed = subdomainsCount > 0 || problemsCount > 0
+                };
+
+                return Ok(usageStats);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving domain usage statistics", details = ex.Message });
+            }
+        }
     }
 }

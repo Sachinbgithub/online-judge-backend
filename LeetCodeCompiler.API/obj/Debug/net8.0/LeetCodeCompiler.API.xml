@@ -143,6 +143,55 @@
             <param name="attemptNumber">Optional attempt number</param>
             <returns>Comprehensive test results with detailed test case results and summary</returns>
         </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.GetAllDifficulties">
+            <summary>
+            Get all difficulties
+            </summary>
+            <returns>List of all difficulties</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.GetDifficultyById(System.Int32)">
+            <summary>
+            Get difficulty by ID
+            </summary>
+            <param name="id">Difficulty ID</param>
+            <returns>Difficulty details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.GetDifficultyByDifficultyId(System.Int32)">
+            <summary>
+            Get difficulty by DifficultyId
+            </summary>
+            <param name="difficultyId">Difficulty ID (1-3)</param>
+            <returns>Difficulty details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.CreateDifficulty(LeetCodeCompiler.API.Models.CreateDifficultyRequest)">
+            <summary>
+            Create a new difficulty
+            </summary>
+            <param name="request">Difficulty creation request</param>
+            <returns>Created difficulty</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.UpdateDifficulty(System.Int32,LeetCodeCompiler.API.Models.UpdateDifficultyRequest)">
+            <summary>
+            Update an existing difficulty
+            </summary>
+            <param name="id">Difficulty ID</param>
+            <param name="request">Difficulty update request</param>
+            <returns>Updated difficulty</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.DeleteDifficulty(System.Int32)">
+            <summary>
+            Delete a difficulty
+            </summary>
+            <param name="id">Difficulty ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DifficultyController.GetDifficultyUsage(System.Int32)">
+            <summary>
+            Get difficulty usage statistics
+            </summary>
+            <param name="id">Difficulty ID</param>
+            <returns>Difficulty usage statistics</returns>
+        </member>
         <member name="M:LeetCodeCompiler.API.Controllers.DomainController.GetAllDomains">
             <summary>
             Get all domains
@@ -162,6 +211,83 @@
             </summary>
             <param name="request">Domain creation request</param>
             <returns>Created domain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DomainController.UpdateDomain(System.Int32,LeetCodeCompiler.API.Models.UpdateDomainRequest)">
+            <summary>
+            Update an existing domain
+            </summary>
+            <param name="id">Domain ID</param>
+            <param name="request">Domain update request</param>
+            <returns>Updated domain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DomainController.DeleteDomain(System.Int32)">
+            <summary>
+            Delete a domain
+            </summary>
+            <param name="id">Domain ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.DomainController.GetDomainUsage(System.Int32)">
+            <summary>
+            Get domain usage statistics
+            </summary>
+            <param name="id">Domain ID</param>
+            <returns>Domain usage statistics</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.GetAllLanguages">
+            <summary>
+            Get all languages
+            </summary>
+            <returns>List of all languages</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.GetLanguageById(System.Int32)">
+            <summary>
+            Get language by ID
+            </summary>
+            <param name="id">Language ID</param>
+            <returns>Language details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.GetLanguageByName(System.String)">
+            <summary>
+            Get language by name
+            </summary>
+            <param name="name">Language name</param>
+            <returns>Language details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.CreateLanguage(LeetCodeCompiler.API.Models.CreateLanguageRequest)">
+            <summary>
+            Create a new language
+            </summary>
+            <param name="request">Language creation request</param>
+            <returns>Created language</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.UpdateLanguage(System.Int32,LeetCodeCompiler.API.Models.UpdateLanguageRequest)">
+            <summary>
+            Update an existing language
+            </summary>
+            <param name="id">Language ID</param>
+            <param name="request">Language update request</param>
+            <returns>Updated language</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.DeleteLanguage(System.Int32)">
+            <summary>
+            Delete a language
+            </summary>
+            <param name="id">Language ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.GetLanguageUsage(System.Int32)">
+            <summary>
+            Get language usage statistics
+            </summary>
+            <param name="id">Language ID</param>
+            <returns>Language usage statistics</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.LanguagesController.GetAllLanguagesWithUsage">
+            <summary>
+            Get all languages with usage statistics
+            </summary>
+            <returns>List of all languages with their usage statistics</returns>
         </member>
         <member name="M:LeetCodeCompiler.API.Controllers.PracticeTestController.CreatePracticeTest(LeetCodeCompiler.API.Models.CreatePracticeTestRequest)">
             <summary>
@@ -188,6 +314,62 @@
             Validate practice test and attempt before submitting
             </summary>
         </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.GetAllProblemHints">
+            <summary>
+            Get all problem hints
+            </summary>
+            <returns>List of all problem hints with problem information</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.GetProblemHintById(System.Int32)">
+            <summary>
+            Get problem hint by ID
+            </summary>
+            <param name="id">Problem hint ID</param>
+            <returns>Problem hint details</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.GetProblemHintsByProblemId(System.Int32)">
+            <summary>
+            Get problem hints by problem ID
+            </summary>
+            <param name="problemId">Problem ID</param>
+            <returns>List of hints for the specified problem</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.CreateProblemHint(LeetCodeCompiler.API.Models.CreateProblemHintRequest)">
+            <summary>
+            Create a new problem hint
+            </summary>
+            <param name="request">Problem hint creation request</param>
+            <returns>Created problem hint</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.UpdateProblemHint(System.Int32,LeetCodeCompiler.API.Models.UpdateProblemHintRequest)">
+            <summary>
+            Update an existing problem hint
+            </summary>
+            <param name="id">Problem hint ID</param>
+            <param name="request">Problem hint update request</param>
+            <returns>Updated problem hint</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.DeleteProblemHint(System.Int32)">
+            <summary>
+            Delete a problem hint
+            </summary>
+            <param name="id">Problem hint ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.DeleteProblemHintsByProblemId(System.Int32)">
+            <summary>
+            Delete all problem hints for a specific problem
+            </summary>
+            <param name="problemId">Problem ID</param>
+            <returns>Success message with count of deleted hints</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemHintsController.GetProblemHintsCount(System.Int32)">
+            <summary>
+            Get problem hints count for a specific problem
+            </summary>
+            <param name="problemId">Problem ID</param>
+            <returns>Count of hints for the problem</returns>
+        </member>
         <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemsBySubdomainId(System.Int32)">
             <summary>
             Get all problems by subdomain ID
@@ -201,6 +383,28 @@
             </summary>
             <param name="request">Problem creation request</param>
             <returns>Created problem</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.UpdateProblem(System.Int32,LeetCodeCompiler.API.Models.UpdateProblemRequest)">
+            <summary>
+            Update an existing problem
+            </summary>
+            <param name="id">Problem ID</param>
+            <param name="request">Problem update request</param>
+            <returns>Updated problem</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.DeleteProblem(System.Int32)">
+            <summary>
+            Delete a problem
+            </summary>
+            <param name="id">Problem ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.ProblemsController.GetProblemUsage(System.Int32)">
+            <summary>
+            Get problem usage statistics
+            </summary>
+            <param name="id">Problem ID</param>
+            <returns>Problem usage statistics</returns>
         </member>
         <member name="M:LeetCodeCompiler.API.Controllers.StarterCodeController.CheckDatabaseSchema">
             <summary>
@@ -276,6 +480,28 @@
             </summary>
             <param name="request">Subdomain creation request</param>
             <returns>Created subdomain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.UpdateSubdomain(System.Int32,LeetCodeCompiler.API.Models.UpdateSubdomainRequest)">
+            <summary>
+            Update an existing subdomain
+            </summary>
+            <param name="id">Subdomain ID</param>
+            <param name="request">Subdomain update request</param>
+            <returns>Updated subdomain</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.DeleteSubdomain(System.Int32)">
+            <summary>
+            Delete a subdomain
+            </summary>
+            <param name="id">Subdomain ID</param>
+            <returns>Success message</returns>
+        </member>
+        <member name="M:LeetCodeCompiler.API.Controllers.SubdomainController.GetSubdomainUsage(System.Int32)">
+            <summary>
+            Get subdomain usage statistics
+            </summary>
+            <param name="id">Subdomain ID</param>
+            <returns>Subdomain usage statistics</returns>
         </member>
         <member name="M:LeetCodeCompiler.API.Controllers.TestCaseController.GetAllTestCases">
             <summary>

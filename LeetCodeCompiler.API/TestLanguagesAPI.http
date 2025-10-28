@@ -1,0 +1,124 @@
+### Test Languages API Endpoints
+
+### Variables
+@baseUrl = http://localhost:5081
+
+### 1. Get all languages
+GET {{baseUrl}}/api/Languages
+
+### 2. Get all languages with usage statistics
+GET {{baseUrl}}/api/Languages/with-usage
+
+### 3. Get language by ID
+GET {{baseUrl}}/api/Languages/1
+
+### 4. Get language by name
+GET {{baseUrl}}/api/Languages/name/Python
+
+### 5. Get language by name (case insensitive)
+GET {{baseUrl}}/api/Languages/name/java
+
+### 6. Get language usage statistics
+GET {{baseUrl}}/api/Languages/1/usage
+
+### 7. Create a new language
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": "Go"
+}
+
+### 8. Create another language
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": "Rust"
+}
+
+### 9. Create language with special characters
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": "C#"
+}
+
+### 10. Test validation - empty language name
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": ""
+}
+
+### 11. Test validation - missing required field
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+}
+
+### 12. Test validation - language name too long (over 50 characters)
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": "ThisIsAVeryLongLanguageNameThatExceedsFiftyCharactersLimit"
+}
+
+### 13. Test duplicate language creation
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": "Python"
+}
+
+### 14. Test duplicate language creation (case insensitive)
+POST {{baseUrl}}/api/Languages
+Content-Type: application/json
+
+{
+  "languageName": "python"
+}
+
+### 15. Update language (replace ID with actual language ID)
+PUT {{baseUrl}}/api/Languages/6
+Content-Type: application/json
+
+{
+  "languageName": "Golang"
+}
+
+### 16. Test update with duplicate name
+PUT {{baseUrl}}/api/Languages/6
+Content-Type: application/json
+
+{
+  "languageName": "Python"
+}
+
+### 17. Test update non-existent language
+PUT {{baseUrl}}/api/Languages/999
+Content-Type: application/json
+
+{
+  "languageName": "NewLanguage"
+}
+
+### 18. Get non-existent language by ID
+GET {{baseUrl}}/api/Languages/999
+
+### 19. Get non-existent language by name
+GET {{baseUrl}}/api/Languages/name/NonExistentLanguage
+
+### 20. Delete language (replace ID with actual language ID - make sure it's not used in starter codes)
+DELETE {{baseUrl}}/api/Languages/6
+
+### 21. Test delete language that's being used in starter codes
+DELETE {{baseUrl}}/api/Languages/1
+
+### 22. Test delete non-existent language
+DELETE {{baseUrl}}/api/Languages/999
