@@ -7,6 +7,7 @@ namespace LeetCodeCompiler.API.Models
         public int SubdomainId { get; set; }
         public int DomainId { get; set; }
         public required string SubdomainName { get; set; }
+        public int? StreamId { get; set; }
         
         // Navigation properties
         [JsonIgnore]

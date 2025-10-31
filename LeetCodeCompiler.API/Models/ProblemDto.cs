@@ -32,6 +32,7 @@ namespace LeetCodeCompiler.API.Models
         [Required(ErrorMessage = "Difficulty is required")]
         [Range(1, 3, ErrorMessage = "Difficulty must be between 1 and 3")]
         public int Difficulty { get; set; }
+        public int? StreamId { get; set; }
     }
 
     public class CreateProblemResponse
@@ -46,6 +47,7 @@ namespace LeetCodeCompiler.API.Models
         public int MemoryLimit { get; set; }
         public int SubdomainId { get; set; }
         public int Difficulty { get; set; }
+        public int? StreamId { get; set; }
         public string SubdomainName { get; set; } = string.Empty;
         public string DomainName { get; set; } = string.Empty;
         public List<TestCase> TestCases { get; set; } = new List<TestCase>();
@@ -83,5 +85,6 @@ namespace LeetCodeCompiler.API.Models
         [Required(ErrorMessage = "Difficulty is required")]
         [Range(1, 3, ErrorMessage = "Difficulty must be between 1 and 3")]
         public int Difficulty { get; set; }
+        public int? StreamId { get; set; }
     }
 }

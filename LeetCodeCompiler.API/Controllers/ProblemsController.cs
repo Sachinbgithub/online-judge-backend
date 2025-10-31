@@ -116,7 +116,8 @@ namespace LeetCodeCompiler.API.Controllers
                     TimeLimit = request.TimeLimit,
                     MemoryLimit = request.MemoryLimit,
                     SubdomainId = request.SubdomainId,
-                    Difficulty = request.Difficulty
+                    Difficulty = request.Difficulty,
+                    StreamId = request.StreamId
                 };
 
                 _context.Problems.Add(newProblem);
@@ -135,6 +136,7 @@ namespace LeetCodeCompiler.API.Controllers
                     MemoryLimit = newProblem.MemoryLimit,
                     SubdomainId = newProblem.SubdomainId,
                     Difficulty = newProblem.Difficulty,
+                    StreamId = newProblem.StreamId,
                     SubdomainName = subdomain.SubdomainName,
                     DomainName = subdomain.Domain?.DomainName ?? "",
                     TestCases = new List<TestCase>(),
@@ -216,6 +218,7 @@ namespace LeetCodeCompiler.API.Controllers
                 problem.MemoryLimit = request.MemoryLimit;
                 problem.SubdomainId = request.SubdomainId;
                 problem.Difficulty = request.Difficulty;
+                problem.StreamId = request.StreamId;
 
                 await _context.SaveChangesAsync();
 
@@ -241,6 +244,7 @@ namespace LeetCodeCompiler.API.Controllers
                     MemoryLimit = problem.MemoryLimit,
                     SubdomainId = problem.SubdomainId,
                     Difficulty = problem.Difficulty,
+                    StreamId = problem.StreamId,
                     SubdomainName = subdomain.SubdomainName,
                     DomainName = subdomain.Domain?.DomainName ?? "",
                     TestCases = testCases,
@@ -299,6 +303,74 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "An error occurred while deleting the problem", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all problems by stream ID
+        /// </summary>
+        /// <param name="streamId">Stream ID (optional - omit parameter or pass null to search for NULL streamId)</param>
+        /// <returns>List of problems with the specified stream ID</returns>
+        [HttpGet("stream")]
+        public async Task<IActionResult> GetProblemsByStreamId([FromQuery] int? streamId)
+        {
+            try
+            {
+                IQueryable<Problem> query = _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes);
+
+                // If streamId parameter is not provided or is explicitly null, search for NULL values
+                if (streamId == null)
+                {
+                    query = query.Where(p => p.StreamId == null);
+                }
+                else
+                {
+                    query = query.Where(p => p.StreamId == streamId);
+                }
+
+                var problems = await query.ToListAsync();
+                
+                return Ok(problems);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving problems by stream ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update stream ID for a specific problem
+        /// </summary>
+        /// <param name="id">Problem ID</param>
+        /// <param name="streamId">New stream ID (can be null)</param>
+        /// <returns>Updated problem</returns>
+        [HttpPut("{id}/stream")]
+        public async Task<IActionResult> UpdateProblemStreamId(int id, [FromBody] int? streamId)
+        {
+            try
+            {
+                var problem = await _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (problem == null)
+                {
+                    return NotFound(new { error = $"Problem with ID {id} not found" });
+                }
+
+                // Update stream ID
+                problem.StreamId = streamId;
+                await _context.SaveChangesAsync();
+
+                // Return the updated problem
+                return Ok(problem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating problem stream ID", details = ex.Message });
             }
         }
 

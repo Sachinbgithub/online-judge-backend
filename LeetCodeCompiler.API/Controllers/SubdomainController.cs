@@ -27,10 +27,12 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = s.SubdomainId,
                     DomainId = s.DomainId,
                     SubdomainName = s.SubdomainName,
+                    StreamId = s.StreamId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
-                        DomainName = s.Domain.DomainName
+                        DomainName = s.Domain.DomainName,
+                        StreamId = s.Domain.StreamId
                     } : null
                 })
                 .ToListAsync();
@@ -54,10 +56,12 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = s.SubdomainId,
                     DomainId = s.DomainId,
                     SubdomainName = s.SubdomainName,
+                    StreamId = s.StreamId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
-                        DomainName = s.Domain.DomainName
+                        DomainName = s.Domain.DomainName,
+                        StreamId = s.Domain.StreamId
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -84,10 +88,12 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = s.SubdomainId,
                     DomainId = s.DomainId,
                     SubdomainName = s.SubdomainName,
+                    StreamId = s.StreamId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
-                        DomainName = s.Domain.DomainName
+                        DomainName = s.Domain.DomainName,
+                        StreamId = s.Domain.StreamId
                     } : null
                 })
                 .ToListAsync();
@@ -139,7 +145,8 @@ namespace LeetCodeCompiler.API.Controllers
                 var newSubdomain = new Subdomain
                 {
                     DomainId = request.DomainId,
-                    SubdomainName = request.SubdomainName.Trim()
+                    SubdomainName = request.SubdomainName.Trim(),
+                    StreamId = request.StreamId
                 };
 
                 _context.Subdomains.Add(newSubdomain);
@@ -151,10 +158,12 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = newSubdomain.SubdomainId,
                     DomainId = newSubdomain.DomainId,
                     SubdomainName = newSubdomain.SubdomainName,
+                    StreamId = newSubdomain.StreamId,
                     Domain = new DomainBasicDto
                     {
                         DomainId = domain.DomainId,
-                        DomainName = domain.DomainName
+                        DomainName = domain.DomainName,
+                        StreamId = domain.StreamId
                     }
                 };
 
@@ -210,6 +219,7 @@ namespace LeetCodeCompiler.API.Controllers
 
                 // Update the subdomain
                 subdomain.SubdomainName = request.SubdomainName.Trim();
+                subdomain.StreamId = request.StreamId;
 
                 await _context.SaveChangesAsync();
 
@@ -219,10 +229,12 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = subdomain.SubdomainId,
                     DomainId = subdomain.DomainId,
                     SubdomainName = subdomain.SubdomainName,
+                    StreamId = subdomain.StreamId,
                     Domain = subdomain.Domain != null ? new DomainBasicDto
                     {
                         DomainId = subdomain.Domain.DomainId,
-                        DomainName = subdomain.Domain.DomainName
+                        DomainName = subdomain.Domain.DomainName,
+                        StreamId = subdomain.Domain.StreamId
                     } : null
                 };
 
@@ -270,6 +282,99 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "An error occurred while deleting the subdomain", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all subdomains by stream ID
+        /// </summary>
+        /// <param name="streamId">Stream ID (optional - omit parameter or pass null to search for NULL streamId)</param>
+        /// <returns>List of subdomains with the specified stream ID</returns>
+        [HttpGet("stream")]
+        public async Task<IActionResult> GetSubdomainsByStreamId([FromQuery] int? streamId)
+        {
+            try
+            {
+                IQueryable<Subdomain> query = _context.Subdomains.Include(s => s.Domain);
+
+                // If streamId parameter is not provided or is explicitly null, search for NULL values
+                if (streamId == null)
+                {
+                    query = query.Where(s => s.StreamId == null);
+                }
+                else
+                {
+                    query = query.Where(s => s.StreamId == streamId);
+                }
+
+                var subdomains = await query
+                    .Select(s => new SubdomainDto
+                    {
+                        SubdomainId = s.SubdomainId,
+                        DomainId = s.DomainId,
+                        SubdomainName = s.SubdomainName,
+                        StreamId = s.StreamId,
+                        Domain = s.Domain != null ? new DomainBasicDto
+                        {
+                            DomainId = s.Domain.DomainId,
+                            DomainName = s.Domain.DomainName,
+                            StreamId = s.Domain.StreamId
+                        } : null
+                    })
+                    .ToListAsync();
+                
+                return Ok(subdomains);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving subdomains by stream ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update stream ID for a specific subdomain
+        /// </summary>
+        /// <param name="id">Subdomain ID</param>
+        /// <param name="streamId">New stream ID (can be null)</param>
+        /// <returns>Updated subdomain</returns>
+        [HttpPut("{id}/stream")]
+        public async Task<IActionResult> UpdateSubdomainStreamId(int id, [FromBody] int? streamId)
+        {
+            try
+            {
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == id);
+
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {id} not found" });
+                }
+
+                // Update stream ID
+                subdomain.StreamId = streamId;
+                await _context.SaveChangesAsync();
+
+                // Return the updated subdomain
+                var updatedSubdomain = new SubdomainDto
+                {
+                    SubdomainId = subdomain.SubdomainId,
+                    DomainId = subdomain.DomainId,
+                    SubdomainName = subdomain.SubdomainName,
+                    StreamId = subdomain.StreamId,
+                    Domain = subdomain.Domain != null ? new DomainBasicDto
+                    {
+                        DomainId = subdomain.Domain.DomainId,
+                        DomainName = subdomain.Domain.DomainName,
+                        StreamId = subdomain.Domain.StreamId
+                    } : null
+                };
+
+                return Ok(updatedSubdomain);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating subdomain stream ID", details = ex.Message });
             }
         }
 
