@@ -28,11 +28,13 @@ namespace LeetCodeCompiler.API.Controllers
                     DomainId = s.DomainId,
                     SubdomainName = s.SubdomainName,
                     StreamId = s.StreamId,
+                    CreatedByUserId = s.CreatedByUserId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
                         DomainName = s.Domain.DomainName,
-                        StreamId = s.Domain.StreamId
+                        StreamId = s.Domain.StreamId,
+                        CreatedByUserId = s.Domain.CreatedByUserId
                     } : null
                 })
                 .ToListAsync();
@@ -57,11 +59,13 @@ namespace LeetCodeCompiler.API.Controllers
                     DomainId = s.DomainId,
                     SubdomainName = s.SubdomainName,
                     StreamId = s.StreamId,
+                    CreatedByUserId = s.CreatedByUserId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
                         DomainName = s.Domain.DomainName,
-                        StreamId = s.Domain.StreamId
+                        StreamId = s.Domain.StreamId,
+                        CreatedByUserId = s.Domain.CreatedByUserId
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -89,11 +93,13 @@ namespace LeetCodeCompiler.API.Controllers
                     DomainId = s.DomainId,
                     SubdomainName = s.SubdomainName,
                     StreamId = s.StreamId,
+                    CreatedByUserId = s.CreatedByUserId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
                         DomainName = s.Domain.DomainName,
-                        StreamId = s.Domain.StreamId
+                        StreamId = s.Domain.StreamId,
+                        CreatedByUserId = s.Domain.CreatedByUserId
                     } : null
                 })
                 .ToListAsync();
@@ -146,7 +152,9 @@ namespace LeetCodeCompiler.API.Controllers
                 {
                     DomainId = request.DomainId,
                     SubdomainName = request.SubdomainName.Trim(),
-                    StreamId = request.StreamId
+                    StreamId = request.StreamId,
+                    CreatedByUserId = request.CreatedByUserId,
+                    UpdatedByUserId = request.UpdatedByUserId
                 };
 
                 _context.Subdomains.Add(newSubdomain);
@@ -159,11 +167,15 @@ namespace LeetCodeCompiler.API.Controllers
                     DomainId = newSubdomain.DomainId,
                     SubdomainName = newSubdomain.SubdomainName,
                     StreamId = newSubdomain.StreamId,
+                    CreatedByUserId = newSubdomain.CreatedByUserId,
+                    UpdatedByUserId = newSubdomain.UpdatedByUserId,
                     Domain = new DomainBasicDto
                     {
                         DomainId = domain.DomainId,
                         DomainName = domain.DomainName,
-                        StreamId = domain.StreamId
+                        StreamId = domain.StreamId,
+                        CreatedByUserId = domain.CreatedByUserId,
+                        UpdatedByUserId = domain.UpdatedByUserId
                     }
                 };
 
@@ -220,6 +232,8 @@ namespace LeetCodeCompiler.API.Controllers
                 // Update the subdomain
                 subdomain.SubdomainName = request.SubdomainName.Trim();
                 subdomain.StreamId = request.StreamId;
+                subdomain.CreatedByUserId = request.CreatedByUserId;
+                subdomain.UpdatedByUserId = request.UpdatedByUserId;
 
                 await _context.SaveChangesAsync();
 
@@ -230,11 +244,15 @@ namespace LeetCodeCompiler.API.Controllers
                     DomainId = subdomain.DomainId,
                     SubdomainName = subdomain.SubdomainName,
                     StreamId = subdomain.StreamId,
+                    CreatedByUserId = subdomain.CreatedByUserId,
+                    UpdatedByUserId = subdomain.UpdatedByUserId,
                     Domain = subdomain.Domain != null ? new DomainBasicDto
                     {
                         DomainId = subdomain.Domain.DomainId,
                         DomainName = subdomain.Domain.DomainName,
-                        StreamId = subdomain.Domain.StreamId
+                        StreamId = subdomain.Domain.StreamId,
+                        CreatedByUserId = subdomain.Domain.CreatedByUserId,
+                        UpdatedByUserId = subdomain.Domain.UpdatedByUserId
                     } : null
                 };
 
@@ -362,11 +380,13 @@ namespace LeetCodeCompiler.API.Controllers
                     DomainId = subdomain.DomainId,
                     SubdomainName = subdomain.SubdomainName,
                     StreamId = subdomain.StreamId,
+                    CreatedByUserId = subdomain.CreatedByUserId,
                     Domain = subdomain.Domain != null ? new DomainBasicDto
                     {
                         DomainId = subdomain.Domain.DomainId,
                         DomainName = subdomain.Domain.DomainName,
-                        StreamId = subdomain.Domain.StreamId
+                        StreamId = subdomain.Domain.StreamId,
+                        CreatedByUserId = subdomain.Domain.CreatedByUserId
                     } : null
                 };
 
@@ -375,6 +395,208 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "An error occurred while updating subdomain stream ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all subdomains by created by user ID
+        /// </summary>
+        /// <param name="createdByUserId">Created by user ID (optional - omit parameter or pass null to search for NULL createdByUserId)</param>
+        /// <returns>List of subdomains with the specified created by user ID</returns>
+        [HttpGet("created-by")]
+        public async Task<IActionResult> GetSubdomainsByCreatedByUserId([FromQuery] int? createdByUserId)
+        {
+            try
+            {
+                IQueryable<Subdomain> query = _context.Subdomains.Include(s => s.Domain);
+
+                // If createdByUserId parameter is not provided or is explicitly null, search for NULL values
+                if (createdByUserId == null)
+                {
+                    query = query.Where(s => s.CreatedByUserId == null);
+                }
+                else
+                {
+                    query = query.Where(s => s.CreatedByUserId == createdByUserId);
+                }
+
+                var subdomains = await query
+                    .Select(s => new SubdomainDto
+                    {
+                        SubdomainId = s.SubdomainId,
+                        DomainId = s.DomainId,
+                        SubdomainName = s.SubdomainName,
+                        StreamId = s.StreamId,
+                        CreatedByUserId = s.CreatedByUserId,
+                        UpdatedByUserId = s.UpdatedByUserId,
+                        Domain = s.Domain != null ? new DomainBasicDto
+                        {
+                            DomainId = s.Domain.DomainId,
+                            DomainName = s.Domain.DomainName,
+                            StreamId = s.Domain.StreamId,
+                            CreatedByUserId = s.Domain.CreatedByUserId,
+                            UpdatedByUserId = s.Domain.UpdatedByUserId
+                        } : null
+                    })
+                    .ToListAsync();
+                
+                return Ok(subdomains);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving subdomains by created by user ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update created by user ID for a specific subdomain
+        /// </summary>
+        /// <param name="id">Subdomain ID</param>
+        /// <param name="createdByUserId">New created by user ID (can be null)</param>
+        /// <returns>Updated subdomain</returns>
+        [HttpPut("{id}/created-by")]
+        public async Task<IActionResult> UpdateSubdomainCreatedByUserId(int id, [FromBody] int? createdByUserId)
+        {
+            try
+            {
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == id);
+
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {id} not found" });
+                }
+
+                // Update created by user ID
+                subdomain.CreatedByUserId = createdByUserId;
+                await _context.SaveChangesAsync();
+
+                // Return the updated subdomain
+                var updatedSubdomain = new SubdomainDto
+                {
+                    SubdomainId = subdomain.SubdomainId,
+                    DomainId = subdomain.DomainId,
+                    SubdomainName = subdomain.SubdomainName,
+                    StreamId = subdomain.StreamId,
+                    CreatedByUserId = subdomain.CreatedByUserId,
+                    UpdatedByUserId = subdomain.UpdatedByUserId,
+                    Domain = subdomain.Domain != null ? new DomainBasicDto
+                    {
+                        DomainId = subdomain.Domain.DomainId,
+                        DomainName = subdomain.Domain.DomainName,
+                        StreamId = subdomain.Domain.StreamId,
+                        CreatedByUserId = subdomain.Domain.CreatedByUserId,
+                        UpdatedByUserId = subdomain.Domain.UpdatedByUserId
+                    } : null
+                };
+
+                return Ok(updatedSubdomain);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating subdomain created by user ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all subdomains by updated by user ID
+        /// </summary>
+        /// <param name="updatedByUserId">Updated by user ID (optional - omit parameter or pass null to search for NULL updatedByUserId)</param>
+        /// <returns>List of subdomains with the specified updated by user ID</returns>
+        [HttpGet("updated-by")]
+        public async Task<IActionResult> GetSubdomainsByUpdatedByUserId([FromQuery] int? updatedByUserId)
+        {
+            try
+            {
+                IQueryable<Subdomain> query = _context.Subdomains.Include(s => s.Domain);
+
+                // If updatedByUserId parameter is not provided or is explicitly null, search for NULL values
+                if (updatedByUserId == null)
+                {
+                    query = query.Where(s => s.UpdatedByUserId == null);
+                }
+                else
+                {
+                    query = query.Where(s => s.UpdatedByUserId == updatedByUserId);
+                }
+
+                var subdomains = await query
+                    .Select(s => new SubdomainDto
+                    {
+                        SubdomainId = s.SubdomainId,
+                        DomainId = s.DomainId,
+                        SubdomainName = s.SubdomainName,
+                        StreamId = s.StreamId,
+                        CreatedByUserId = s.CreatedByUserId,
+                        UpdatedByUserId = s.UpdatedByUserId,
+                        Domain = s.Domain != null ? new DomainBasicDto
+                        {
+                            DomainId = s.Domain.DomainId,
+                            DomainName = s.Domain.DomainName,
+                            StreamId = s.Domain.StreamId,
+                            CreatedByUserId = s.Domain.CreatedByUserId,
+                            UpdatedByUserId = s.Domain.UpdatedByUserId
+                        } : null
+                    })
+                    .ToListAsync();
+                
+                return Ok(subdomains);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving subdomains by updated by user ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update updated by user ID for a specific subdomain
+        /// </summary>
+        /// <param name="id">Subdomain ID</param>
+        /// <param name="updatedByUserId">New updated by user ID (can be null)</param>
+        /// <returns>Updated subdomain</returns>
+        [HttpPut("{id}/updated-by")]
+        public async Task<IActionResult> UpdateSubdomainUpdatedByUserId(int id, [FromBody] int? updatedByUserId)
+        {
+            try
+            {
+                var subdomain = await _context.Subdomains
+                    .Include(s => s.Domain)
+                    .FirstOrDefaultAsync(s => s.SubdomainId == id);
+
+                if (subdomain == null)
+                {
+                    return NotFound(new { error = $"Subdomain with ID {id} not found" });
+                }
+
+                // Update updated by user ID
+                subdomain.UpdatedByUserId = updatedByUserId;
+                await _context.SaveChangesAsync();
+
+                // Return the updated subdomain
+                var updatedSubdomain = new SubdomainDto
+                {
+                    SubdomainId = subdomain.SubdomainId,
+                    DomainId = subdomain.DomainId,
+                    SubdomainName = subdomain.SubdomainName,
+                    StreamId = subdomain.StreamId,
+                    CreatedByUserId = subdomain.CreatedByUserId,
+                    UpdatedByUserId = subdomain.UpdatedByUserId,
+                    Domain = subdomain.Domain != null ? new DomainBasicDto
+                    {
+                        DomainId = subdomain.Domain.DomainId,
+                        DomainName = subdomain.Domain.DomainName,
+                        StreamId = subdomain.Domain.StreamId,
+                        CreatedByUserId = subdomain.Domain.CreatedByUserId,
+                        UpdatedByUserId = subdomain.Domain.UpdatedByUserId
+                    } : null
+                };
+
+                return Ok(updatedSubdomain);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating subdomain updated by user ID", details = ex.Message });
             }
         }
 

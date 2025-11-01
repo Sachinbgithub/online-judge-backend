@@ -117,7 +117,9 @@ namespace LeetCodeCompiler.API.Controllers
                     MemoryLimit = request.MemoryLimit,
                     SubdomainId = request.SubdomainId,
                     Difficulty = request.Difficulty,
-                    StreamId = request.StreamId
+                    StreamId = request.StreamId,
+                    CreatedByUserId = request.CreatedByUserId,
+                    UpdatedByUserId = request.UpdatedByUserId
                 };
 
                 _context.Problems.Add(newProblem);
@@ -137,6 +139,8 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = newProblem.SubdomainId,
                     Difficulty = newProblem.Difficulty,
                     StreamId = newProblem.StreamId,
+                    CreatedByUserId = newProblem.CreatedByUserId,
+                    UpdatedByUserId = newProblem.UpdatedByUserId,
                     SubdomainName = subdomain.SubdomainName,
                     DomainName = subdomain.Domain?.DomainName ?? "",
                     TestCases = new List<TestCase>(),
@@ -219,6 +223,8 @@ namespace LeetCodeCompiler.API.Controllers
                 problem.SubdomainId = request.SubdomainId;
                 problem.Difficulty = request.Difficulty;
                 problem.StreamId = request.StreamId;
+                problem.CreatedByUserId = request.CreatedByUserId;
+                problem.UpdatedByUserId = request.UpdatedByUserId;
 
                 await _context.SaveChangesAsync();
 
@@ -245,6 +251,8 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainId = problem.SubdomainId,
                     Difficulty = problem.Difficulty,
                     StreamId = problem.StreamId,
+                    CreatedByUserId = problem.CreatedByUserId,
+                    UpdatedByUserId = problem.UpdatedByUserId,
                     SubdomainName = subdomain.SubdomainName,
                     DomainName = subdomain.Domain?.DomainName ?? "",
                     TestCases = testCases,
@@ -371,6 +379,142 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "An error occurred while updating problem stream ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all problems by created by user ID
+        /// </summary>
+        /// <param name="createdByUserId">Created by user ID (optional - omit parameter or pass null to search for NULL createdByUserId)</param>
+        /// <returns>List of problems with the specified created by user ID</returns>
+        [HttpGet("created-by")]
+        public async Task<IActionResult> GetProblemsByCreatedByUserId([FromQuery] int? createdByUserId)
+        {
+            try
+            {
+                IQueryable<Problem> query = _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes);
+
+                // If createdByUserId parameter is not provided or is explicitly null, search for NULL values
+                if (createdByUserId == null)
+                {
+                    query = query.Where(p => p.CreatedByUserId == null);
+                }
+                else
+                {
+                    query = query.Where(p => p.CreatedByUserId == createdByUserId);
+                }
+
+                var problems = await query.ToListAsync();
+                
+                return Ok(problems);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving problems by created by user ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update created by user ID for a specific problem
+        /// </summary>
+        /// <param name="id">Problem ID</param>
+        /// <param name="createdByUserId">New created by user ID (can be null)</param>
+        /// <returns>Updated problem</returns>
+        [HttpPut("{id}/created-by")]
+        public async Task<IActionResult> UpdateProblemCreatedByUserId(int id, [FromBody] int? createdByUserId)
+        {
+            try
+            {
+                var problem = await _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (problem == null)
+                {
+                    return NotFound(new { error = $"Problem with ID {id} not found" });
+                }
+
+                // Update created by user ID
+                problem.CreatedByUserId = createdByUserId;
+                await _context.SaveChangesAsync();
+
+                // Return the updated problem
+                return Ok(problem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating problem created by user ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all problems by updated by user ID
+        /// </summary>
+        /// <param name="updatedByUserId">Updated by user ID (optional - omit parameter or pass null to search for NULL updatedByUserId)</param>
+        /// <returns>List of problems with the specified updated by user ID</returns>
+        [HttpGet("updated-by")]
+        public async Task<IActionResult> GetProblemsByUpdatedByUserId([FromQuery] int? updatedByUserId)
+        {
+            try
+            {
+                IQueryable<Problem> query = _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes);
+
+                // If updatedByUserId parameter is not provided or is explicitly null, search for NULL values
+                if (updatedByUserId == null)
+                {
+                    query = query.Where(p => p.UpdatedByUserId == null);
+                }
+                else
+                {
+                    query = query.Where(p => p.UpdatedByUserId == updatedByUserId);
+                }
+
+                var problems = await query.ToListAsync();
+                
+                return Ok(problems);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving problems by updated by user ID", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update updated by user ID for a specific problem
+        /// </summary>
+        /// <param name="id">Problem ID</param>
+        /// <param name="updatedByUserId">New updated by user ID (can be null)</param>
+        /// <returns>Updated problem</returns>
+        [HttpPut("{id}/updated-by")]
+        public async Task<IActionResult> UpdateProblemUpdatedByUserId(int id, [FromBody] int? updatedByUserId)
+        {
+            try
+            {
+                var problem = await _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (problem == null)
+                {
+                    return NotFound(new { error = $"Problem with ID {id} not found" });
+                }
+
+                // Update updated by user ID
+                problem.UpdatedByUserId = updatedByUserId;
+                await _context.SaveChangesAsync();
+
+                // Return the updated problem
+                return Ok(problem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while updating problem updated by user ID", details = ex.Message });
             }
         }
 

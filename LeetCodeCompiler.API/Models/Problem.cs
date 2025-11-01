@@ -13,6 +13,8 @@ namespace LeetCodeCompiler.API.Models
         public required int SubdomainId { get; set; } // Required field
         public required int Difficulty { get; set; } // Required field (1-3)
         public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
         // 🔧 DEVELOPMENT MODE: Removed TemplateCategory column reference
         // public string? TemplateCategory { get; set; }
         public List<TestCase> TestCases { get; set; } = new List<TestCase>();
