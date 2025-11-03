@@ -1,9 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace LeetCodeCompiler.API.Models
 {
     public class DomainDto
     {
         public int DomainId { get; set; }
         public string DomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
         public List<SubdomainDto> Subdomains { get; set; } = new();
     }
 
@@ -12,6 +17,9 @@ namespace LeetCodeCompiler.API.Models
         public int SubdomainId { get; set; }
         public int DomainId { get; set; }
         public string SubdomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
         public DomainBasicDto? Domain { get; set; }
     }
 
@@ -19,5 +27,46 @@ namespace LeetCodeCompiler.API.Models
     {
         public int DomainId { get; set; }
         public string DomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
+    }
+
+    public class CreateDomainRequest
+    {
+        public string DomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
+    }
+
+
+    public class UpdateDomainRequest
+    {
+        [Required(ErrorMessage = "Domain name is required")]
+        [StringLength(100, ErrorMessage = "Domain name cannot exceed 100 characters")]
+        public string DomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
+    }
+
+    public class CreateSubdomainRequest
+    {
+        public int DomainId { get; set; }
+        public string SubdomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
+    }
+
+    public class UpdateSubdomainRequest
+    {
+        [Required(ErrorMessage = "Subdomain name is required")]
+        [StringLength(100, ErrorMessage = "Subdomain name cannot exceed 100 characters")]
+        public string SubdomainName { get; set; } = string.Empty;
+        public int? StreamId { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public int? UpdatedByUserId { get; set; }
     }
 }

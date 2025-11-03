@@ -9,10 +9,13 @@ namespace LeetCodeCompiler.API.Data
         public DbSet<Problem> Problems { get; set; }
         public DbSet<TestCase> TestCases { get; set; }
         public DbSet<StarterCode> StarterCodes { get; set; }
+        public DbSet<ProblemHint> ProblemHints { get; set; }
         
         // Domain and Subdomain DbSets
         public DbSet<Domain> Domains { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
+        public DbSet<Difficulty> Difficulties { get; set; }
+        public DbSet<Language> Languages { get; set; }
         
         // New DbSets for activity tracking
         public DbSet<UserCodingActivityLog> UserCodingActivityLogs { get; set; }
@@ -51,9 +54,33 @@ namespace LeetCodeCompiler.API.Data
                 .HasForeignKey(tc => tc.ProblemId);
 
             modelBuilder.Entity<StarterCode>()
-                .HasOne<Problem>()
+                .HasOne(sc => sc.Problem)
                 .WithMany(p => p.StarterCodes)
-                .HasForeignKey(sc => sc.ProblemId);
+                .HasForeignKey(sc => sc.ProblemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Language entity
+            modelBuilder.Entity<Language>().ToTable("Languages");
+            modelBuilder.Entity<Language>()
+                .Property(l => l.Id)
+                .ValueGeneratedNever(); // Manual ID generation
+            modelBuilder.Entity<Language>()
+                .Property(l => l.LanguageName)
+                .HasColumnName("Language");
+
+            // Configure Language relationship
+            modelBuilder.Entity<StarterCode>()
+                .HasOne(sc => sc.LanguageNavigation)
+                .WithMany()
+                .HasForeignKey(sc => sc.Language)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure ProblemHint relationship
+            modelBuilder.Entity<ProblemHint>()
+                .HasOne(ph => ph.Problem)
+                .WithMany()
+                .HasForeignKey(ph => ph.ProblemId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // New relationships for activity tracking
             modelBuilder.Entity<CoreTestCaseResult>()
@@ -228,24 +255,58 @@ namespace LeetCodeCompiler.API.Data
                 .WithMany(d => d.Subdomains)
                 .HasForeignKey(s => s.DomainId);
 
+            // Difficulty table mapping
+            modelBuilder.Entity<Difficulty>().ToTable("Difficulty");
+            modelBuilder.Entity<Difficulty>()
+                .Property(d => d.DifficultyName)
+                .HasColumnName("Difficulty");
+
             // Configure Problem table column mappings
             modelBuilder.Entity<Problem>().ToTable("Problems");
             modelBuilder.Entity<Problem>()
                 .Property(p => p.Hints)
-                .HasColumnName("Hints");
+                .HasColumnName("Hints")
+                .HasColumnType("int");
             modelBuilder.Entity<Problem>()
                 .Property(p => p.TimeLimit)
-                .HasColumnName("TimeLimit");
+                .HasColumnName("TimeLimit")
+                .HasColumnType("int");
             modelBuilder.Entity<Problem>()
                 .Property(p => p.MemoryLimit)
-                .HasColumnName("MemoryLimit");
+                .HasColumnName("MemoryLimit")
+                .HasColumnType("int");
             modelBuilder.Entity<Problem>()
                 .Property(p => p.SubdomainId)
-                .HasColumnName("SubdomainId");
+                .HasColumnName("SubdomainId")
+                .HasColumnType("int");
             modelBuilder.Entity<Problem>()
                 .Property(p => p.Difficulty)
-                .HasColumnName("Difficulty");
+                .HasColumnName("Difficulty")
+                .HasColumnType("int");
 
+            // Configure StarterCode table column mappings
+            modelBuilder.Entity<StarterCode>().ToTable("StarterCodes");
+            modelBuilder.Entity<StarterCode>()
+                .Property(sc => sc.ProblemId)
+                .HasColumnName("ProblemId");
+            modelBuilder.Entity<StarterCode>()
+                .Property(sc => sc.Language)
+                .HasColumnName("Language")
+                .HasColumnType("int");
+            modelBuilder.Entity<StarterCode>()
+                .Property(sc => sc.Code)
+                .HasColumnName("Code");
+
+
+            // Note: Language seed data removed to avoid ID conflicts
+            // Languages will be created through the API endpoints
+
+            // Seed Difficulty data
+            modelBuilder.Entity<Difficulty>().HasData(
+                new Difficulty { Id = 1, DifficultyId = 1, DifficultyName = "Easy" },
+                new Difficulty { Id = 2, DifficultyId = 2, DifficultyName = "Medium" },
+                new Difficulty { Id = 3, DifficultyId = 3, DifficultyName = "Hard" }
+            );
 
             // Remove old seeding for Problems.StarterCode
             modelBuilder.Entity<Problem>().HasData(
@@ -256,6 +317,10 @@ namespace LeetCodeCompiler.API.Data
                     Description = "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
                     Examples = "Input: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].",
                     Constraints = "2 ≤ nums.length ≤ 10⁴\n-10⁹ ≤ nums[i] ≤ 10⁹\n-10⁹ ≤ target ≤ 10⁹\nOnly one valid answer exists.",
+                    TimeLimit = 5,
+                    MemoryLimit = 256,
+                    SubdomainId = 9,
+                    Difficulty = 1,
                     TestCases = new List<TestCase>(),
                     StarterCodes = new List<StarterCode>()
                 },
@@ -266,6 +331,10 @@ namespace LeetCodeCompiler.API.Data
                     Description = "Write a function that reverses a string. The input string is given as an array of characters s.",
                     Examples = "Input: s = [\"h\",\"e\",\"l\",\"l\",\"o\"]\nOutput: [\"o\",\"l\",\"l\",\"e\",\"h\"]",
                     Constraints = "1 ≤ s.length ≤ 10⁵",
+                    TimeLimit = 3,
+                    MemoryLimit = 128,
+                    SubdomainId = 9,
+                    Difficulty = 1,
                     TestCases = new List<TestCase>(),
                     StarterCodes = new List<StarterCode>()
                 }
