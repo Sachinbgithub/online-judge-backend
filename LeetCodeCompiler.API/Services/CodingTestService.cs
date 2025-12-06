@@ -266,8 +266,8 @@ namespace LeetCodeCompiler.API.Services
             if (!await CanUserAttemptTestAsync(request.UserId, request.CodingTestId))
                 throw new InvalidOperationException("User cannot attempt this test");
 
-            if (!string.IsNullOrEmpty(request.AccessCode) && !await ValidateAccessCodeAsync(request.CodingTestId, request.AccessCode))
-                throw new InvalidOperationException("Invalid access code");
+            // Access code validation removed - access code is now completely optional
+            // Test can be started with just codingTestId and userId
 
             // Check if user already has an attempt
             var existingAttempt = await _context.CodingTestAttempts
