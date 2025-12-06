@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace LeetCodeCompiler.API.Services
 {
-    public class JavaScriptExecutionService : ICodeExecutionService
+    public class CExecutionService : ICodeExecutionService
     {
         private readonly IContainerPoolService _containerPool;
-        private readonly ILogger<JavaScriptExecutionService> _logger;
+        private readonly ILogger<CExecutionService> _logger;
 
-        public JavaScriptExecutionService(IContainerPoolService containerPool, ILogger<JavaScriptExecutionService> logger)
+        public CExecutionService(IContainerPoolService containerPool, ILogger<CExecutionService> logger)
         {
             _containerPool = containerPool;
             _logger = logger;
@@ -19,15 +19,15 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<ExecutionResult> ExecuteAsync(string code, string input)
         {
-            // Get container from pool
-            var containerId = await _containerPool.GetContainerAsync("javascript");
+            // Get container from pool (reuses gcc image from cpp pool)
+            var containerId = await _containerPool.GetContainerAsync("c");
             if (string.IsNullOrEmpty(containerId))
             {
                 return new ExecutionResult 
                 { 
                     Stdout = "",
                     Stderr = "",
-                    Error = "No available containers for JavaScript execution",
+                    Error = "No available containers for C execution",
                     Output = ""
                 };
             }
@@ -36,11 +36,11 @@ namespace LeetCodeCompiler.API.Services
             {
                 var sw = Stopwatch.StartNew();
                 
-                // Step 1: Write JavaScript code to file
+                // Step 1: Write C code to file
                 var writeStartInfo = new ProcessStartInfo
                 {
                     FileName = "docker",
-                    Arguments = $"exec -i {containerId} sh -c \"cat > /tmp/solution.js\"",
+                    Arguments = $"exec -i {containerId} sh -c \"cat > /tmp/main.c\"",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -61,17 +61,45 @@ namespace LeetCodeCompiler.API.Services
                     { 
                         Stdout = "",
                         Stderr = writeError,
-                        Error = $"Failed to write JavaScript code to file. Exit code: {writeProcess.ExitCode}",
+                        Error = $"Failed to write C code to file. Exit code: {writeProcess.ExitCode}",
                         Output = "",
                         RuntimeMs = sw.Elapsed.TotalMilliseconds
                     };
                 }
                 
-                // Step 2: Execute the JavaScript file with input
+                // Step 2: Compile the C file using gcc
+                var compileStartInfo = new ProcessStartInfo
+                {
+                    FileName = "docker",
+                    Arguments = $"exec {containerId} sh -c \"cd /tmp && gcc main.c -o main -lm\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                
+                var compileProcess = new Process { StartInfo = compileStartInfo };
+                compileProcess.Start();
+                await compileProcess.WaitForExitAsync();
+                
+                if (compileProcess.ExitCode != 0)
+                {
+                    var compileError = await compileProcess.StandardError.ReadToEndAsync();
+                    return new ExecutionResult 
+                    { 
+                        Stdout = "",
+                        Stderr = compileError,
+                        Error = $"Compilation failed. Exit code: {compileProcess.ExitCode}",
+                        Output = "",
+                        RuntimeMs = sw.Elapsed.TotalMilliseconds
+                    };
+                }
+                
+                // Step 3: Execute the compiled program with input
                 var execStartInfo = new ProcessStartInfo
                 {
                     FileName = "docker",
-                    Arguments = $"exec -i {containerId} node /tmp/solution.js",
+                    Arguments = $"exec -i {containerId} /tmp/main",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -82,14 +110,14 @@ namespace LeetCodeCompiler.API.Services
                 var process = new Process { StartInfo = execStartInfo };
                 process.Start();
                 
-                // Send input to the Node.js program
+                // Send input to the C program
                 if (!string.IsNullOrEmpty(input))
                 {
                     await process.StandardInput.WriteAsync(input);
                 }
                 process.StandardInput.Close();
                 
-                // Timeout handling (10s for JavaScript execution)
+                // Timeout handling (10s for C compilation + execution)
                 var outputTask = process.StandardOutput.ReadToEndAsync();
                 var errorTask = process.StandardError.ReadToEndAsync();
                 var processTask = process.WaitForExitAsync();
@@ -127,7 +155,7 @@ namespace LeetCodeCompiler.API.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error executing JavaScript code");
+                _logger.LogError(ex, "Error executing C code");
                 return new ExecutionResult
                 {
                     Stdout = "",
@@ -139,8 +167,9 @@ namespace LeetCodeCompiler.API.Services
             finally
             {
                 // Non-blocking container return for faster response
-                _ = Task.Run(async () => await _containerPool.ReturnContainerAsync(containerId, "javascript"));
+                _ = Task.Run(async () => await _containerPool.ReturnContainerAsync(containerId, "c"));
             }
         }
     }
 }
+

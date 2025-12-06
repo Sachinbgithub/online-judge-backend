@@ -27,7 +27,8 @@ namespace LeetCodeCompiler.API.Services
                 ["python"] = "python:3.11-alpine",
                 ["javascript"] = "node:18",
                 ["java"] = "openjdk:17",
-                ["cpp"] = "gcc:11"
+                ["cpp"] = "gcc:11",
+                ["c"] = "gcc:11"
             };
 
             // Initialize queues for each language
@@ -59,8 +60,8 @@ namespace LeetCodeCompiler.API.Services
             {
                 var poolSize = GetPoolSize(language);
                 totalContainers += poolSize;
-                totalMemoryMB += poolSize * 32; // 32MB per container
-                totalCPU += poolSize * 0.08;    // 0.08 CPU per container
+                totalMemoryMB += poolSize * 256; // 256MB per container
+                totalCPU += poolSize * 1.0;      // 1 CPU per container
                 
                 _logger.LogInformation("Pool initialized: {Language} = {PoolSize} containers", language, poolSize);
             }
@@ -114,7 +115,7 @@ namespace LeetCodeCompiler.API.Services
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = "docker",
-                    Arguments = $"run -d --memory=32m --cpus=0.08 --network=none {image} sleep 3600",
+                    Arguments = $"run -d --memory=256m --cpus=1 --network=none {image} sleep infinity",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -132,7 +133,7 @@ namespace LeetCodeCompiler.API.Services
                 if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
                 {
                     var containerId = output.Trim();
-                    _logger.LogInformation("Container started for {Language}: {ContainerId} (32MB RAM, 0.08 CPU)", language, containerId.Substring(0, 12));
+                    _logger.LogInformation("Container started for {Language}: {ContainerId} (256MB RAM, 1 CPU)", language, containerId.Substring(0, 12));
                     return containerId;
                 }
                 else
@@ -265,7 +266,9 @@ namespace LeetCodeCompiler.API.Services
                 JavaAvailable = _availableContainers["java"].Count,
                 JavaInUse = _inUseContainers["java"].Count,
                 CppAvailable = _availableContainers["cpp"].Count,
-                CppInUse = _inUseContainers["cpp"].Count
+                CppInUse = _inUseContainers["cpp"].Count,
+                CAvailable = _availableContainers["c"].Count,
+                CInUse = _inUseContainers["c"].Count
             });
         }
 
@@ -277,6 +280,7 @@ namespace LeetCodeCompiler.API.Services
                 "javascript" => _options.JavaScriptPoolSize,
                 "java" => _options.JavaPoolSize,
                 "cpp" => _options.CppPoolSize,
+                "c" => _options.CPoolSize,
                 _ => _options.DefaultPoolSize
             };
         }
@@ -325,6 +329,7 @@ namespace LeetCodeCompiler.API.Services
         public int JavaScriptPoolSize { get; set; } = 8;
         public int JavaPoolSize { get; set; } = 6;
         public int CppPoolSize { get; set; } = 6;
+        public int CPoolSize { get; set; } = 6;
         public int DefaultPoolSize { get; set; } = 5;
     }
 }

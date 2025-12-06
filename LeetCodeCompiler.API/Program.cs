@@ -212,6 +212,7 @@ builder.Services.AddScoped<PythonExecutionService>();
 builder.Services.AddScoped<JavaScriptExecutionService>();
 builder.Services.AddScoped<JavaExecutionService>();
 builder.Services.AddScoped<CppExecutionService>();
+builder.Services.AddScoped<CExecutionService>();
 
 // Add memory cache
 builder.Services.AddMemoryCache();

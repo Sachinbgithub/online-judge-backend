@@ -16,6 +16,7 @@ namespace LeetCodeCompiler.API.Services
             _containerPool = containerPool;
             _logger = logger;
         }
+
         public async Task<ExecutionResult> ExecuteAsync(string code, string input)
         {
             // Get container from pool
@@ -35,38 +36,92 @@ namespace LeetCodeCompiler.API.Services
             {
                 var sw = Stopwatch.StartNew();
                 
-                // 🚀 OPTIMIZED: Use bash here-document for C++ (more reliable than echo escaping)
-                var cppCode = code.Replace("$", "\\$").Replace("`", "\\`").Replace("\\", "\\\\");
-                var startInfo = new ProcessStartInfo
+                // Step 1: Write C++ code to file
+                var writeStartInfo = new ProcessStartInfo
                 {
                     FileName = "docker",
-                    Arguments = $"exec -i {containerId} bash -c \"cat > /tmp/main.cpp && cd /tmp && g++ main.cpp -o main && ./main\"",
+                    Arguments = $"exec -i {containerId} sh -c \"cat > /tmp/main.cpp\"",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true,
+                    CreateNoWindow = true
                 };
-
-                var process = new Process { StartInfo = startInfo };
+                
+                var writeProcess = new Process { StartInfo = writeStartInfo };
+                writeProcess.Start();
+                await writeProcess.StandardInput.WriteAsync(code);
+                writeProcess.StandardInput.Close();
+                await writeProcess.WaitForExitAsync();
+                
+                if (writeProcess.ExitCode != 0)
+                {
+                    var writeError = await writeProcess.StandardError.ReadToEndAsync();
+                    return new ExecutionResult 
+                    { 
+                        Stdout = "",
+                        Stderr = writeError,
+                        Error = $"Failed to write C++ code to file. Exit code: {writeProcess.ExitCode}",
+                        Output = "",
+                        RuntimeMs = sw.Elapsed.TotalMilliseconds
+                    };
+                }
+                
+                // Step 2: Compile the C++ file
+                var compileStartInfo = new ProcessStartInfo
+                {
+                    FileName = "docker",
+                    Arguments = $"exec {containerId} sh -c \"cd /tmp && g++ main.cpp -o main\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                
+                var compileProcess = new Process { StartInfo = compileStartInfo };
+                compileProcess.Start();
+                await compileProcess.WaitForExitAsync();
+                
+                if (compileProcess.ExitCode != 0)
+                {
+                    var compileError = await compileProcess.StandardError.ReadToEndAsync();
+                    return new ExecutionResult 
+                    { 
+                        Stdout = "",
+                        Stderr = compileError,
+                        Error = $"Compilation failed. Exit code: {compileProcess.ExitCode}",
+                        Output = "",
+                        RuntimeMs = sw.Elapsed.TotalMilliseconds
+                    };
+                }
+                
+                // Step 3: Execute the compiled program with input
+                var execStartInfo = new ProcessStartInfo
+                {
+                    FileName = "docker",
+                    Arguments = $"exec -i {containerId} /tmp/main",
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                
+                var process = new Process { StartInfo = execStartInfo };
                 process.Start();
                 
-                // 🚀 OPTIMIZED: Write C++ code directly to stdin (no shell escaping)
-                await process.StandardInput.WriteAsync(cppCode);
-                await process.StandardInput.WriteAsync("\n");
-                
-                // Send input to the compiled program if provided
+                // Send input to the C++ program
                 if (!string.IsNullOrEmpty(input))
                 {
                     await process.StandardInput.WriteAsync(input);
                 }
                 process.StandardInput.Close();
                 
-                // 🚀 OPTIMIZED: Use async timeout with better performance (C++ needs time for compilation)
+                // Timeout handling (10s for C++ compilation + execution)
                 var outputTask = process.StandardOutput.ReadToEndAsync();
                 var errorTask = process.StandardError.ReadToEndAsync();
                 var processTask = process.WaitForExitAsync();
-                var timeoutTask = Task.Delay(5000); // 5s timeout for C++ compilation + execution
+                var timeoutTask = Task.Delay(10000);
                 
                 var completedTask = await Task.WhenAny(processTask, timeoutTask);
                 sw.Stop();
@@ -98,23 +153,22 @@ namespace LeetCodeCompiler.API.Services
                     RuntimeMs = sw.Elapsed.TotalMilliseconds
                 };
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing C++ code");
+                return new ExecutionResult
+                {
+                    Stdout = "",
+                    Stderr = "",
+                    Error = ex.Message,
+                    Output = ""
+                };
+            }
             finally
             {
-                // 🚀 OPTIMIZED: Non-blocking container return for faster response
+                // Non-blocking container return for faster response
                 _ = Task.Run(async () => await _containerPool.ReturnContainerAsync(containerId, "cpp"));
             }
         }
-
-        private string EscapeCppCode(string code)
-        {
-            // Escape C++ code for shell execution
-            return code.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("'", "\\'");
-        }
-
-        private string EscapeInput(string input)
-        {
-            // Escape for bash echo (handles quotes and backslashes)
-            return input.Replace("\\", "\\\\").Replace("\"", "\\\"");
-        }
     }
-} 
+}

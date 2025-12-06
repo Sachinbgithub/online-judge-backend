@@ -18,6 +18,7 @@ namespace LeetCodeCompiler.API.Controllers
         private readonly JavaScriptExecutionService _javascriptService;
         private readonly JavaExecutionService _javaService;
         private readonly CppExecutionService _cppService;
+        private readonly CExecutionService _cService;
 
         public QuestionResultController(
             IActivityTrackingService activityTrackingService, 
@@ -25,7 +26,8 @@ namespace LeetCodeCompiler.API.Controllers
             PythonExecutionService pythonService,
             JavaScriptExecutionService javascriptService,
             JavaExecutionService javaService,
-            CppExecutionService cppService)
+            CppExecutionService cppService,
+            CExecutionService cService)
         {
             _activityTrackingService = activityTrackingService;
             _dbContext = dbContext;
@@ -33,6 +35,7 @@ namespace LeetCodeCompiler.API.Controllers
             _javascriptService = javascriptService;
             _javaService = javaService;
             _cppService = cppService;
+            _cService = cService;
         }
 
         [HttpPost("submit")]
@@ -74,7 +77,7 @@ namespace LeetCodeCompiler.API.Controllers
                 };
 
                 // Create a temporary CodeExecutionController to execute the code
-                var codeExecutionController = new CodeExecutionController(_dbContext, _activityTrackingService, Microsoft.Extensions.Logging.Abstractions.NullLogger<CodeExecutionController>.Instance, _pythonService, _javascriptService, _javaService, _cppService);
+                var codeExecutionController = new CodeExecutionController(_dbContext, _activityTrackingService, Microsoft.Extensions.Logging.Abstractions.NullLogger<CodeExecutionController>.Instance, _pythonService, _javascriptService, _javaService, _cppService, _cService);
                 var executionResult = await codeExecutionController.ExecuteCode(codeExecutionRequest) as OkObjectResult;
                 var response = executionResult?.Value as CodeExecutionResponse;
 
@@ -506,7 +509,7 @@ namespace LeetCodeCompiler.API.Controllers
                 "javascript" or "js" => _javascriptService,
                 "java" => _javaService,
                 "cpp" or "c++" => _cppService,
-                // "csharp" or "c#" => new CSharpExecutionService(), // C# execution removed - not supported for users
+                "c" => _cService,
                 _ => null
             };
         }

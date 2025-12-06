@@ -39,7 +39,9 @@ namespace LeetCodeCompiler.API.Services
         public int JavaInUse { get; set; }
         public int CppAvailable { get; set; }
         public int CppInUse { get; set; }
-        public int TotalAvailable => PythonAvailable + JavaScriptAvailable + JavaAvailable + CppAvailable;
-        public int TotalInUse => PythonInUse + JavaScriptInUse + JavaInUse + CppInUse;
+        public int CAvailable { get; set; }
+        public int CInUse { get; set; }
+        public int TotalAvailable => PythonAvailable + JavaScriptAvailable + JavaAvailable + CppAvailable + CAvailable;
+        public int TotalInUse => PythonInUse + JavaScriptInUse + JavaInUse + CppInUse + CInUse;
     }
 }
