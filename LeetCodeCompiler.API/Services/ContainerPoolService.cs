@@ -59,17 +59,22 @@ namespace LeetCodeCompiler.API.Services
             foreach (var language in _containerImages.Keys)
             {
                 var poolSize = GetPoolSize(language);
-                totalContainers += poolSize;
-                totalMemoryMB += poolSize * 256; // 256MB per container
-                totalCPU += poolSize * 1.0;      // 1 CPU per container
+                var (memory, cpu) = GetResourceLimits(language);
+                var memoryMB = int.Parse(memory.Replace("m", ""));
+                var cpuValue = double.Parse(cpu, System.Globalization.CultureInfo.InvariantCulture);
                 
-                _logger.LogInformation("Pool initialized: {Language} = {PoolSize} containers", language, poolSize);
+                totalContainers += poolSize;
+                totalMemoryMB += poolSize * memoryMB;
+                totalCPU += poolSize * cpuValue;
+                
+                _logger.LogInformation("Pool initialized: {Language} = {PoolSize} containers ({Memory} RAM, {Cpu} CPU each)", 
+                    language, poolSize, memory, cpu);
             }
             
-            _logger.LogInformation("🚀 TOTAL CAPACITY: {TotalContainers} containers, {TotalMemoryMB}MB RAM, {TotalCPU:F1} CPU cores", 
+            _logger.LogInformation("🚀 TOTAL CAPACITY: {TotalContainers} containers, {TotalMemoryMB}MB RAM, {TotalCPU:F2} CPU cores", 
                 totalContainers, totalMemoryMB, totalCPU);
-            _logger.LogInformation("🎯 ESTIMATED USER CAPACITY: {EstimatedUsers:N0} concurrent users (0.67 exec/min per user)", 
-                (int)(totalContainers * 60 * 0.2 / 0.67)); // 0.2ms avg execution, 0.67 exec/min per user
+            _logger.LogInformation("🎯 ESTIMATED USER CAPACITY: {EstimatedUsers:N0} concurrent users (0.6 exec/min per user)", 
+                (int)(totalContainers * 60 * 0.5 / 0.6)); // 0.5s avg execution, 0.6 exec/min per user
             _logger.LogInformation("Container pools initialized successfully");
         }
 
@@ -112,10 +117,13 @@ namespace LeetCodeCompiler.API.Services
         {
             try
             {
+                // Get per-language resource limits
+                var (memory, cpu) = GetResourceLimits(language);
+                
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = "docker",
-                    Arguments = $"run -d --memory=256m --cpus=1 --network=none {image} sleep infinity",
+                    Arguments = $"run -d --memory={memory} --cpus={cpu} --network=none {image} sleep infinity",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -133,7 +141,8 @@ namespace LeetCodeCompiler.API.Services
                 if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
                 {
                     var containerId = output.Trim();
-                    _logger.LogInformation("Container started for {Language}: {ContainerId} (256MB RAM, 1 CPU)", language, containerId.Substring(0, 12));
+                    _logger.LogInformation("Container started for {Language}: {ContainerId} ({Memory} RAM, {Cpu} CPU)", 
+                        language, containerId.Substring(0, 12), memory, cpu);
                     return containerId;
                 }
                 else
@@ -147,6 +156,19 @@ namespace LeetCodeCompiler.API.Services
                 _logger.LogError(ex, "Exception while starting container for {Language}", language);
                 return null;
             }
+        }
+
+        private (string memory, string cpu) GetResourceLimits(string language)
+        {
+            return language.ToLower() switch
+            {
+                "java" => ("384m", "0.5"),           // JVM + javac are heavy
+                "javascript" => ("192m", "0.25"),    // Node.js needs some headroom
+                "python" => ("128m", "0.2"),         // Lightweight interpreter
+                "cpp" => ("128m", "0.25"),           // Compilation needs some CPU
+                "c" => ("128m", "0.2"),              // Similar to Python
+                _ => ("256m", "0.25")                // Default
+            };
         }
 
         public async Task<string?> GetContainerAsync(string language)
