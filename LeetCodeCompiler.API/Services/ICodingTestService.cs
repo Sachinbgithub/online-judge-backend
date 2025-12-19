@@ -9,6 +9,7 @@ namespace LeetCodeCompiler.API.Services
         Task<CodingTestResponse> GetCodingTestByIdAsync(int id);
         Task<List<CodingTestSummaryResponse>> GetAllCodingTestsAsync();
         Task<List<CodingTestSummaryResponse>> GetCodingTestsByUserAsync(int userId, string? subjectName = null, string? topicName = null, bool isEnabled = true);
+        Task<List<CodingTestFullResponse>> GetCodingTestsByCreatorAsync(int createdByUserId);
         Task<CodingTestResponse> UpdateCodingTestAsync(UpdateCodingTestRequest request);
         Task<bool> DeleteCodingTestAsync(int id);
         Task<bool> PublishCodingTestAsync(int id);
@@ -38,6 +39,7 @@ namespace LeetCodeCompiler.API.Services
         Task<List<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserAsync(long userId, byte userType, int? testType = null, long? classId = null);
         Task<bool> UnassignCodingTestAsync(long assignedId, long unassignedByUserId);
         Task<List<AssignedCodingTestSummaryResponse>> GetAssignedTestsByTestAsync(int codingTestId);
+        Task<List<AssignedCodingTestResponse>> GetAssignmentsByTestIdAsync(int codingTestId);
 
         // Validation
         Task<bool> ValidateAccessCodeAsync(int codingTestId, string accessCode);

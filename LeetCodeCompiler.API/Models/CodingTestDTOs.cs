@@ -446,6 +446,38 @@ namespace LeetCodeCompiler.API.Models
         public int CompletedAttempts { get; set; }
     }
 
+    /// <summary>
+    /// Detailed CodingTest response that mirrors the CodingTests table columns
+    /// without including navigation properties.
+    /// </summary>
+    public class CodingTestFullResponse
+    {
+        public int Id { get; set; }
+        public string TestName { get; set; } = "";
+        public int CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int DurationMinutes { get; set; }
+        public int TotalQuestions { get; set; }
+        public int TotalMarks { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsPublished { get; set; }
+        public bool AllowMultipleAttempts { get; set; }
+        public int MaxAttempts { get; set; }
+        public bool ShowResultsImmediately { get; set; }
+        public bool AllowCodeReview { get; set; }
+        public string AccessCode { get; set; } = "";
+        public string Tags { get; set; } = "";
+        public bool IsResultPublishAutomatically { get; set; }
+        public bool ApplyBreachRule { get; set; }
+        public int BreachRuleLimit { get; set; }
+        public string HostIP { get; set; } = "";
+        public int ClassId { get; set; }
+        public int TestType { get; set; }
+    }
+
     public class TopicDataResponse
     {
         public int Id { get; set; }
@@ -625,6 +657,29 @@ namespace LeetCodeCompiler.API.Models
         // Subject and Topic information
         public string? SubjectName { get; set; } // Domain name
         public string? TopicName { get; set; } // Subdomain name
+    }
+
+    /// <summary>
+    /// Detailed AssignedCodingTest response that mirrors the AssignedCodingTests table columns.
+    /// </summary>
+    public class AssignedCodingTestResponse
+    {
+        public long AssignedId { get; set; }
+        public int CodingTestId { get; set; }
+        public long AssignedToUserId { get; set; }
+        public byte AssignedToUserType { get; set; }
+        public long AssignedByUserId { get; set; }
+        public DateTime AssignedDate { get; set; }
+        public int TestType { get; set; }
+        public byte TestMode { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public string Status { get; set; } = "";
+        public DateTime? StartedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public int TimeSpentMinutes { get; set; }
+        public bool IsLateSubmission { get; set; }
     }
 
     public class GetAssignedTestsByUserRequest

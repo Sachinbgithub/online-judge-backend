@@ -139,6 +139,42 @@ namespace LeetCodeCompiler.API.Services
             return codingTests.Select(ct => MapToSummaryResponse(ct, subjectName, topicName, isEnabled)).ToList();
         }
 
+        public async Task<List<CodingTestFullResponse>> GetCodingTestsByCreatorAsync(int createdByUserId)
+        {
+            var codingTests = await _context.CodingTests
+                .Where(ct => ct.CreatedBy == createdByUserId)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => new CodingTestFullResponse
+            {
+                Id = ct.Id,
+                TestName = ct.TestName,
+                CreatedBy = ct.CreatedBy,
+                CreatedAt = ct.CreatedAt,
+                UpdatedAt = ct.UpdatedAt,
+                StartDate = ct.StartDate,
+                EndDate = ct.EndDate,
+                DurationMinutes = ct.DurationMinutes,
+                TotalQuestions = ct.TotalQuestions,
+                TotalMarks = ct.TotalMarks,
+                IsActive = ct.IsActive,
+                IsPublished = ct.IsPublished,
+                AllowMultipleAttempts = ct.AllowMultipleAttempts,
+                MaxAttempts = ct.MaxAttempts,
+                ShowResultsImmediately = ct.ShowResultsImmediately,
+                AllowCodeReview = ct.AllowCodeReview,
+                AccessCode = ct.AccessCode,
+                Tags = ct.Tags,
+                IsResultPublishAutomatically = ct.IsResultPublishAutomatically,
+                ApplyBreachRule = ct.ApplyBreachRule,
+                BreachRuleLimit = ct.BreachRuleLimit,
+                HostIP = ct.HostIP,
+                ClassId = ct.ClassId,
+                TestType = ct.TestType
+            }).ToList();
+        }
+
         public async Task<CodingTestResponse> UpdateCodingTestAsync(UpdateCodingTestRequest request)
         {
             var codingTest = await _context.CodingTests
@@ -1640,6 +1676,34 @@ namespace LeetCodeCompiler.API.Services
                 .ToListAsync();
 
             return assignments.Select(MapToAssignedSummaryResponse).ToList();
+        }
+
+        public async Task<List<AssignedCodingTestResponse>> GetAssignmentsByTestIdAsync(int codingTestId)
+        {
+            var assignments = await _context.AssignedCodingTests
+                .Where(act => act.CodingTestId == codingTestId && !act.IsDeleted)
+                .OrderByDescending(act => act.AssignedDate)
+                .ToListAsync();
+
+            return assignments.Select(act => new AssignedCodingTestResponse
+            {
+                AssignedId = act.AssignedId,
+                CodingTestId = act.CodingTestId,
+                AssignedToUserId = act.AssignedToUserId,
+                AssignedToUserType = act.AssignedToUserType,
+                AssignedByUserId = act.AssignedByUserId,
+                AssignedDate = act.AssignedDate,
+                TestType = act.TestType,
+                TestMode = act.TestMode,
+                IsDeleted = act.IsDeleted,
+                CreatedAt = act.CreatedAt,
+                UpdatedAt = act.UpdatedAt,
+                Status = act.Status,
+                StartedAt = act.StartedAt,
+                CompletedAt = act.CompletedAt,
+                TimeSpentMinutes = act.TimeSpentMinutes,
+                IsLateSubmission = act.IsLateSubmission
+            }).ToList();
         }
 
         private AssignedCodingTestSummaryResponse MapToAssignedSummaryResponse(AssignedCodingTest assignment)
