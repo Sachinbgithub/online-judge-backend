@@ -81,6 +81,26 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all coding tests created by a specific user (CreatedBy)
+        /// with full CodingTests table column data.
+        /// </summary>
+        /// <param name="createdBy">User ID who created the tests</param>
+        /// <returns>List of coding tests created by the specified user</returns>
+        [HttpGet("created-by/{createdBy}")]
+        public async Task<IActionResult> GetCodingTestsByCreator(int createdBy)
+        {
+            try
+            {
+                var result = await _codingTestService.GetCodingTestsByCreatorAsync(createdBy);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve coding tests by creator", details = ex.Message });
+            }
+        }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetCodingTestsByUser(int userId, [FromQuery] string? subjectName = null, [FromQuery] string? topicName = null, [FromQuery] bool isEnabled = true)
         {
@@ -688,6 +708,25 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to retrieve test assignments", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets raw assignment records for a specific test, including AssignedToUserId.
+        /// </summary>
+        /// <param name="codingTestId">Coding test ID</param>
+        /// <returns>List of assignment records for the given test</returns>
+        [HttpGet("{codingTestId}/assigned-users")]
+        public async Task<IActionResult> GetAssignedUsersByTestId(int codingTestId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetAssignmentsByTestIdAsync(codingTestId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve assigned users for test", details = ex.Message });
             }
         }
 

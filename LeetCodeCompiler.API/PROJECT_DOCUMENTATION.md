@@ -269,6 +269,25 @@ Resource Usage:
 
 ## 🔗 API Endpoints
 
+### **Coding Tests**
+```http
+GET /api/CodingTest
+GET /api/CodingTest/{id}
+GET /api/CodingTest/created-by/{createdBy}
+GET /api/CodingTest/user/{userId}?subjectName=&topicName=&isEnabled=true
+GET /api/CodingTest/{codingTestId}/assigned-users
+```
+
+- **GET `/api/CodingTest/created-by/{createdBy}`**  
+  - **Description**: Returns all coding tests where `CreatedBy` equals the given user id.  
+  - **Response**: `CodingTestFullResponse[]` (one item per row in `CodingTests` table).  
+  - **Typical use**: Fetch all tests created by a faculty user.
+
+- **GET `/api/CodingTest/{codingTestId}/assigned-users`**  
+  - **Description**: Returns all assignment records from `AssignedCodingTests` for the specified `CodingTestId`.  
+  - **Response**: `AssignedCodingTestResponse[]` including `AssignedToUserId` and other assignment metadata.  
+  - **Typical use**: Find all users to whom a particular test has been assigned.
+
 ### **Code Execution**
 ```http
 POST /api/CodeExecution

@@ -2,18 +2,27 @@
 
 ## ✅ Completed Changes
 
-### 1. Database Schema Updates
+### 1. New CodingTest query endpoints
+
+- **Added endpoint** `GET /api/CodingTest/created-by/{createdBy}`  
+  - Returns all coding tests created by a specific user (`CreatedBy` field in `CodingTests`).  
+  - Uses new DTO `CodingTestFullResponse` that mirrors all columns in the `CodingTests` table (without navigation properties).
+- **Added endpoint** `GET /api/CodingTest/{codingTestId}/assigned-users`  
+  - Returns all assignment records for the given `CodingTestId` from `AssignedCodingTests`.  
+  - Uses new DTO `AssignedCodingTestResponse` that mirrors all important columns, including `AssignedToUserId`.
+
+### 2. Database Schema Updates
 - **Recreated `CodingTestSubmissions` table** with nullable `CodingTestQuestionAttemptId` and `ProblemId`
 - **Recreated `CodingTestSubmissionResults` table** with proper foreign key constraints
 - **Added proper indexes** for performance optimization
 - **Used UTC timestamps** for consistency
 
-### 2. Entity Framework Model Updates
+### 3. Entity Framework Model Updates
 - **Updated `CodingTestSubmission` model** to make `ProblemId` and `CodingTestQuestionAttemptId` nullable
 - **Added proper model configurations** in `AppDbContext.cs`
 - **Configured relationships** with appropriate delete behaviors
 
-### 3. Service Layer Updates
+### 4. Service Layer Updates
 - **Fixed `SubmitWholeCodingTestAsync` method**:
   - Set `CodingTestQuestionAttemptId = null` and `ProblemId = null` for whole test submissions
   - Cast `UserId` to `long` type to match database schema
@@ -21,7 +30,7 @@
   - Fixed `UserId` casting in question attempt creation
 - **Enhanced single question submit method** to not store in `CodingTestSubmissions` table
 
-### 4. API Endpoints
+### 5. API Endpoints
 - **Added new endpoint**: `POST /api/CodingTest/submit-whole-test`
 - **Maintained existing endpoint**: `POST /api/CodingTest/submit` (for single questions)
 
