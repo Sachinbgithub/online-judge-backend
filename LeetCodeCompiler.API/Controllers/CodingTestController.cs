@@ -63,6 +63,49 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+/// testing result faculty dashboard
+[HttpGet("combined-results")]
+public async Task<IActionResult> GetCombinedTestResults(
+    [FromQuery] long userId, 
+    [FromQuery] int codingTestId)
+{
+    try
+    {
+        var result = await _codingTestService.GetCombinedTestResultsAsync(userId, codingTestId);
+        return Ok(result);
+    }
+    catch (ArgumentException ex)
+    {
+        return NotFound(new { error = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { error = "Failed to retrieve combined test results", details = ex.Message });
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /// <summary>
         /// Gets all coding tests
         /// </summary>
@@ -78,6 +121,26 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to retrieve coding tests", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets all coding tests created by a specific user (CreatedBy)
+        /// with full CodingTests table column data.
+        /// </summary>
+        /// <param name="createdBy">User ID who created the tests</param>
+        /// <returns>List of coding tests created by the specified user</returns>
+        [HttpGet("created-by/{createdBy}")]
+        public async Task<IActionResult> GetCodingTestsByCreator(int createdBy)
+        {
+            try
+            {
+                var result = await _codingTestService.GetCodingTestsByCreatorAsync(createdBy);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve coding tests by creator", details = ex.Message });
             }
         }
 
@@ -688,6 +751,25 @@ namespace LeetCodeCompiler.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to retrieve test assignments", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets raw assignment records for a specific test, including AssignedToUserId.
+        /// </summary>
+        /// <param name="codingTestId">Coding test ID</param>
+        /// <returns>List of assignment records for the given test</returns>
+        [HttpGet("{codingTestId}/assigned-users")]
+        public async Task<IActionResult> GetAssignedUsersByTestId(int codingTestId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetAssignmentsByTestIdAsync(codingTestId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve assigned users for test", details = ex.Message });
             }
         }
 
