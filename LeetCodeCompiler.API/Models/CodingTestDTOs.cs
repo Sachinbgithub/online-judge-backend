@@ -180,6 +180,78 @@ namespace LeetCodeCompiler.API.Models
         public string? AccessCode { get; set; }
     }
 
+
+
+
+
+
+
+public class CombinedTestResultResponse
+{
+    // Properties from SubmitWholeCodingTestResponse
+    public long SubmissionId { get; set; }
+    public int CodingTestId { get; set; }
+    public string TestName { get; set; } = "";
+    public int UserId { get; set; }
+    public int AttemptNumber { get; set; }
+    public int TotalQuestions { get; set; }
+    public int TotalScore { get; set; }
+    public int MaxScore { get; set; }
+    public double Percentage { get; set; }
+    public bool IsLateSubmission { get; set; }
+    public DateTime SubmissionTime { get; set; }
+    public List<QuestionSubmissionResponse> QuestionSubmissions { get; set; } = new List<QuestionSubmissionResponse>();
+    public DateTime CreatedAt { get; set; }
+
+    // Properties from TestStatusResponse
+    public long AssignedId { get; set; }
+    public DateTime AssignedDate { get; set; }
+    public DateTime? StartedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public int TimeSpentMinutes { get; set; }
+    public string Status { get; set; } = "";
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public int DurationMinutes { get; set; }
+    public int TotalMarks { get; set; }
+    public bool CanStart { get; set; }
+    public bool CanEnd { get; set; }
+    public bool IsExpired { get; set; }
+    public string Message { get; set; } = "";
+
+    // Additional Statistics
+    public int TotalProblems { get; set; } // Total number of problems/questions
+    public int CorrectProblems { get; set; } // Number of problems where all test cases passed
+    public int TotalTestCases { get; set; } // Total test cases across all problems
+    public int CorrectTestCases { get; set; } // Total test cases that passed
+    public double ProblemAccuracy { get; set; } // Percentage of problems solved correctly
+    public double TestCaseAccuracy { get; set; } // Percentage of test cases passed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public class SubmitCodingTestRequest
     {
         [Required]

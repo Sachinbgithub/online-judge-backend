@@ -63,6 +63,49 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+/// testing result faculty dashboard
+[HttpGet("combined-results")]
+public async Task<IActionResult> GetCombinedTestResults(
+    [FromQuery] long userId, 
+    [FromQuery] int codingTestId)
+{
+    try
+    {
+        var result = await _codingTestService.GetCombinedTestResultsAsync(userId, codingTestId);
+        return Ok(result);
+    }
+    catch (ArgumentException ex)
+    {
+        return NotFound(new { error = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { error = "Failed to retrieve combined test results", details = ex.Message });
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /// <summary>
         /// Gets all coding tests
         /// </summary>

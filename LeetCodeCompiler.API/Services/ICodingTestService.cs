@@ -58,6 +58,7 @@ namespace LeetCodeCompiler.API.Services
 
         // Comprehensive Test Results
         Task<ComprehensiveTestResultResponse> GetComprehensiveTestResultsAsync(GetTestResultsRequest request);
+        Task<CombinedTestResultResponse> GetCombinedTestResultsAsync(long userId, int codingTestId);
         Task<object> GetDebugDataAsync(long userId, int codingTestId, int? problemId = null);
     }
 }
