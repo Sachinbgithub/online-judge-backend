@@ -171,6 +171,9 @@ namespace LeetCodeCompiler.API.Services
     var problemAccuracy = totalProblems > 0 ? (correctProblems * 100.0) / totalProblems : 0;
     var testCaseAccuracy = totalTestCases > 0 ? (correctTestCases * 100.0) / totalTestCases : 0;
 
+    // Calculate final score
+    var finalScore = CalculateFinalScore(problemAccuracy, testCaseAccuracy, assignmentData.Test.TotalMarks);
+
     return new CombinedTestResultResponse
     {
         // From submit-whole-test response
@@ -210,7 +213,8 @@ namespace LeetCodeCompiler.API.Services
         TotalTestCases = totalTestCases,
         CorrectTestCases = correctTestCases,
         ProblemAccuracy = problemAccuracy,
-        TestCaseAccuracy = testCaseAccuracy
+        TestCaseAccuracy = testCaseAccuracy,
+        FinalScore = finalScore
     };
 }
 
@@ -2248,6 +2252,23 @@ namespace LeetCodeCompiler.API.Services
                 ErrorType = result.ErrorType,
                 CreatedAt = result.CreatedAt
             };
+        }
+
+        private double CalculateFinalScore(double problemAccuracy, double testCaseAccuracy, int totalMarks)
+        {
+            // Weights for different metrics
+            const double PROBLEM_WEIGHT = 0.6;    // 60% weight on problem solving
+            const double TESTCASE_WEIGHT = 0.4;   // 40% weight on test case accuracy
+
+            // Calculate weighted score
+            var problemScore = problemAccuracy / 100.0;      // Convert to 0-1 scale
+            var testCaseScore = testCaseAccuracy / 100.0;    // Convert to 0-1 scale
+
+            // Combine scores with weights
+            var combinedScore = (problemScore * PROBLEM_WEIGHT) + (testCaseScore * TESTCASE_WEIGHT);
+
+            // Convert to score out of totalMarks
+            return Math.Round(combinedScore * totalMarks, 2);
         }
 
         private QuestionDetails MapToQuestionDetails(Problem? problem)

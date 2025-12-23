@@ -226,6 +226,7 @@ public class CombinedTestResultResponse
     public int CorrectTestCases { get; set; } // Total test cases that passed
     public double ProblemAccuracy { get; set; } // Percentage of problems solved correctly
     public double TestCaseAccuracy { get; set; } // Percentage of test cases passed
+    public double FinalScore { get; set; } // Score out of totalMarks (combines problemAccuracy + testCaseAccuracy)
 }
 
 
