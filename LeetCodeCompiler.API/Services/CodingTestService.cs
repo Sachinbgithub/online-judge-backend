@@ -77,6 +77,163 @@ namespace LeetCodeCompiler.API.Services
             return await GetCodingTestByIdAsync(codingTest.Id);
         }
 
+
+             public async Task<CombinedTestResultResponse> GetCombinedTestResultsAsync(long userId, int codingTestId)
+{
+    // Get the main submission data with JOIN queries
+    var submissionData = await (from s in _context.CodingTestSubmissions
+                               join ct in _context.CodingTests on s.CodingTestId equals ct.Id
+                               where s.UserId == userId && s.CodingTestId == codingTestId
+                               orderby s.SubmissionTime descending
+                               select new
+                               {
+                                   Submission = s,
+                                   Test = ct
+                               }).FirstOrDefaultAsync();
+
+    if (submissionData == null)
+        throw new ArgumentException($"No submission found for user {userId} and test {codingTestId}");
+
+    // Get assignment data with JOIN queries
+    var assignmentData = await (from act in _context.AssignedCodingTests
+                               join ct in _context.CodingTests on act.CodingTestId equals ct.Id
+                               where act.AssignedToUserId == userId && act.CodingTestId == codingTestId && !act.IsDeleted
+                               select new
+                               {
+                                   Assignment = act,
+                                   Test = ct
+                               }).FirstOrDefaultAsync();
+
+    if (assignmentData == null)
+        throw new ArgumentException($"No assignment found for user {userId} and test {codingTestId}");
+
+    // Get question attempts with test case results using JOIN queries (similar to comprehensive results)
+    var questionAttempts = await (from qa in _context.CodingTestQuestionAttempts
+                                 join cta in _context.CodingTestAttempts on qa.CodingTestAttemptId equals cta.Id
+                                 join ct in _context.CodingTests on cta.CodingTestId equals ct.Id
+                                 join cq in _context.CodingTestQuestions on qa.CodingTestQuestionId equals cq.Id
+                                 join p in _context.Problems on cq.ProblemId equals p.Id into problemJoin
+                                 from p in problemJoin.DefaultIfEmpty()
+                                 where qa.UserId == userId && cta.CodingTestId == codingTestId
+                                 select new
+                                 {
+                                     QuestionAttempt = qa,
+                                     TestQuestion = cq,
+                                     Problem = p
+                                 }).ToListAsync();
+
+    var questionSubmissionResponses = new List<QuestionSubmissionResponse>();
+
+    // Group by problem to get question submissions
+    var problemGroups = questionAttempts.GroupBy(qa => qa.QuestionAttempt.ProblemId);
+
+    foreach (var problemGroup in problemGroups)
+    {
+        var problemId = problemGroup.Key;
+        var attempts = problemGroup.ToList();
+        var problem = attempts.First().Problem;
+
+        // Get the best question attempt (latest or most complete)
+        var bestAttempt = attempts
+            .OrderByDescending(a => a.QuestionAttempt.UpdatedAt ?? a.QuestionAttempt.CreatedAt)
+            .First().QuestionAttempt;
+
+        // Create test case results from question attempt data (since we don't have CodingTestSubmissionResults)
+        var testCaseResults = new List<TestCaseSubmissionResult>();
+        // Note: For whole-test submissions, we don't have individual test case results stored
+        // We can only show the summary from the question attempt
+
+        questionSubmissionResponses.Add(new QuestionSubmissionResponse
+        {
+            ProblemId = problemId,
+            ProblemTitle = problem?.Title ?? "Unknown Problem",
+            LanguageUsed = bestAttempt.LanguageUsed,
+            TotalTestCases = bestAttempt.TotalTestCases,
+            PassedTestCases = bestAttempt.TestCasesPassed,
+            FailedTestCases = bestAttempt.TotalTestCases - bestAttempt.TestCasesPassed,
+            Score = bestAttempt.Score,
+            MaxScore = bestAttempt.MaxScore,
+            IsCorrect = bestAttempt.IsCorrect,
+            TestCaseResults = testCaseResults // Empty for now, as we don't have individual test case results
+        });
+    }
+
+    // Calculate totals from question attempts
+    var totalScore = questionSubmissionResponses.Sum(q => q.Score);
+    var maxScore = questionSubmissionResponses.Sum(q => q.MaxScore);
+    var percentage = maxScore > 0 ? (totalScore * 100.0) / maxScore : 0;
+
+    // Calculate additional statistics
+    var totalProblems = questionSubmissionResponses.Count;
+    var correctProblems = questionSubmissionResponses.Count(q => q.IsCorrect);
+    var totalTestCases = questionSubmissionResponses.Sum(q => q.TotalTestCases);
+    var correctTestCases = questionSubmissionResponses.Sum(q => q.PassedTestCases);
+    var problemAccuracy = totalProblems > 0 ? (correctProblems * 100.0) / totalProblems : 0;
+    var testCaseAccuracy = totalTestCases > 0 ? (correctTestCases * 100.0) / totalTestCases : 0;
+
+    // Calculate final score
+    var finalScore = CalculateFinalScore(problemAccuracy, testCaseAccuracy, assignmentData.Test.TotalMarks);
+
+    return new CombinedTestResultResponse
+    {
+        // From submit-whole-test response
+        SubmissionId = submissionData.Submission.SubmissionId,
+        CodingTestId = submissionData.Submission.CodingTestId,
+        TestName = submissionData.Test.TestName,
+        UserId = (int)submissionData.Submission.UserId,
+        AttemptNumber = submissionData.Submission.AttemptNumber,
+        TotalQuestions = totalProblems,
+        TotalScore = totalScore,
+        MaxScore = maxScore,
+        Percentage = percentage,
+        IsLateSubmission = submissionData.Submission.IsLateSubmission,
+        SubmissionTime = submissionData.Submission.SubmissionTime,
+        QuestionSubmissions = questionSubmissionResponses,
+        CreatedAt = submissionData.Submission.CreatedAt,
+
+        // From end-test response
+        AssignedId = assignmentData.Assignment.AssignedId,
+        AssignedDate = assignmentData.Assignment.AssignedDate,
+        StartedAt = assignmentData.Assignment.StartedAt,
+        CompletedAt = assignmentData.Assignment.CompletedAt,
+        TimeSpentMinutes = assignmentData.Assignment.TimeSpentMinutes,
+        Status = assignmentData.Assignment.Status,
+        StartDate = assignmentData.Test.StartDate,
+        EndDate = assignmentData.Test.EndDate,
+        DurationMinutes = assignmentData.Test.DurationMinutes,
+        TotalMarks = assignmentData.Test.TotalMarks,
+        CanStart = false, // Based on current status
+        CanEnd = false,   // Based on current status
+        IsExpired = DateTime.UtcNow > assignmentData.Test.EndDate,
+        Message = "", // Can add logic for messages
+
+        // Additional Statistics
+        TotalProblems = totalProblems,
+        CorrectProblems = correctProblems,
+        TotalTestCases = totalTestCases,
+        CorrectTestCases = correctTestCases,
+        ProblemAccuracy = problemAccuracy,
+        TestCaseAccuracy = testCaseAccuracy,
+        FinalScore = finalScore
+    };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
         public async Task<CodingTestResponse> GetCodingTestByIdAsync(int id)
         {
             var codingTest = await _context.CodingTests
@@ -137,6 +294,42 @@ namespace LeetCodeCompiler.API.Services
                 .ToListAsync();
 
             return codingTests.Select(ct => MapToSummaryResponse(ct, subjectName, topicName, isEnabled)).ToList();
+        }
+
+        public async Task<List<CodingTestFullResponse>> GetCodingTestsByCreatorAsync(int createdByUserId)
+        {
+            var codingTests = await _context.CodingTests
+                .Where(ct => ct.CreatedBy == createdByUserId)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => new CodingTestFullResponse
+            {
+                Id = ct.Id,
+                TestName = ct.TestName,
+                CreatedBy = ct.CreatedBy,
+                CreatedAt = ct.CreatedAt,
+                UpdatedAt = ct.UpdatedAt,
+                StartDate = ct.StartDate,
+                EndDate = ct.EndDate,
+                DurationMinutes = ct.DurationMinutes,
+                TotalQuestions = ct.TotalQuestions,
+                TotalMarks = ct.TotalMarks,
+                IsActive = ct.IsActive,
+                IsPublished = ct.IsPublished,
+                AllowMultipleAttempts = ct.AllowMultipleAttempts,
+                MaxAttempts = ct.MaxAttempts,
+                ShowResultsImmediately = ct.ShowResultsImmediately,
+                AllowCodeReview = ct.AllowCodeReview,
+                AccessCode = ct.AccessCode,
+                Tags = ct.Tags,
+                IsResultPublishAutomatically = ct.IsResultPublishAutomatically,
+                ApplyBreachRule = ct.ApplyBreachRule,
+                BreachRuleLimit = ct.BreachRuleLimit,
+                HostIP = ct.HostIP,
+                ClassId = ct.ClassId,
+                TestType = ct.TestType
+            }).ToList();
         }
 
         public async Task<CodingTestResponse> UpdateCodingTestAsync(UpdateCodingTestRequest request)
@@ -1642,6 +1835,34 @@ namespace LeetCodeCompiler.API.Services
             return assignments.Select(MapToAssignedSummaryResponse).ToList();
         }
 
+        public async Task<List<AssignedCodingTestResponse>> GetAssignmentsByTestIdAsync(int codingTestId)
+        {
+            var assignments = await _context.AssignedCodingTests
+                .Where(act => act.CodingTestId == codingTestId && !act.IsDeleted)
+                .OrderByDescending(act => act.AssignedDate)
+                .ToListAsync();
+
+            return assignments.Select(act => new AssignedCodingTestResponse
+            {
+                AssignedId = act.AssignedId,
+                CodingTestId = act.CodingTestId,
+                AssignedToUserId = act.AssignedToUserId,
+                AssignedToUserType = act.AssignedToUserType,
+                AssignedByUserId = act.AssignedByUserId,
+                AssignedDate = act.AssignedDate,
+                TestType = act.TestType,
+                TestMode = act.TestMode,
+                IsDeleted = act.IsDeleted,
+                CreatedAt = act.CreatedAt,
+                UpdatedAt = act.UpdatedAt,
+                Status = act.Status,
+                StartedAt = act.StartedAt,
+                CompletedAt = act.CompletedAt,
+                TimeSpentMinutes = act.TimeSpentMinutes,
+                IsLateSubmission = act.IsLateSubmission
+            }).ToList();
+        }
+
         private AssignedCodingTestSummaryResponse MapToAssignedSummaryResponse(AssignedCodingTest assignment)
         {
             var codingTest = assignment.CodingTest;
@@ -2031,6 +2252,23 @@ namespace LeetCodeCompiler.API.Services
                 ErrorType = result.ErrorType,
                 CreatedAt = result.CreatedAt
             };
+        }
+
+        private double CalculateFinalScore(double problemAccuracy, double testCaseAccuracy, int totalMarks)
+        {
+            // Weights for different metrics
+            const double PROBLEM_WEIGHT = 0.6;    // 60% weight on problem solving
+            const double TESTCASE_WEIGHT = 0.4;   // 40% weight on test case accuracy
+
+            // Calculate weighted score
+            var problemScore = problemAccuracy / 100.0;      // Convert to 0-1 scale
+            var testCaseScore = testCaseAccuracy / 100.0;    // Convert to 0-1 scale
+
+            // Combine scores with weights
+            var combinedScore = (problemScore * PROBLEM_WEIGHT) + (testCaseScore * TESTCASE_WEIGHT);
+
+            // Convert to score out of totalMarks
+            return Math.Round(combinedScore * totalMarks, 2);
         }
 
         private QuestionDetails MapToQuestionDetails(Problem? problem)
