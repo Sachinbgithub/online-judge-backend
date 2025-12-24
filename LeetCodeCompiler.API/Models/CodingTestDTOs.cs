@@ -914,6 +914,9 @@ public class CombinedTestResultResponse
         public int DurationMinutes { get; set; }
         public List<ProblemTestResult> ProblemResults { get; set; } = new List<ProblemTestResult>();
         public TestSummary Summary { get; set; } = new TestSummary();
+
+        // Student profile data (optional - may be null if external API fails)
+        public StudentProfileData? StudentProfile { get; set; }
     }
 
     public class ProblemTestResult
@@ -1024,5 +1027,68 @@ public class CombinedTestResultResponse
         public int LateSubmissions { get; set; }
         public DateTime? FirstSubmissionTime { get; set; }
         public DateTime? LastSubmissionTime { get; set; }
+    }
+
+    public class StudentProfileData
+    {
+        public long UserId { get; set; }
+        public string UserName { get; set; } = "";
+        public int UserTypeId { get; set; }
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string EmailId { get; set; } = "";
+        public string? AlternativeEmailId { get; set; }
+        public string ContactNo { get; set; } = "";
+        public DateTime? BirthDate { get; set; }
+        public string? PhotoUrl { get; set; }
+        public int Gender { get; set; }
+        public int StateId { get; set; }
+        public int DistrictId { get; set; }
+        public int CityId { get; set; }
+        public DateTime LastLoginDate { get; set; }
+        public DateTime LastLogoutDate { get; set; }
+        public int UsageInMinutes { get; set; }
+        public int UsageInSeconds { get; set; }
+        public int NoOFVisits { get; set; }
+        public bool IsLocked { get; set; }
+        public DateTime? LastPasswordChangeDate { get; set; }
+        public int? StudentId { get; set; }
+        public int? StudentCourseId { get; set; }
+        public int? StudentStreamId { get; set; }
+        public int? StudentCollegeId { get; set; }
+        public int? StudentAge { get; set; }
+        public string StudentAddress { get; set; } = "";
+        public string RollNo { get; set; } = "";
+        public int DivisionId { get; set; }
+        public string? VideoPath { get; set; }
+        public string? ResumePath { get; set; }
+        public bool IsGraduation { get; set; }
+        public bool IsPostGraduation { get; set; }
+        public bool IsDiploma { get; set; }
+        public bool IsClassX { get; set; }
+        public bool IsClassXII { get; set; }
+        public string AcademicYear { get; set; } = "";
+        public int? ClassId { get; set; }
+        public int? FacultyId { get; set; }
+        public int? FacultyCourseId { get; set; }
+        public int? FacultyStreamId { get; set; }
+        public int? FacultyCollegeId { get; set; }
+        public int? DesignationId { get; set; }
+        public bool? IsAuthorised { get; set; }
+        public string CollegeName { get; set; } = "";
+        public string? CollegeAddress { get; set; }
+        public string? CollegeEmail { get; set; }
+        public string? CollegeWebsite { get; set; }
+        public string? CollegeMobileNo { get; set; }
+        public string? DefaultGroupName { get; set; }
+        public string? MyGroupName { get; set; }
+        public int? DefaultGroupId { get; set; }
+        public int? MyGroupId { get; set; }
+        public string FullName { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+        public bool IsStudent { get; set; }
+        public bool IsFaculty { get; set; }
+        public string UserType { get; set; } = "";
+        public int ProfileCompletionPercentage { get; set; }
     }
 }

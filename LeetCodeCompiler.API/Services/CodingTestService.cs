@@ -7,10 +7,12 @@ namespace LeetCodeCompiler.API.Services
     public class CodingTestService : ICodingTestService
     {
         private readonly AppDbContext _context;
+        private readonly StudentProfileService _studentProfileService;
 
-        public CodingTestService(AppDbContext context)
+        public CodingTestService(AppDbContext context, StudentProfileService studentProfileService)
         {
             _context = context;
+            _studentProfileService = studentProfileService;
         }
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
@@ -1570,7 +1572,7 @@ namespace LeetCodeCompiler.API.Services
                 HostIP = codingTest.HostIP,
                 ClassId = codingTest.ClassId,
                 TopicData = codingTest.TopicData.Select(MapToTopicDataResponse).ToList(),
-                Questions = codingTest.Questions.Select(MapToQuestionResponse).ToList(),
+                Questions = codingTest.Questions?.Select(MapToQuestionResponse).ToList() ?? new List<CodingTestQuestionResponse>(),
                 TotalAttempts = codingTest.Attempts.Count,
                 CompletedAttempts = codingTest.Attempts.Count(a => a.Status == "Submitted")
             };
@@ -1913,20 +1915,22 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<ComprehensiveTestResultResponse> GetComprehensiveTestResultsAsync(GetTestResultsRequest request)
         {
-            // Get the coding test details with full problem data
-            var codingTest = await _context.CodingTests
-                .Include(ct => ct.Questions)
-                    .ThenInclude(q => q.Problem)
-                        .ThenInclude(p => p.TestCases)
-                .Include(ct => ct.Questions)
-                    .ThenInclude(q => q.Problem)
-                        .ThenInclude(p => p.StarterCodes)
-                .FirstOrDefaultAsync(ct => ct.Id == request.CodingTestId);
+            try
+            {
+                // Get the coding test details with full problem data
+                var codingTest = await _context.CodingTests
+                    .Include(ct => ct.Questions)
+                        .ThenInclude(q => q.Problem)
+                            .ThenInclude(p => p.TestCases)
+                    .Include(ct => ct.Questions)
+                        .ThenInclude(q => q.Problem)
+                            .ThenInclude(p => p.StarterCodes)
+                    .FirstOrDefaultAsync(ct => ct.Id == request.CodingTestId);
 
             // If the problem data is not fully loaded, fetch it separately
             if (codingTest != null)
             {
-                var problemIds = codingTest.Questions.Select(q => q.ProblemId).ToList();
+                var problemIds = codingTest.Questions?.Select(q => q.ProblemId).ToList() ?? new List<int>();
                 var problems = await _context.Problems
                     .Include(p => p.TestCases)
                     .Include(p => p.StarterCodes)
@@ -1946,6 +1950,9 @@ namespace LeetCodeCompiler.API.Services
 
             if (codingTest == null)
                 throw new ArgumentException($"Coding test with ID {request.CodingTestId} not found");
+
+            // 🚀 NON-BLOCKING: Start fetching student profile data in parallel (won't fail the main operation)
+            var studentProfileTask = _studentProfileService.GetStudentProfileAsync(request.UserId);
 
             // Get all submissions for this user and test
             var submissionsQuery = _context.CodingTestSubmissions
@@ -1995,7 +2002,7 @@ namespace LeetCodeCompiler.API.Services
             var coreQuestionResults = await coreQuestionResultsQuery.ToListAsync();
 
             // Group test case results by problem ID (question-wise grouping)
-            var testCaseResultsByProblem = testCaseResults
+            var testCaseResultsByProblem = (testCaseResults ?? new List<CodingTestSubmissionResult>())
                 .GroupBy(r => r.ProblemId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -2126,7 +2133,7 @@ namespace LeetCodeCompiler.API.Services
                                $"UserId: {request.UserId}, CodingTestId: {request.CodingTestId}, ProblemId: {problemId}, AttemptNumber: {request.AttemptNumber}";
                 
                 // Get the problem details from the coding test questions
-                var problem = codingTest.Questions.FirstOrDefault(q => q.ProblemId == problemId)?.Problem;
+                var problem = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.Problem;
                 
                 // If problem is still null, fetch it directly from the database
                 if (problem == null)
@@ -2138,7 +2145,7 @@ namespace LeetCodeCompiler.API.Services
                 }
                 
                 // Calculate score based on test case results if no submission score is available
-                var maxScore = codingTest.Questions.FirstOrDefault(q => q.ProblemId == problemId)?.Marks ?? 0;
+                var maxScore = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.Marks ?? 0;
                 var totalTestCases = submission?.TotalTestCases ?? testCaseResultsForProblem.Count;
                 var passedTestCases = submission?.PassedTestCases ?? testCaseResultsForProblem.Count(tc => tc.IsPassed);
                 var calculatedScore = 0;
@@ -2156,7 +2163,7 @@ namespace LeetCodeCompiler.API.Services
                 {
                     ProblemId = problemId,
                     ProblemTitle = problem?.Title ?? "Unknown Problem",
-                    QuestionOrder = codingTest.Questions.FirstOrDefault(q => q.ProblemId == problemId)?.QuestionOrder ?? 0,
+                    QuestionOrder = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.QuestionOrder ?? 0,
                     MaxScore = maxScore,
                     LanguageUsed = languageUsed, // Use the best available language
                     FinalCodeSnapshot = finalCodeSnapshot, // Use the best available code snapshot
@@ -2191,6 +2198,30 @@ namespace LeetCodeCompiler.API.Services
             // Calculate summary
             var summary = CalculateTestSummary(problemResults, allTestCaseResults, codingTest);
 
+            // 🚀 NON-BLOCKING: Wait for student profile data (with timeout)
+            StudentProfileData? studentProfile = null;
+            try
+            {
+                // Create a timeout task
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(3));
+                var completedTask = await Task.WhenAny(studentProfileTask, timeoutTask);
+
+                if (completedTask == studentProfileTask)
+                {
+                    studentProfile = await studentProfileTask;
+                }
+                else
+                {
+                    // Timeout occurred - continue without student data
+                    Console.WriteLine($"Timeout waiting for student profile data for UserId: {request.UserId}. Continuing without student data.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Any exception occurred - log and continue without student data
+                Console.WriteLine($"Failed to fetch student profile for UserId: {request.UserId}. Continuing without student data. Error: {ex.Message}");
+            }
+
             return new ComprehensiveTestResultResponse
             {
                 CodingTestId = codingTest.Id,
@@ -2203,36 +2234,76 @@ namespace LeetCodeCompiler.API.Services
                 StartDate = codingTest.StartDate,
                 EndDate = codingTest.EndDate,
                 DurationMinutes = codingTest.DurationMinutes,
-                ProblemResults = problemResults.OrderBy(p => p.QuestionOrder).ToList(),
-                Summary = summary
+                ProblemResults = problemResults?.OrderBy(p => p.QuestionOrder).ToList() ?? new List<ProblemTestResult>(),
+                Summary = summary,
+                StudentProfile = studentProfile // Include student data (may be null)
             };
+            }
+            catch (Exception ex)
+            {
+                // Log the error and return a basic response
+                Console.WriteLine($"Error in GetComprehensiveTestResultsAsync: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                // Return a minimal response to prevent the API from crashing
+                return new ComprehensiveTestResultResponse
+                {
+                    CodingTestId = request.CodingTestId,
+                    TestName = "Error retrieving test data",
+                    UserId = request.UserId,
+                    TotalQuestions = 0,
+                    TotalMarks = 0,
+                    TotalScore = 0,
+                    Percentage = 0,
+                    StartDate = DateTime.MinValue,
+                    EndDate = DateTime.MinValue,
+                    DurationMinutes = 0,
+                    ProblemResults = new List<ProblemTestResult>(),
+                    Summary = new TestSummary(),
+                    StudentProfile = null
+                };
+            }
         }
 
         public async Task<object> GetDebugDataAsync(long userId, int codingTestId, int? problemId = null)
         {
-            var debugData = new
+            try
             {
-                UserId = userId,
-                CodingTestId = codingTestId,
-                ProblemId = problemId,
-                Submissions = await _context.CodingTestSubmissions
-                    .Where(s => s.UserId == userId && s.CodingTestId == codingTestId)
-                    .Select(s => new { s.SubmissionId, s.ProblemId, s.AttemptNumber, s.LanguageUsed, HasCode = !string.IsNullOrEmpty(s.FinalCodeSnapshot), s.SubmissionTime })
-                    .ToListAsync(),
-                QuestionAttempts = await _context.CodingTestQuestionAttempts
-                    .Where(qa => qa.UserId == userId)
-                    .Select(qa => new { qa.Id, qa.ProblemId, qa.CodingTestAttemptId, qa.LanguageUsed, HasCode = !string.IsNullOrEmpty(qa.CodeSubmitted), qa.CreatedAt })
-                    .ToListAsync(),
-                CoreResults = await _context.CoreQuestionResults
-                    .Where(cqr => cqr.UserId == userId)
-                    .Select(cqr => new { cqr.Id, cqr.ProblemId, cqr.AttemptNumber, cqr.LanguageUsed, HasCode = !string.IsNullOrEmpty(cqr.FinalCodeSnapshot), cqr.CreatedAt })
-                    .ToListAsync(),
-                TestCaseResults = await _context.CodingTestSubmissionResults
-                    .Select(r => new { r.ResultId, r.ProblemId, r.SubmissionId, r.IsPassed, r.CreatedAt })
-                    .ToListAsync()
-            };
+                var debugData = new
+                {
+                    UserId = userId,
+                    CodingTestId = codingTestId,
+                    ProblemId = problemId,
+                    Submissions = await _context.CodingTestSubmissions
+                        .Where(s => s.UserId == userId && s.CodingTestId == codingTestId)
+                        .Select(s => new { s.SubmissionId, s.ProblemId, s.AttemptNumber, s.LanguageUsed, HasCode = !string.IsNullOrEmpty(s.FinalCodeSnapshot), s.SubmissionTime })
+                        .ToListAsync(),
+                    QuestionAttempts = await _context.CodingTestQuestionAttempts
+                        .Where(qa => qa.UserId == userId)
+                        .Select(qa => new { qa.Id, qa.ProblemId, qa.CodingTestAttemptId, qa.LanguageUsed, HasCode = !string.IsNullOrEmpty(qa.CodeSubmitted), qa.CreatedAt })
+                        .ToListAsync(),
+                    CoreResults = await _context.CoreQuestionResults
+                        .Where(cqr => cqr.UserId == userId)
+                        .Select(cqr => new { cqr.Id, cqr.ProblemId, cqr.AttemptNumber, cqr.LanguageUsed, HasCode = !string.IsNullOrEmpty(cqr.FinalCodeSnapshot), cqr.CreatedAt })
+                        .ToListAsync(),
+                    TestCaseResults = await _context.CodingTestSubmissionResults
+                        .Select(r => new { r.ResultId, r.ProblemId, r.SubmissionId, r.IsPassed, r.CreatedAt })
+                        .ToListAsync()
+                };
 
-            return debugData;
+                return debugData;
+            }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    Error = "Failed to retrieve debug data",
+                    Details = ex.Message,
+                    UserId = userId,
+                    CodingTestId = codingTestId,
+                    ProblemId = problemId
+                };
+            }
         }
 
         private DetailedTestCaseResult MapToDetailedTestCaseResult(CodingTestSubmissionResult result)

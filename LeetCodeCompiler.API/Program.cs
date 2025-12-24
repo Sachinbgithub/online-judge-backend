@@ -206,6 +206,7 @@ builder.Services.AddScoped<IActivityTrackingService, ActivityTrackingService>();
 builder.Services.AddScoped<ICodingTestService, CodingTestService>();
 builder.Services.AddScoped<IPracticeTestService, PracticeTestService>();
 builder.Services.AddSingleton<IContainerPoolService, ContainerPoolService>();
+builder.Services.AddScoped<StudentProfileService>();
 
 // Register execution services
 builder.Services.AddScoped<PythonExecutionService>();
@@ -216,6 +217,12 @@ builder.Services.AddScoped<CExecutionService>();
 
 // Add memory cache
 builder.Services.AddMemoryCache();
+
+// Add HTTP client for external API calls
+builder.Services.AddHttpClient("StudentProfileAPI", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5); // 5 second timeout for external API
+});
 
 var app = builder.Build();
 
