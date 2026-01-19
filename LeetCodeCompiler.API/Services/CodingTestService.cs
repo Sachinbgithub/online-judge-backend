@@ -17,6 +17,10 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
         {
+            // Only set CollegeId to 0 if not provided (is 0)
+            // If frontend sends a college ID, always store it as-is, regardless of IsGlobal
+            // CollegeId is the actual college identifier and should always be stored
+            
             var codingTest = new CodingTest
             {
                 TestName = request.TestName,
@@ -39,6 +43,8 @@ namespace LeetCodeCompiler.API.Services
                 BreachRuleLimit = request.BreachRuleLimit,
                 HostIP = request.HostIP,
                 ClassId = request.ClassId,
+                IsGlobal = request.IsGlobal,
+                CollegeId = request.CollegeId, // Store as-is from frontend
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -330,8 +336,66 @@ namespace LeetCodeCompiler.API.Services
                 BreachRuleLimit = ct.BreachRuleLimit,
                 HostIP = ct.HostIP,
                 ClassId = ct.ClassId,
+                IsGlobal = ct.IsGlobal,
+                CollegeId = ct.CollegeId,
                 TestType = ct.TestType
             }).ToList();
+        }
+
+        /// <summary>
+        /// Gets tests available to a college (global tests + tests specific to that college)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetGlobalCodingTestsByCollegeIdAsync(int collegeId)
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal || ct.CollegeId == collegeId)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        /// <summary>
+        /// Gets all global coding tests (IsGlobal = true)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetAllGlobalCodingTestsAsync()
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        /// <summary>
+        /// Gets all tests specific to a college (CollegeId = collegeId, not global)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetCodingTestsByCollegeIdAsync(int collegeId)
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.CollegeId == collegeId && !ct.IsGlobal)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        /// <summary>
+        /// Gets only global tests for a particular college (IsGlobal = true AND CollegeId = collegeId)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetGlobalTestsByCollegeIdAsync(int collegeId)
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal && ct.CollegeId == collegeId)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
         }
 
         public async Task<CodingTestResponse> UpdateCodingTestAsync(UpdateCodingTestRequest request)
@@ -342,6 +406,14 @@ namespace LeetCodeCompiler.API.Services
             
             if (codingTest == null)
                 throw new ArgumentException($"Coding test with ID {request.Id} not found");
+
+            // Handle IsGlobal and CollegeId updates
+            // Store CollegeId as-is from frontend, only use default (0) if not provided
+            if (request.IsGlobal.HasValue || request.CollegeId.HasValue)
+            {
+                if (request.IsGlobal.HasValue) codingTest.IsGlobal = request.IsGlobal.Value;
+                if (request.CollegeId.HasValue) codingTest.CollegeId = request.CollegeId.Value;
+            }
 
             // Update only provided fields
             if (request.TestName != null) codingTest.TestName = request.TestName;
@@ -1225,14 +1297,43 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<TestStatusResponse> EndTestAsync(EndTestRequest request)
         {
+            // First try to find existing assignment
             var assignment = await _context.AssignedCodingTests
                 .Include(act => act.CodingTest)
-                .FirstOrDefaultAsync(act => act.AssignedToUserId == request.UserId && 
+                .FirstOrDefaultAsync(act => act.AssignedToUserId == request.UserId &&
                                           act.CodingTestId == request.CodingTestId &&
                                           !act.IsDeleted);
 
+            // If no assignment found, check if it's a global test that can be accessed without assignment
             if (assignment == null)
-                throw new ArgumentException($"Test assignment not found for user {request.UserId} and test {request.CodingTestId}");
+            {
+                var codingTest = await _context.CodingTests.FindAsync(request.CodingTestId);
+                if (codingTest == null)
+                    throw new ArgumentException($"Test {request.CodingTestId} not found");
+
+                // For global tests, create assignment record on-the-fly
+                if (codingTest.IsGlobal)
+                {
+                    assignment = new AssignedCodingTest
+                    {
+                        CodingTestId = request.CodingTestId,
+                        AssignedToUserId = request.UserId,
+                        AssignedToUserType = 1, // Default user type
+                        AssignedByUserId = request.UserId, // Self-assigned for global tests
+                        AssignedDate = DateTime.UtcNow,
+                        TestType = 1002, // Default test type
+                        TestMode = 5, // Default test mode
+                        CreatedAt = DateTime.UtcNow,
+                        CodingTest = codingTest // Include the test data
+                    };
+                    _context.AssignedCodingTests.Add(assignment);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ArgumentException($"Test assignment not found for user {request.UserId} and test {request.CodingTestId}");
+                }
+            }
 
             var now = DateTime.UtcNow;
 
@@ -1484,14 +1585,22 @@ namespace LeetCodeCompiler.API.Services
             if (now < codingTest.StartDate || now > codingTest.EndDate)
                 return false;
 
-            // Check if the test is assigned to the user
-            var isAssigned = await _context.AssignedCodingTests
-                .AnyAsync(act => act.CodingTestId == codingTestId 
-                             && act.AssignedToUserId == userId 
-                             && !act.IsDeleted);
+            // Check access based on test type
+            if (codingTest.IsGlobal)
+            {
+                // Global test: No assignment record required - anyone with the URL can access
+            }
+            else
+            {
+                // College-specific test: Check for assignment record
+                var isAssigned = await _context.AssignedCodingTests
+                    .AnyAsync(act => act.CodingTestId == codingTestId
+                                 && act.AssignedToUserId == userId
+                                 && !act.IsDeleted);
 
-            if (!isAssigned)
-                return false;
+                if (!isAssigned)
+                    return false;
+            }
 
             if (!codingTest.AllowMultipleAttempts)
             {
@@ -1571,6 +1680,8 @@ namespace LeetCodeCompiler.API.Services
                 BreachRuleLimit = codingTest.BreachRuleLimit,
                 HostIP = codingTest.HostIP,
                 ClassId = codingTest.ClassId,
+                IsGlobal = codingTest.IsGlobal,
+                CollegeId = codingTest.CollegeId,
                 TopicData = codingTest.TopicData.Select(MapToTopicDataResponse).ToList(),
                 Questions = codingTest.Questions?.Select(MapToQuestionResponse).ToList() ?? new List<CodingTestQuestionResponse>(),
                 TotalAttempts = codingTest.Attempts.Count,
@@ -1677,7 +1788,9 @@ namespace LeetCodeCompiler.API.Services
                 CreatedAt = codingTest.CreatedAt,
                 SubjectName = subjectName,
                 TopicName = topicName,
-                IsEnabled = isEnabled
+                IsEnabled = isEnabled,
+                IsGlobal = codingTest.IsGlobal,
+                CollegeId = codingTest.CollegeId
             };
         }
 

@@ -144,6 +144,81 @@ public async Task<IActionResult> GetCombinedTestResults(
             }
         }
 
+        /// <summary>
+        /// Gets tests available to a college (global tests + tests specific to that college)
+        /// </summary>
+        /// <param name="collegeId">College ID</param>
+        /// <returns>List of coding tests available to the college</returns>
+        [HttpGet("college/{collegeId}/available")]
+        public async Task<IActionResult> GetGlobalCodingTestsByCollegeId(int collegeId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetGlobalCodingTestsByCollegeIdAsync(collegeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve coding tests for college", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets all global coding tests (IsGlobal = true)
+        /// </summary>
+        /// <returns>List of all global coding tests</returns>
+        [HttpGet("global")]
+        public async Task<IActionResult> GetAllGlobalCodingTests()
+        {
+            try
+            {
+                var result = await _codingTestService.GetAllGlobalCodingTestsAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve global coding tests", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets all tests specific to a college (CollegeId = collegeId, not global)
+        /// </summary>
+        /// <param name="collegeId">College ID</param>
+        /// <returns>List of coding tests specific to the college</returns>
+        [HttpGet("college/{collegeId}")]
+        public async Task<IActionResult> GetCodingTestsByCollegeId(int collegeId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetCodingTestsByCollegeIdAsync(collegeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve coding tests by college", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Gets only global tests for a particular college (IsGlobal = true AND CollegeId = collegeId)
+        /// </summary>
+        /// <param name="collegeId">College ID</param>
+        /// <returns>List of global coding tests for the specified college</returns>
+        [HttpGet("college/{collegeId}/global")]
+        public async Task<IActionResult> GetGlobalTestsByCollegeId(int collegeId)
+        {
+            try
+            {
+                var result = await _codingTestService.GetGlobalTestsByCollegeIdAsync(collegeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve global tests for college", details = ex.Message });
+            }
+        }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetCodingTestsByUser(int userId, [FromQuery] string? subjectName = null, [FromQuery] string? topicName = null, [FromQuery] bool isEnabled = true)
         {

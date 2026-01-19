@@ -10,6 +10,10 @@ namespace LeetCodeCompiler.API.Services
         Task<List<CodingTestSummaryResponse>> GetAllCodingTestsAsync();
         Task<List<CodingTestSummaryResponse>> GetCodingTestsByUserAsync(int userId, string? subjectName = null, string? topicName = null, bool isEnabled = true);
         Task<List<CodingTestFullResponse>> GetCodingTestsByCreatorAsync(int createdByUserId);
+        Task<List<CodingTestSummaryResponse>> GetGlobalCodingTestsByCollegeIdAsync(int collegeId);
+        Task<List<CodingTestSummaryResponse>> GetAllGlobalCodingTestsAsync();
+        Task<List<CodingTestSummaryResponse>> GetCodingTestsByCollegeIdAsync(int collegeId);
+        Task<List<CodingTestSummaryResponse>> GetGlobalTestsByCollegeIdAsync(int collegeId);
         Task<CodingTestResponse> UpdateCodingTestAsync(UpdateCodingTestRequest request);
         Task<bool> DeleteCodingTestAsync(int id);
         Task<bool> PublishCodingTestAsync(int id);

@@ -63,6 +63,11 @@ namespace LeetCodeCompiler.API.Models
         public int ClassId { get; set; } = 0;
 
         [Required]
+        public bool IsGlobal { get; set; } = false;
+
+        public int CollegeId { get; set; } = 0;
+
+        [Required]
         public List<TopicDataRequest> TopicData { get; set; } = new List<TopicDataRequest>();
 
         [Required]
@@ -152,6 +157,10 @@ namespace LeetCodeCompiler.API.Models
 
         [StringLength(200)]
         public string? Tags { get; set; }
+
+        public bool? IsGlobal { get; set; }
+
+        public int? CollegeId { get; set; }
 
         // Question updates
         public List<QuestionUpdateRequest>? Questions { get; set; }
@@ -513,6 +522,8 @@ public class CombinedTestResultResponse
         public int BreachRuleLimit { get; set; }
         public string HostIP { get; set; } = "";
         public int ClassId { get; set; }
+        public bool IsGlobal { get; set; }
+        public int CollegeId { get; set; }
         public List<TopicDataResponse> TopicData { get; set; } = new List<TopicDataResponse>();
         public List<CodingTestQuestionResponse> Questions { get; set; } = new List<CodingTestQuestionResponse>();
         public int TotalAttempts { get; set; }
@@ -548,6 +559,8 @@ public class CombinedTestResultResponse
         public int BreachRuleLimit { get; set; }
         public string HostIP { get; set; } = "";
         public int ClassId { get; set; }
+        public bool IsGlobal { get; set; }
+        public int CollegeId { get; set; }
         public int TestType { get; set; }
     }
 
@@ -671,6 +684,8 @@ public class CombinedTestResultResponse
         public string? SubjectName { get; set; } // Domain name
         public string? TopicName { get; set; } // Subdomain name
         public bool IsEnabled { get; set; } = true;
+        public bool IsGlobal { get; set; }
+        public int CollegeId { get; set; }
     }
 
     // =============================================

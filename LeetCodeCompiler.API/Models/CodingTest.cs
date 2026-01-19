@@ -71,6 +71,11 @@ namespace LeetCodeCompiler.API.Models
 
         public int ClassId { get; set; } = 0;
 
+        [Required]
+        public bool IsGlobal { get; set; } = false;
+
+        public int CollegeId { get; set; } = 0;
+
         // Navigation properties
         public virtual ICollection<CodingTestQuestion> Questions { get; set; } = new List<CodingTestQuestion>();
         public virtual ICollection<CodingTestAttempt> Attempts { get; set; } = new List<CodingTestAttempt>();

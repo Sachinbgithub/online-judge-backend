@@ -157,6 +157,17 @@ namespace LeetCodeCompiler.API.Data
                 .HasForeignKey(act => act.CodingTestId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure CodingTest column mappings
+            modelBuilder.Entity<CodingTest>()
+                .Property(e => e.TestType)
+                .HasColumnName("testType");
+            modelBuilder.Entity<CodingTest>()
+                .Property(e => e.IsGlobal)
+                .HasColumnName("IsGlobal");
+            modelBuilder.Entity<CodingTest>()
+                .Property(e => e.CollegeId)
+                .HasColumnName("CollegeId");
+
             // Configure timestamps for coding test entities
             modelBuilder.Entity<CodingTest>()
                 .Property(e => e.CreatedAt)
