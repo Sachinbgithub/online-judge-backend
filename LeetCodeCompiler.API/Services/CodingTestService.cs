@@ -1906,7 +1906,7 @@ namespace LeetCodeCompiler.API.Services
                            && act.AssignedToUserType == userType 
                            && !act.IsDeleted);
 
-            // Apply test type filter
+            // Apply test type filter only when testType was explicitly provided by the caller
             if (testType.HasValue)
             {
                 query = query.Where(act => act.TestType == testType.Value);

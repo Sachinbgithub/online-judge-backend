@@ -796,12 +796,16 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="classId">Optional class ID filter</param>
         /// <returns>List of assigned tests</returns>
         [HttpGet("assigned/user/{userId}")]
-        public async Task<IActionResult> GetAssignedTestsByUser(long userId, byte userType, 
-            [FromQuery] int? testType = null, [FromQuery] long? classId = null)
+        public async Task<IActionResult> GetAssignedTestsByUser(long userId, 
+            [FromQuery] byte userType, 
+            [FromQuery] int? testType = null, 
+            [FromQuery] long? classId = null)
         {
             try
             {
-                var result = await _codingTestService.GetAssignedTestsByUserAsync(userId, userType, testType, classId);
+                // Only pass testType to filter when it was explicitly provided in the query string
+                int? filterByTestType = Request.Query.ContainsKey("testType") ? testType : null;
+                var result = await _codingTestService.GetAssignedTestsByUserAsync(userId, userType, filterByTestType, classId);
                 return Ok(result);
             }
             catch (Exception ex)
