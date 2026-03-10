@@ -14,14 +14,26 @@ namespace LeetCodeCompiler.API.Controllers
         public ProblemsController(AppDbContext context) => _context = context;
 
         [HttpGet]
-        public async Task<IActionResult> GetProblems()
+        public async Task<IActionResult> GetProblems([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
-            var problems = await _context.Problems
+            var query = _context.Problems
                 .Include(p => p.TestCases)
-                .Include(p => p.StarterCodes)
+                .Include(p => p.StarterCodes);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(p => p.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
             
-            return Ok(problems);
+            return Ok(new PagedResult<Problem>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
         [HttpGet("{id}")]
@@ -41,21 +53,72 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="subdomainId">Subdomain ID</param>
         /// <returns>List of problems for the specified subdomain</returns>
         [HttpGet("subdomain/{subdomainId}")]
-        public async Task<IActionResult> GetProblemsBySubdomainId(int subdomainId)
+        public async Task<IActionResult> GetProblemsBySubdomainId(int subdomainId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var problems = await _context.Problems
+                var query = _context.Problems
                     .Include(p => p.TestCases)
                     .Include(p => p.StarterCodes)
-                    .Where(p => p.SubdomainId == subdomainId)
+                    .Where(p => p.SubdomainId == subdomainId);
+ 
+                var totalCount = await query.CountAsync();
+                var items = await query
+                    .OrderByDescending(p => p.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
                 
-                return Ok(problems);
+                return Ok(new PagedResult<Problem>
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error retrieving problems: {ex.Message}");
+                return BadRequest($"Error retrieving problems by subdomain: {ex.Message}");
+            }
+        }
+ 
+        /// <summary>
+        /// Get all problems by domain ID
+        /// </summary>
+        /// <param name="domainId">Domain ID</param>
+        /// <returns>List of problems for the specified domain</returns>
+        [HttpGet("domain/{domainId}")]
+        public async Task<IActionResult> GetProblemsByDomainId(int domainId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        {
+            try
+            {
+                var query = _context.Problems
+                    .Include(p => p.TestCases)
+                    .Include(p => p.StarterCodes)
+                    .Where(p => _context.Subdomains
+                        .Where(s => s.DomainId == domainId)
+                        .Select(s => s.SubdomainId)
+                        .Contains(p.SubdomainId));
+ 
+                var totalCount = await query.CountAsync();
+                var items = await query
+                    .OrderByDescending(p => p.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                
+                return Ok(new PagedResult<Problem>
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error retrieving problems by domain: {ex.Message}");
             }
         }
 
@@ -320,7 +383,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="streamId">Stream ID (optional - omit parameter or pass null to search for NULL streamId)</param>
         /// <returns>List of problems with the specified stream ID</returns>
         [HttpGet("stream")]
-        public async Task<IActionResult> GetProblemsByStreamId([FromQuery] int? streamId)
+        public async Task<IActionResult> GetProblemsByStreamId([FromQuery] int? streamId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -338,9 +401,20 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(p => p.StreamId == streamId);
                 }
 
-                var problems = await query.ToListAsync();
+                var totalCount = await query.CountAsync();
+                var items = await query
+                    .OrderByDescending(p => p.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
                 
-                return Ok(problems);
+                return Ok(new PagedResult<Problem>
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -388,7 +462,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="createdByUserId">Created by user ID (optional - omit parameter or pass null to search for NULL createdByUserId)</param>
         /// <returns>List of problems with the specified created by user ID</returns>
         [HttpGet("created-by")]
-        public async Task<IActionResult> GetProblemsByCreatedByUserId([FromQuery] int? createdByUserId)
+        public async Task<IActionResult> GetProblemsByCreatedByUserId([FromQuery] int? createdByUserId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -406,9 +480,20 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(p => p.CreatedByUserId == createdByUserId);
                 }
 
-                var problems = await query.ToListAsync();
+                var totalCount = await query.CountAsync();
+                var items = await query
+                    .OrderByDescending(p => p.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
                 
-                return Ok(problems);
+                return Ok(new PagedResult<Problem>
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -456,7 +541,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="updatedByUserId">Updated by user ID (optional - omit parameter or pass null to search for NULL updatedByUserId)</param>
         /// <returns>List of problems with the specified updated by user ID</returns>
         [HttpGet("updated-by")]
-        public async Task<IActionResult> GetProblemsByUpdatedByUserId([FromQuery] int? updatedByUserId)
+        public async Task<IActionResult> GetProblemsByUpdatedByUserId([FromQuery] int? updatedByUserId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -474,9 +559,20 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(p => p.UpdatedByUserId == updatedByUserId);
                 }
 
-                var problems = await query.ToListAsync();
+                var totalCount = await query.CountAsync();
+                var items = await query
+                    .OrderByDescending(p => p.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
                 
-                return Ok(problems);
+                return Ok(new PagedResult<Problem>
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

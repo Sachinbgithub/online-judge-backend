@@ -9,5 +9,9 @@ namespace LeetCodeCompiler.API.Services
         Task<SubmitPracticeTestResultResponse> SubmitPracticeTestResultAsync(SubmitPracticeTestResultRequest request);
         Task<GetPracticeTestResultResponse> GetPracticeTestResultAsync(GetPracticeTestResultRequest request);
         Task<object> ValidatePracticeTestAsync(int practiceTestId, int userId, int attemptNumber);
+        
+        // Paginated retrieval methods
+        Task<PagedResult<PracticeTest>> GetAllPracticeTestsAsync(int pageNumber, int pageSize);
+        Task<PagedResult<PracticeTest>> GetPracticeTestsByFilterAsync(int? domainId, int? subdomainId, int pageNumber, int pageSize);
     }
 }

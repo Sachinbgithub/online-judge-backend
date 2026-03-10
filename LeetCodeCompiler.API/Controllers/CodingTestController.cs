@@ -107,15 +107,34 @@ public async Task<IActionResult> GetCombinedTestResults(
 
 
         /// <summary>
+        /// Gets coding tests by filter parameters (CodingTestId, CreatedBy, ClassId, CollegeId, AssignedToUserId)
+        /// </summary>
+        /// <param name="request">Filter parameters and pagination</param>
+        /// <returns>Paged list of coding tests</returns>
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetCodingTestsByFilter([FromQuery] CodingTestFilterRequest request)
+        {
+            try
+            {
+                var result = await _codingTestService.GetCodingTestsByFilterPagedAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve filtered coding tests", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Gets all coding tests
         /// </summary>
         /// <returns>List of all coding tests</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllCodingTests()
+        public async Task<IActionResult> GetAllCodingTests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetAllCodingTestsAsync();
+                var result = await _codingTestService.GetAllCodingTestsPagedAsync(pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -131,11 +150,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="createdBy">User ID who created the tests</param>
         /// <returns>List of coding tests created by the specified user</returns>
         [HttpGet("created-by/{createdBy}")]
-        public async Task<IActionResult> GetCodingTestsByCreator(int createdBy)
+        public async Task<IActionResult> GetCodingTestsByCreator(int createdBy, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetCodingTestsByCreatorAsync(createdBy);
+                var result = await _codingTestService.GetCodingTestsByCreatorPagedAsync(createdBy, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -150,11 +169,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="collegeId">College ID</param>
         /// <returns>List of coding tests available to the college</returns>
         [HttpGet("college/{collegeId}/available")]
-        public async Task<IActionResult> GetGlobalCodingTestsByCollegeId(int collegeId)
+        public async Task<IActionResult> GetGlobalCodingTestsByCollegeId(int collegeId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetGlobalCodingTestsByCollegeIdAsync(collegeId);
+                var result = await _codingTestService.GetGlobalCodingTestsByCollegeIdPagedAsync(collegeId, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -168,11 +187,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// </summary>
         /// <returns>List of all global coding tests</returns>
         [HttpGet("global")]
-        public async Task<IActionResult> GetAllGlobalCodingTests()
+        public async Task<IActionResult> GetAllGlobalCodingTests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetAllGlobalCodingTestsAsync();
+                var result = await _codingTestService.GetAllGlobalCodingTestsPagedAsync(pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -187,11 +206,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="collegeId">College ID</param>
         /// <returns>List of coding tests specific to the college</returns>
         [HttpGet("college/{collegeId}")]
-        public async Task<IActionResult> GetCodingTestsByCollegeId(int collegeId)
+        public async Task<IActionResult> GetCodingTestsByCollegeId(int collegeId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetCodingTestsByCollegeIdAsync(collegeId);
+                var result = await _codingTestService.GetCodingTestsByCollegeIdPagedAsync(collegeId, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -206,11 +225,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="collegeId">College ID</param>
         /// <returns>List of global coding tests for the specified college</returns>
         [HttpGet("college/{collegeId}/global")]
-        public async Task<IActionResult> GetGlobalTestsByCollegeId(int collegeId)
+        public async Task<IActionResult> GetGlobalTestsByCollegeId(int collegeId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetGlobalTestsByCollegeIdAsync(collegeId);
+                var result = await _codingTestService.GetGlobalTestsByCollegeIdPagedAsync(collegeId, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -220,11 +239,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetCodingTestsByUser(int userId, [FromQuery] string? subjectName = null, [FromQuery] string? topicName = null, [FromQuery] bool isEnabled = true)
+        public async Task<IActionResult> GetCodingTestsByUser(int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? subjectName = null, [FromQuery] string? topicName = null, [FromQuery] bool isEnabled = true)
         {
             try
             {
-                var result = await _codingTestService.GetCodingTestsByUserAsync(userId, subjectName, topicName, isEnabled);
+                var result = await _codingTestService.GetCodingTestsByUserPagedAsync(userId, pageNumber, pageSize, subjectName, topicName, isEnabled);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -438,8 +457,8 @@ public async Task<IActionResult> GetCombinedTestResults(
                 {
                     return BadRequest(ModelState);
                 }
-
-                var result = await _codingTestService.GetCodingTestSubmissionsAsync(request);
+ 
+                var result = await _codingTestService.GetCodingTestSubmissionsPagedAsync(request);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -647,11 +666,11 @@ public async Task<IActionResult> GetCombinedTestResults(
 
         // Analytics and Reports Endpoints
         [HttpGet("status/{status}")]
-        public async Task<IActionResult> GetCodingTestsByStatus(string status)
+        public async Task<IActionResult> GetCodingTestsByStatus(string status, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetCodingTestsByStatusAsync(status);
+                var result = await _codingTestService.GetCodingTestsByStatusPagedAsync(status, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -680,11 +699,11 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("{id}/results")]
-        public async Task<IActionResult> GetCodingTestResults(int id)
+        public async Task<IActionResult> GetCodingTestResults(int id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetCodingTestResultsAsync(id);
+                var result = await _codingTestService.GetCodingTestResultsPagedAsync(id, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -798,6 +817,8 @@ public async Task<IActionResult> GetCombinedTestResults(
         [HttpGet("assigned/user/{userId}")]
         public async Task<IActionResult> GetAssignedTestsByUser(long userId, 
             [FromQuery] byte userType, 
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
             [FromQuery] int? testType = null, 
             [FromQuery] long? classId = null)
         {
@@ -805,12 +826,12 @@ public async Task<IActionResult> GetCombinedTestResults(
             {
                 // Only pass testType to filter when it was explicitly provided in the query string
                 int? filterByTestType = Request.Query.ContainsKey("testType") ? testType : null;
-                var result = await _codingTestService.GetAssignedTestsByUserAsync(userId, userType, filterByTestType, classId);
+                var result = await _codingTestService.GetAssignedTestsByUserPagedAsync(userId, userType, pageNumber, pageSize, filterByTestType, classId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Failed to retrieve assigned tests", details = ex.Message });
+                return StatusCode(500, new { error = "Failed to retrieve assigned tests for user", details = ex.Message });
             }
         }
 
@@ -820,16 +841,16 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="codingTestId">Coding test ID</param>
         /// <returns>List of assigned users</returns>
         [HttpGet("assigned/test/{codingTestId}")]
-        public async Task<IActionResult> GetAssignedTestsByTest(int codingTestId)
+        public async Task<IActionResult> GetAssignedTestsByTest(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetAssignedTestsByTestAsync(codingTestId);
+                var result = await _codingTestService.GetAssignedTestsByTestPagedAsync(codingTestId, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Failed to retrieve test assignments", details = ex.Message });
+                return StatusCode(500, new { error = "Failed to retrieve assigned tests by test", details = ex.Message });
             }
         }
 
@@ -838,17 +859,17 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// </summary>
         /// <param name="codingTestId">Coding test ID</param>
         /// <returns>List of assignment records for the given test</returns>
-        [HttpGet("{codingTestId}/assigned-users")]
-        public async Task<IActionResult> GetAssignedUsersByTestId(int codingTestId)
+        [HttpGet("{codingTestId}/assignments")]
+        public async Task<IActionResult> GetAssignedUsersByTestId(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _codingTestService.GetAssignmentsByTestIdAsync(codingTestId);
+                var result = await _codingTestService.GetAssignmentsByTestIdPagedAsync(codingTestId, pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Failed to retrieve assigned users for test", details = ex.Message });
+                return StatusCode(500, new { error = "Failed to retrieve assignments for test", details = ex.Message });
             }
         }
 

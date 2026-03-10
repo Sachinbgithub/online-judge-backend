@@ -18,11 +18,14 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all difficulties</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllDifficulties()
+        public async Task<IActionResult> GetAllDifficulties([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var difficulties = await _context.Difficulties
+                var query = _context.Difficulties;
+                var totalCount = await query.CountAsync();
+
+                var difficulties = await query
                     .Select(d => new DifficultyDto
                     {
                         Id = d.Id,
@@ -30,9 +33,17 @@ namespace LeetCodeCompiler.API.Controllers
                         DifficultyName = d.DifficultyName
                     })
                     .OrderBy(d => d.DifficultyId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
                 
-                return Ok(difficulties);
+                return Ok(new PagedResult<DifficultyDto>
+                {
+                    Items = difficulties,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

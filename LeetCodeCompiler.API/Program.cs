@@ -79,7 +79,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(
-        "Server=localhost;Database=LeetCode;Trusted_Connection=True;TrustServerCertificate=True;",
+        "Server=192.168.0.102,1433;Database=LeetCode;User ID=sa;Password=pass@123;TrustServerCertificate=True;",
         sqlOptions =>
         {
             sqlOptions.CommandTimeout(30);
@@ -205,6 +205,7 @@ builder.Services.Configure<ContainerPoolOptions>(builder.Configuration.GetSectio
 builder.Services.AddScoped<IActivityTrackingService, ActivityTrackingService>();
 builder.Services.AddScoped<ICodingTestService, CodingTestService>();
 builder.Services.AddScoped<IPracticeTestService, PracticeTestService>();
+builder.Services.AddScoped<IPerformanceService, PerformanceService>();
 builder.Services.AddSingleton<IContainerPoolService, ContainerPoolService>();
 builder.Services.AddScoped<StudentProfileService>();
 

@@ -112,5 +112,39 @@ namespace LeetCodeCompiler.API.Controllers
                 return StatusCode(500, new { error = "Internal server error", details = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Get all practice tests with pagination
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAllPracticeTests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        {
+            try
+            {
+                var result = await _practiceTestService.GetAllPracticeTestsAsync(pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get practice tests by domain and/or subdomain with pagination
+        /// </summary>
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetPracticeTestsByFilter([FromQuery] int? domainId, [FromQuery] int? subdomainId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        {
+            try
+            {
+                var result = await _practiceTestService.GetPracticeTestsByFilterAsync(domainId, subdomainId, pageNumber, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+            }
+        }
     }
 }

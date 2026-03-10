@@ -523,5 +523,62 @@ namespace LeetCodeCompiler.API.Services
                 };
             }
         }
+        
+        public async Task<PagedResult<PracticeTest>> GetAllPracticeTestsAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.PracticeTests
+                .Include(pt => pt.Domain)
+                .Include(pt => pt.Subdomain);
+                
+            var totalCount = await query.CountAsync();
+            
+            var items = await query
+                .OrderByDescending(pt => pt.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+                
+            return new PagedResult<PracticeTest>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PagedResult<PracticeTest>> GetPracticeTestsByFilterAsync(int? domainId, int? subdomainId, int pageNumber, int pageSize)
+        {
+            var query = _context.PracticeTests
+                .Include(pt => pt.Domain)
+                .Include(pt => pt.Subdomain)
+                .AsQueryable();
+                
+            if (domainId.HasValue)
+            {
+                query = query.Where(pt => pt.DomainId == domainId.Value);
+            }
+            
+            if (subdomainId.HasValue)
+            {
+                query = query.Where(pt => pt.SubdomainId == subdomainId.Value);
+            }
+            
+            var totalCount = await query.CountAsync();
+            
+            var items = await query
+                .OrderByDescending(pt => pt.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+                
+            return new PagedResult<PracticeTest>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
     }
 }

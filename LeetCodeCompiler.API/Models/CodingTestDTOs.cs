@@ -404,6 +404,18 @@ public class CombinedTestResultResponse
         public int LateSubmissions { get; set; }
     }
 
+    public class CodingTestFilterRequest
+    {
+        public int? CodingTestId { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ClassId { get; set; }
+        public int? CollegeId { get; set; }
+        public long? AssignedToUserId { get; set; }
+
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
     // =============================================
     // Test Status Management DTOs
     // =============================================

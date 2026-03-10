@@ -20,11 +20,21 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("{coreQuestionResultId}")]
-        public async Task<IActionResult> GetTestCaseResults(int coreQuestionResultId)
+        public async Task<IActionResult> GetTestCaseResults(int coreQuestionResultId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var testCaseResults = await _activityTrackingService.GetTestCaseResultsAsync(coreQuestionResultId);
+                var query = _dbContext.CoreTestCaseResults
+                    .Where(result => result.CoreQuestionResultId == coreQuestionResultId);
+                
+                var totalCount = await query.CountAsync();
+
+                var testCaseResults = await query
+                    .OrderBy(result => result.TestCaseId)
+                    .ThenByDescending(result => result.CreatedAt)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
                 
                 // Format response for user-friendly display
                 var formattedResults = new List<object>();
@@ -46,7 +56,13 @@ namespace LeetCodeCompiler.API.Controllers
                     });
                 }
 
-                return Ok(formattedResults);
+                return Ok(new PagedResult<object>
+                {
+                    Items = formattedResults,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -55,12 +71,26 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTestCaseResults()
+        public async Task<IActionResult> GetAllTestCaseResults([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var allResults = await _activityTrackingService.GetAllTestCaseResultsAsync();
-                return Ok(allResults);
+                var query = _dbContext.CoreTestCaseResults;
+                var totalCount = await query.CountAsync();
+
+                var allResults = await query
+                    .OrderByDescending(result => result.CreatedAt)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                    
+                return Ok(new PagedResult<CoreTestCaseResult>
+                {
+                    Items = allResults,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -69,12 +99,26 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserTestCaseResults(int userId)
+        public async Task<IActionResult> GetUserTestCaseResults(int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var userResults = await _activityTrackingService.GetUserTestCaseResultsAsync(userId);
-                return Ok(userResults);
+                var query = _dbContext.CoreTestCaseResults.Where(result => result.UserId == userId);
+                var totalCount = await query.CountAsync();
+
+                var userResults = await query
+                    .OrderByDescending(result => result.CreatedAt)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return Ok(new PagedResult<CoreTestCaseResult>
+                {
+                    Items = userResults,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -83,12 +127,26 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("user/{userId}/problem/{problemId}")]
-        public async Task<IActionResult> GetUserTestCaseResultsForProblem(int userId, int problemId)
+        public async Task<IActionResult> GetUserTestCaseResultsForProblem(int userId, int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var results = await _activityTrackingService.GetUserTestCaseResultsForProblemAsync(userId, problemId);
-                return Ok(results);
+                var query = _dbContext.CoreTestCaseResults.Where(result => result.UserId == userId && result.ProblemId == problemId);
+                var totalCount = await query.CountAsync();
+
+                var results = await query
+                    .OrderByDescending(result => result.CreatedAt)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                    
+                return Ok(new PagedResult<CoreTestCaseResult>
+                {
+                    Items = results,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -97,13 +155,19 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("problem/{problemId}/definitions")]
-        public async Task<IActionResult> GetTestCaseDefinitions(int problemId)
+        public async Task<IActionResult> GetTestCaseDefinitions(int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var testCases = await _dbContext.TestCases
-                    .Where(tc => tc.ProblemId == problemId)
+                var query = _dbContext.TestCases
+                    .Where(tc => tc.ProblemId == problemId);
+                
+                var totalCount = await query.CountAsync();
+ 
+                var testCases = await query
                     .OrderBy(tc => tc.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
                 
                 var formattedTestCases = testCases.Select(tc => new
@@ -111,9 +175,15 @@ namespace LeetCodeCompiler.API.Controllers
                     testCaseId = tc.Id,
                     input = tc.Input,
                     expectedOutput = tc.ExpectedOutput
-                }).ToList();
-
-                return Ok(formattedTestCases);
+                }).Cast<object>().ToList();
+ 
+                return Ok(new PagedResult<object>
+                {
+                    Items = formattedTestCases,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

@@ -18,10 +18,15 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all subdomains with their domain information</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllSubdomains()
+        public async Task<IActionResult> GetAllSubdomains([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
-            var subdomains = await _context.Subdomains
-                .Include(s => s.Domain)
+            var query = _context.Subdomains.Include(s => s.Domain);
+            var totalCount = await query.CountAsync();
+
+            var subdomains = await query
+                .OrderBy(s => s.SubdomainId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new SubdomainDto
                 {
                     SubdomainId = s.SubdomainId,
@@ -39,7 +44,13 @@ namespace LeetCodeCompiler.API.Controllers
                 })
                 .ToListAsync();
             
-            return Ok(subdomains);
+            return Ok(new PagedResult<SubdomainDto>
+            {
+                Items = subdomains,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
         /// <summary>
@@ -82,11 +93,18 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="domainId">Domain ID</param>
         /// <returns>List of subdomains for the specified domain</returns>
         [HttpGet("domain/{domainId}")]
-        public async Task<IActionResult> GetSubdomainsByDomainId(int domainId)
+        public async Task<IActionResult> GetSubdomainsByDomainId(int domainId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
-            var subdomains = await _context.Subdomains
+            var query = _context.Subdomains
                 .Include(s => s.Domain)
-                .Where(s => s.DomainId == domainId)
+                .Where(s => s.DomainId == domainId);
+            
+            var totalCount = await query.CountAsync();
+
+            var subdomains = await query
+                .OrderBy(s => s.SubdomainId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new SubdomainDto
                 {
                     SubdomainId = s.SubdomainId,
@@ -104,7 +122,13 @@ namespace LeetCodeCompiler.API.Controllers
                 })
                 .ToListAsync();
             
-            return Ok(subdomains);
+            return Ok(new PagedResult<SubdomainDto>
+            {
+                Items = subdomains,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
         /// <summary>
@@ -309,7 +333,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="streamId">Stream ID (optional - omit parameter or pass null to search for NULL streamId)</param>
         /// <returns>List of subdomains with the specified stream ID</returns>
         [HttpGet("stream")]
-        public async Task<IActionResult> GetSubdomainsByStreamId([FromQuery] int? streamId)
+        public async Task<IActionResult> GetSubdomainsByStreamId([FromQuery] int? streamId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -325,7 +349,11 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(s => s.StreamId == streamId);
                 }
 
+                var totalCount = await query.CountAsync();
                 var subdomains = await query
+                    .OrderBy(s => s.SubdomainId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(s => new SubdomainDto
                     {
                         SubdomainId = s.SubdomainId,
@@ -341,7 +369,13 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
                 
-                return Ok(subdomains);
+                return Ok(new PagedResult<SubdomainDto>
+                {
+                    Items = subdomains,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -404,7 +438,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="createdByUserId">Created by user ID (optional - omit parameter or pass null to search for NULL createdByUserId)</param>
         /// <returns>List of subdomains with the specified created by user ID</returns>
         [HttpGet("created-by")]
-        public async Task<IActionResult> GetSubdomainsByCreatedByUserId([FromQuery] int? createdByUserId)
+        public async Task<IActionResult> GetSubdomainsByCreatedByUserId([FromQuery] int? createdByUserId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -420,7 +454,11 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(s => s.CreatedByUserId == createdByUserId);
                 }
 
+                var totalCount = await query.CountAsync();
                 var subdomains = await query
+                    .OrderBy(s => s.SubdomainId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(s => new SubdomainDto
                     {
                         SubdomainId = s.SubdomainId,
@@ -440,7 +478,13 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
                 
-                return Ok(subdomains);
+                return Ok(new PagedResult<SubdomainDto>
+                {
+                    Items = subdomains,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -505,7 +549,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="updatedByUserId">Updated by user ID (optional - omit parameter or pass null to search for NULL updatedByUserId)</param>
         /// <returns>List of subdomains with the specified updated by user ID</returns>
         [HttpGet("updated-by")]
-        public async Task<IActionResult> GetSubdomainsByUpdatedByUserId([FromQuery] int? updatedByUserId)
+        public async Task<IActionResult> GetSubdomainsByUpdatedByUserId([FromQuery] int? updatedByUserId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -521,7 +565,11 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(s => s.UpdatedByUserId == updatedByUserId);
                 }
 
+                var totalCount = await query.CountAsync();
                 var subdomains = await query
+                    .OrderBy(s => s.SubdomainId)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(s => new SubdomainDto
                     {
                         SubdomainId = s.SubdomainId,
@@ -541,7 +589,13 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
                 
-                return Ok(subdomains);
+                return Ok(new PagedResult<SubdomainDto>
+                {
+                    Items = subdomains,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

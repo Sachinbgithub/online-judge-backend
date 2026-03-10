@@ -7,13 +7,13 @@ namespace LeetCodeCompiler.API.Services
     public interface IPerformanceService
     {
         Task<StudentOverviewResponse> GetStudentOverviewAsync(long userId);
-        Task<List<CodingTestHistoryItem>> GetCodingTestHistoryAsync(long userId);
-        Task<List<PracticeTestHistoryItem>> GetPracticeTestHistoryAsync(long userId);
+        Task<PagedResult<CodingTestHistoryItem>> GetCodingTestHistoryAsync(long userId, int pageNumber, int pageSize);
+        Task<PagedResult<PracticeTestHistoryItem>> GetPracticeTestHistoryAsync(long userId, int pageNumber, int pageSize);
         Task<FreePracticeSummaryResponse> GetFreePracticeSummaryAsync(long userId);
         
-        Task<List<FacultyStudentResultItem>> GetStudentsForTestAsync(int codingTestId);
-        Task<List<LeaderboardItem>> GetLeaderboardAsync(int codingTestId);
-        Task<List<PracticeStudentResultItem>> GetPracticeStudentsAsync(int practiceTestId);
-        Task<List<ProblemAnalysisItem>> GetProblemAnalysisAsync(int codingTestId);
+        Task<PagedResult<FacultyStudentResultItem>> GetStudentsForTestAsync(int codingTestId, int pageNumber, int pageSize);
+        Task<PagedResult<LeaderboardItem>> GetLeaderboardAsync(int codingTestId, int pageNumber, int pageSize);
+        Task<PagedResult<PracticeStudentResultItem>> GetPracticeStudentsAsync(int practiceTestId, int pageNumber, int pageSize);
+        Task<PagedResult<ProblemAnalysisItem>> GetProblemAnalysisAsync(int codingTestId, int pageNumber, int pageSize);
     }
 }

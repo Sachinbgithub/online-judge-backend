@@ -21,11 +21,17 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all test cases with problem information</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllTestCases()
+        public async Task<IActionResult> GetAllTestCases([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var testCases = await _context.TestCases
+                var query = _context.TestCases.AsQueryable();
+                var totalCount = await query.CountAsync();
+
+                var testCases = await query
+                    .OrderBy(tc => tc.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(tc => new CreateTestCaseResponse
                     {
                         Id = tc.Id,
@@ -39,7 +45,13 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
 
-                return Ok(testCases);
+                return Ok(new PagedResult<CreateTestCaseResponse>
+                {
+                    Items = testCases,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -91,7 +103,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="problemId">Problem ID</param>
         /// <returns>List of test cases for the specified problem</returns>
         [HttpGet("problem/{problemId}")]
-        public async Task<IActionResult> GetTestCasesByProblemId(int problemId)
+        public async Task<IActionResult> GetTestCasesByProblemId(int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -104,8 +116,13 @@ namespace LeetCodeCompiler.API.Controllers
                     return NotFound(new { error = $"Problem with ID {problemId} not found" });
                 }
 
-                var testCases = await _context.TestCases
-                    .Where(tc => tc.ProblemId == problemId)
+                var query = _context.TestCases.Where(tc => tc.ProblemId == problemId);
+                var totalCount = await query.CountAsync();
+
+                var testCases = await query
+                    .OrderBy(tc => tc.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(tc => new CreateTestCaseResponse
                     {
                         Id = tc.Id,
@@ -119,7 +136,13 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
 
-                return Ok(testCases);
+                return Ok(new PagedResult<CreateTestCaseResponse>
+                {
+                    Items = testCases,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

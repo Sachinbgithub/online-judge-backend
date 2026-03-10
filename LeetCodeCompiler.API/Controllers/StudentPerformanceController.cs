@@ -24,16 +24,16 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("{userId}/coding-tests")]
-        public async Task<IActionResult> GetCodingTestHistory(long userId)
+        public async Task<IActionResult> GetCodingTestHistory(long userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _performanceService.GetCodingTestHistoryAsync(userId);
+            var result = await _performanceService.GetCodingTestHistoryAsync(userId, pageNumber, pageSize);
             return Ok(result);
         }
 
         [HttpGet("{userId}/practice-tests")]
-        public async Task<IActionResult> GetPracticeTestHistory(long userId)
+        public async Task<IActionResult> GetPracticeTestHistory(long userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _performanceService.GetPracticeTestHistoryAsync(userId);
+            var result = await _performanceService.GetPracticeTestHistoryAsync(userId, pageNumber, pageSize);
             return Ok(result);
         }
 

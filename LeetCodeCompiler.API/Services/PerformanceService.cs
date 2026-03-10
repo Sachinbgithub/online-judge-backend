@@ -110,12 +110,17 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        public async Task<List<CodingTestHistoryItem>> GetCodingTestHistoryAsync(long userId)
+        public async Task<PagedResult<CodingTestHistoryItem>> GetCodingTestHistoryAsync(long userId, int pageNumber, int pageSize)
         {
-            var attempts = await _context.CodingTestAttempts
+            var query = _context.CodingTestAttempts
                 .Include(a => a.CodingTest)
-                .Where(a => a.UserId == userId && (a.Status == "Completed" || a.Status == "Submitted"))
+                .Where(a => a.UserId == userId && (a.Status == "Completed" || a.Status == "Submitted"));
+
+            var totalCount = await query.CountAsync();
+            var attempts = await query
                 .OrderByDescending(a => a.SubmittedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(a => new CodingTestHistoryItem
                 {
                     CodingTestId = a.CodingTestId,
@@ -131,15 +136,26 @@ namespace LeetCodeCompiler.API.Services
                 })
                 .ToListAsync();
 
-            return attempts;
+            return new PagedResult<CodingTestHistoryItem>
+            {
+                Items = attempts,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<PracticeTestHistoryItem>> GetPracticeTestHistoryAsync(long userId)
+        public async Task<PagedResult<PracticeTestHistoryItem>> GetPracticeTestHistoryAsync(long userId, int pageNumber, int pageSize)
         {
-            var results = await _context.PracticeTestResults
+            var query = _context.PracticeTestResults
                 .Include(r => r.PracticeTest)
-                .Where(r => r.UserId == userId)
+                .Where(r => r.UserId == userId);
+
+            var totalCount = await query.CountAsync();
+            var results = await query
                 .OrderByDescending(r => r.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(r => new PracticeTestHistoryItem
                 {
                     PracticeTestId = r.PracticeTestId,
@@ -156,7 +172,13 @@ namespace LeetCodeCompiler.API.Services
                 })
                 .ToListAsync();
 
-            return results;
+            return new PagedResult<PracticeTestHistoryItem>
+            {
+                Items = results,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<FreePracticeSummaryResponse> GetFreePracticeSummaryAsync(long userId)
@@ -185,20 +207,23 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        public async Task<List<FacultyStudentResultItem>> GetStudentsForTestAsync(int codingTestId)
+        public async Task<PagedResult<FacultyStudentResultItem>> GetStudentsForTestAsync(int codingTestId, int pageNumber, int pageSize)
         {
-            var attempts = await _context.CodingTestAttempts
-                .Where(a => a.CodingTestId == codingTestId)
-                .ToListAsync();
+            var query = _context.CodingTestAttempts
+                .Where(a => a.CodingTestId == codingTestId);
 
-            var latestAttempts = attempts
+            var totalCount = await query.Select(a => a.UserId).Distinct().CountAsync();
+            
+            var latestAttempts = await query
                 .GroupBy(a => a.UserId)
                 .Select(g => g.OrderByDescending(a => a.AttemptNumber).First())
                 .OrderByDescending(a => a.Percentage)
-                .ToList();
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var result = new List<FacultyStudentResultItem>();
-            int rank = 1;
+            int rank = ((pageNumber - 1) * pageSize) + 1;
             
             foreach (var attempt in latestAttempts)
             {
@@ -221,24 +246,33 @@ namespace LeetCodeCompiler.API.Services
                 });
             }
 
-            return result;
+            return new PagedResult<FacultyStudentResultItem>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<LeaderboardItem>> GetLeaderboardAsync(int codingTestId)
+        public async Task<PagedResult<LeaderboardItem>> GetLeaderboardAsync(int codingTestId, int pageNumber, int pageSize)
         {
-            var attempts = await _context.CodingTestAttempts
-                .Where(a => a.CodingTestId == codingTestId && (a.Status == "Completed" || a.Status == "Submitted"))
-                .ToListAsync();
+            var query = _context.CodingTestAttempts
+                .Where(a => a.CodingTestId == codingTestId && (a.Status == "Completed" || a.Status == "Submitted"));
 
-            var bestAttempts = attempts
+            var totalCount = await query.Select(a => a.UserId).Distinct().CountAsync();
+
+            var bestAttempts = await query
                 .GroupBy(a => a.UserId)
                 .Select(g => g.OrderByDescending(a => a.Percentage).ThenBy(a => a.TimeSpentMinutes).First())
                 .OrderByDescending(a => a.Percentage)
                 .ThenBy(a => a.TimeSpentMinutes)
-                .ToList();
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var result = new List<LeaderboardItem>();
-            int rank = 1;
+            int rank = ((pageNumber - 1) * pageSize) + 1;
 
             foreach (var attempt in bestAttempts)
             {
@@ -256,19 +290,28 @@ namespace LeetCodeCompiler.API.Services
                 });
             }
 
-            return result;
+            return new PagedResult<LeaderboardItem>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<PracticeStudentResultItem>> GetPracticeStudentsAsync(int practiceTestId)
+        public async Task<PagedResult<PracticeStudentResultItem>> GetPracticeStudentsAsync(int practiceTestId, int pageNumber, int pageSize)
         {
-            var results = await _context.PracticeTestResults
-                .Where(r => r.PracticeTestId == practiceTestId)
-                .ToListAsync();
+            var query = _context.PracticeTestResults
+                .Where(r => r.PracticeTestId == practiceTestId);
 
-            var latestResults = results
+            var totalCount = await query.Select(r => r.UserId).Distinct().CountAsync();
+
+            var latestResults = await query
                 .GroupBy(r => r.UserId)
                 .Select(g => g.OrderByDescending(r => r.AttemptNumber).First())
-                .ToList();
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var responseList = new List<PracticeStudentResultItem>();
             foreach (var r in latestResults)
@@ -289,20 +332,29 @@ namespace LeetCodeCompiler.API.Services
                 });
             }
 
-            return responseList;
+            return new PagedResult<PracticeStudentResultItem>
+            {
+                Items = responseList,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
-        public async Task<List<ProblemAnalysisItem>> GetProblemAnalysisAsync(int codingTestId)
+        public async Task<PagedResult<ProblemAnalysisItem>> GetProblemAnalysisAsync(int codingTestId, int pageNumber, int pageSize)
         {
-            var submissionResults = await _context.CodingTestSubmissionResults
+            var query = _context.CodingTestSubmissionResults
                 .Include(r => r.Submission)
-                .Where(r => r.Submission!.CodingTestId == codingTestId)
-                .ToListAsync();
+                .Where(r => r.Submission!.CodingTestId == codingTestId);
 
-            var groupedByProblem = submissionResults
+            var totalCount = await query.Select(r => r.ProblemId).Distinct().CountAsync();
+
+            var groupedByProblem = await query
                 .Where(r => r.Submission != null)
                 .GroupBy(r => r.ProblemId)
-                .ToList();
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var result = new List<ProblemAnalysisItem>();
 
@@ -329,7 +381,13 @@ namespace LeetCodeCompiler.API.Services
                 });
             }
 
-            return result;
+            return new PagedResult<ProblemAnalysisItem>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
     }
 }

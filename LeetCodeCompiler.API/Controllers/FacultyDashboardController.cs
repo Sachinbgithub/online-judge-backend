@@ -17,30 +17,30 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("{codingTestId}/students")]
-        public async Task<IActionResult> GetStudentsForTest(int codingTestId)
+        public async Task<IActionResult> GetStudentsForTest(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _performanceService.GetStudentsForTestAsync(codingTestId);
+            var result = await _performanceService.GetStudentsForTestAsync(codingTestId, pageNumber, pageSize);
             return Ok(result);
         }
 
         [HttpGet("{codingTestId}/leaderboard")]
-        public async Task<IActionResult> GetLeaderboard(int codingTestId)
+        public async Task<IActionResult> GetLeaderboard(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _performanceService.GetLeaderboardAsync(codingTestId);
+            var result = await _performanceService.GetLeaderboardAsync(codingTestId, pageNumber, pageSize);
             return Ok(result);
         }
 
         [HttpGet("{practiceTestId}/practice-students")]
-        public async Task<IActionResult> GetPracticeStudents(int practiceTestId)
+        public async Task<IActionResult> GetPracticeStudents(int practiceTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _performanceService.GetPracticeStudentsAsync(practiceTestId);
+            var result = await _performanceService.GetPracticeStudentsAsync(practiceTestId, pageNumber, pageSize);
             return Ok(result);
         }
 
         [HttpGet("{codingTestId}/problem-analysis")]
-        public async Task<IActionResult> GetProblemAnalysis(int codingTestId)
+        public async Task<IActionResult> GetProblemAnalysis(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _performanceService.GetProblemAnalysisAsync(codingTestId);
+            var result = await _performanceService.GetProblemAnalysisAsync(codingTestId, pageNumber, pageSize);
             return Ok(result);
         }
     }
