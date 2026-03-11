@@ -18,15 +18,11 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all domains</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllDomains([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        public async Task<IActionResult> GetAllDomains()
         {
-            var query = _context.Domains.Include(d => d.Subdomains);
-            var totalCount = await query.CountAsync();
-
-            var domains = await query
+            var domains = await _context.Domains
+                .Include(d => d.Subdomains)
                 .OrderBy(d => d.DomainId)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .Select(d => new DomainDto
                 {
                     DomainId = d.DomainId,
@@ -46,13 +42,7 @@ namespace LeetCodeCompiler.API.Controllers
                 })
                 .ToListAsync();
             
-            return Ok(new PagedResult<DomainDto>
-            {
-                Items = domains,
-                TotalCount = totalCount,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            });
+            return Ok(domains);
         }
 
         /// <summary>
@@ -271,7 +261,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="streamId">Stream ID (optional - omit parameter or pass null to search for NULL streamId)</param>
         /// <returns>List of domains with the specified stream ID</returns>
         [HttpGet("stream")]
-        public async Task<IActionResult> GetDomainsByStreamId([FromQuery] int? streamId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        public async Task<IActionResult> GetDomainsByStreamId([FromQuery] int? streamId)
         {
             try
             {
@@ -287,11 +277,8 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(d => d.StreamId == streamId);
                 }
 
-                var totalCount = await query.CountAsync();
                 var domains = await query
                     .OrderBy(d => d.DomainId)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
                     .Select(d => new DomainDto
                     {
                         DomainId = d.DomainId,
@@ -309,13 +296,7 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
                 
-                return Ok(new PagedResult<DomainDto>
-                {
-                    Items = domains,
-                    TotalCount = totalCount,
-                    PageNumber = pageNumber,
-                    PageSize = pageSize
-                });
+                return Ok(domains);
             }
             catch (Exception ex)
             {
@@ -380,7 +361,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="createdByUserId">Created by user ID (optional - omit parameter or pass null to search for NULL createdByUserId)</param>
         /// <returns>List of domains with the specified created by user ID</returns>
         [HttpGet("created-by")]
-        public async Task<IActionResult> GetDomainsByCreatedByUserId([FromQuery] int? createdByUserId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        public async Task<IActionResult> GetDomainsByCreatedByUserId([FromQuery] int? createdByUserId)
         {
             try
             {
@@ -396,11 +377,8 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(d => d.CreatedByUserId == createdByUserId);
                 }
 
-                var totalCount = await query.CountAsync();
                 var domains = await query
                     .OrderBy(d => d.DomainId)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
                     .Select(d => new DomainDto
                     {
                         DomainId = d.DomainId,
@@ -419,13 +397,7 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
                 
-                return Ok(new PagedResult<DomainDto>
-                {
-                    Items = domains,
-                    TotalCount = totalCount,
-                    PageNumber = pageNumber,
-                    PageSize = pageSize
-                });
+                return Ok(domains);
             }
             catch (Exception ex)
             {
@@ -490,7 +462,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="updatedByUserId">Updated by user ID (optional - omit parameter or pass null to search for NULL updatedByUserId)</param>
         /// <returns>List of domains with the specified updated by user ID</returns>
         [HttpGet("updated-by")]
-        public async Task<IActionResult> GetDomainsByUpdatedByUserId([FromQuery] int? updatedByUserId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
+        public async Task<IActionResult> GetDomainsByUpdatedByUserId([FromQuery] int? updatedByUserId)
         {
             try
             {
@@ -506,11 +478,8 @@ namespace LeetCodeCompiler.API.Controllers
                     query = query.Where(d => d.UpdatedByUserId == updatedByUserId);
                 }
 
-                var totalCount = await query.CountAsync();
                 var domains = await query
                     .OrderBy(d => d.DomainId)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
                     .Select(d => new DomainDto
                     {
                         DomainId = d.DomainId,
@@ -530,13 +499,7 @@ namespace LeetCodeCompiler.API.Controllers
                     })
                     .ToListAsync();
                 
-                return Ok(new PagedResult<DomainDto>
-                {
-                    Items = domains,
-                    TotalCount = totalCount,
-                    PageNumber = pageNumber,
-                    PageSize = pageSize
-                });
+                return Ok(domains);
             }
             catch (Exception ex)
             {

@@ -389,5 +389,360 @@ namespace LeetCodeCompiler.API.Services
                 PageSize = pageSize
             };
         }
+
+        // === Group 1: Browse APIs Implementation ===
+
+        public async Task<PagedResult<FacultyTestSummaryItem>> GetTestsByFacultyAsync(long facultyId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Where(t => t.CreatedBy == (int)facultyId);
+
+            var totalCount = await query.CountAsync();
+            var tests = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new List<FacultyTestSummaryItem>();
+            foreach (var test in tests)
+            {
+                var attempts = await _context.CodingTestAttempts
+                    .Where(a => a.CodingTestId == test.Id)
+                    .ToListAsync();
+
+                var assignedCount = await _context.AssignedCodingTests
+                    .Where(a => a.CodingTestId == test.Id && !a.IsDeleted)
+                    .CountAsync();
+
+                result.Add(new FacultyTestSummaryItem
+                {
+                    CodingTestId = test.Id,
+                    TestName = test.TestName,
+                    StartDate = test.StartDate,
+                    EndDate = test.EndDate,
+                    TotalStudents = assignedCount,
+                    AttemptedStudents = attempts.Select(a => a.UserId).Distinct().Count(),
+                    AverageScore = attempts.Any() ? attempts.Average(a => a.Percentage) : 0,
+                    PassRate = attempts.Any() ? (double)attempts.Count(a => a.Percentage >= 60) / attempts.Count * 100 : 0,
+                    CompletionPercentage = assignedCount > 0 ? (double)attempts.Select(a => a.UserId).Distinct().Count() / assignedCount * 100 : 0,
+                    IsActive = test.IsActive,
+                    IsPublished = test.IsPublished
+                });
+            }
+
+            return new PagedResult<FacultyTestSummaryItem>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PagedResult<ClassStudentSummaryItem>> GetStudentSummaryByClassAsync(int classId, int pageNumber, int pageSize)
+        {
+            // Find all students assigned to ANY test in this class
+            var userIdsQuery = _context.AssignedCodingTests
+                .Include(a => a.CodingTest)
+                .Where(a => a.CodingTest.ClassId == classId && !a.IsDeleted)
+                .Select(a => a.AssignedToUserId)
+                .Distinct();
+
+            var totalCount = await userIdsQuery.CountAsync();
+            var userIds = await userIdsQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new List<ClassStudentSummaryItem>();
+            foreach (var userId in userIds)
+            {
+                var profile = await _studentProfileService.GetStudentProfileAsync(userId);
+                var assignments = await _context.AssignedCodingTests
+                    .Include(a => a.CodingTest)
+                    .Where(a => a.AssignedToUserId == userId && a.CodingTest.ClassId == classId && !a.IsDeleted)
+                    .ToListAsync();
+
+                var attempts = await _context.CodingTestAttempts
+                    .Where(a => a.UserId == userId && assignments.Select(asgn => asgn.CodingTestId).Contains(a.CodingTestId))
+                    .ToListAsync();
+
+                result.Add(new ClassStudentSummaryItem
+                {
+                    UserId = userId,
+                    FullName = profile?.FullName ?? ("User " + userId),
+                    EmailId = profile?.EmailId ?? "",
+                    RollNo = profile?.RollNo ?? "",
+                    TotalTestsAssigned = assignments.Count,
+                    TestsAttempted = attempts.Select(a => a.CodingTestId).Distinct().Count(),
+                    AverageScorePercentage = attempts.Any() ? attempts.Average(a => a.Percentage) : 0,
+                    LastActive = attempts.Any() ? attempts.Max(a => a.SubmittedAt ?? a.CreatedAt) : (DateTime?)null,
+                    OverallStatus = attempts.Count >= assignments.Count ? "On Track" : (attempts.Count > 0 ? "InProgress" : "Behind")
+                });
+            }
+
+            return new PagedResult<ClassStudentSummaryItem>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PagedResult<CollegeClassSummaryItem>> GetClassSummaryByCollegeAsync(int collegeId, int pageNumber, int pageSize)
+        {
+            var classesQuery = _context.CodingTests
+                .Where(t => t.CollegeId == collegeId && t.ClassId != 0)
+                .Select(t => t.ClassId)
+                .Distinct();
+
+            var totalCount = await classesQuery.CountAsync();
+            var classIds = await classesQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new List<CollegeClassSummaryItem>();
+            foreach (var classId in classIds)
+            {
+                var studentCount = await _context.AssignedCodingTests
+                    .Include(a => a.CodingTest)
+                    .Where(a => a.CodingTest.ClassId == classId && !a.IsDeleted)
+                    .Select(a => a.AssignedToUserId)
+                    .Distinct()
+                    .CountAsync();
+
+                var tests = await _context.CodingTests.Where(t => t.ClassId == classId).ToListAsync();
+                var attempts = await _context.CodingTestAttempts
+                    .Where(a => tests.Select(t => t.Id).Contains(a.CodingTestId))
+                    .ToListAsync();
+
+                result.Add(new CollegeClassSummaryItem
+                {
+                    ClassId = classId,
+                    ClassName = "Class " + classId,
+                    TotalStudents = studentCount,
+                    TotalTestsAssigned = tests.Count,
+                    AverageScorePercentage = attempts.Any() ? attempts.Average(a => a.Percentage) : 0,
+                    AverageParticipationRate = studentCount > 0 ? (double)attempts.Select(a => a.UserId).Distinct().Count() / (studentCount * tests.Count) * 100 : 0
+                });
+            }
+
+            return new PagedResult<CollegeClassSummaryItem>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PagedResult<StudentTestHistoryItem>> GetStudentTestHistoryForFacultyAsync(long studentId, long facultyId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTestAttempts
+                .Include(a => a.CodingTest)
+                .Where(a => a.UserId == studentId && a.CodingTest.CreatedBy == (int)facultyId);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new StudentTestHistoryItem
+                {
+                    CodingTestId = a.CodingTestId,
+                    TestName = a.CodingTest.TestName,
+                    AttemptNumber = a.AttemptNumber,
+                    Score = a.TotalScore,
+                    MaxScore = a.MaxScore,
+                    Percentage = a.Percentage,
+                    IsPassed = a.Percentage >= 60,
+                    SubmissionTime = a.SubmittedAt ?? a.CreatedAt,
+                    TimeSpentMinutes = a.TimeSpentMinutes,
+                    Status = a.Status
+                })
+                .ToListAsync();
+
+            return new PagedResult<StudentTestHistoryItem>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<TestCompletionStatusResponse> GetTestCompletionByClassAsync(int codingTestId, int classId)
+        {
+            var assignedUsers = await _context.AssignedCodingTests
+                .Where(a => a.CodingTestId == codingTestId && !a.IsDeleted)
+                .Select(a => a.AssignedToUserId)
+                .ToListAsync();
+
+            var attempts = await _context.CodingTestAttempts
+                .Where(a => a.CodingTestId == codingTestId && assignedUsers.Contains(a.UserId))
+                .ToListAsync();
+
+            int attemptedCount = attempts.Select(a => a.UserId).Distinct().Count();
+            int inProgressCount = attempts.Where(a => a.Status == "InProgress").Select(a => a.UserId).Distinct().Count();
+
+            return new TestCompletionStatusResponse
+            {
+                CodingTestId = codingTestId,
+                ClassId = classId,
+                TotalAssigned = assignedUsers.Count,
+                Attempted = attemptedCount,
+                InProgress = inProgressCount,
+                NotAttempted = assignedUsers.Count - attemptedCount,
+                CompletionRate = assignedUsers.Count > 0 ? (double)attemptedCount / assignedUsers.Count * 100 : 0
+            };
+        }
+
+        // === Group 2: User Performance by UserId Implementation ===
+
+        public async Task<UserFullPerformanceResponse> GetUserFullPerformanceAsync(long userId)
+        {
+            var profile = await _studentProfileService.GetStudentProfileAsync(userId);
+            var overview = await GetStudentOverviewAsync(userId);
+
+            return new UserFullPerformanceResponse
+            {
+                UserId = userId,
+                FullName = profile?.FullName ?? ("User " + userId),
+                CodingTestsAttempted = overview.TotalCodingTestsAttempted,
+                AvgCodingTestPercentage = overview.AverageCodingTestScorePercentage,
+                PracticeTestsAttempted = overview.TotalPracticeTestsAttempted,
+                AvgPracticeTestPercentage = overview.AveragePracticeTestPercentage,
+                FreeProblemsSolved = overview.TotalFreeProblemsSolved,
+                FreePracticeSuccessRate = overview.OverallFreePracticeSuccessRate,
+                TotalTimeSpentMinutes = overview.TotalTimeSpentMinutes,
+                RecentActivity = overview.RecentActivity
+            };
+        }
+
+        public async Task<PagedResult<UserCodingTestSummaryItem>> GetUserCodingTestHistoryAsync(long userId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTestAttempts
+                .Include(a => a.CodingTest)
+                .Where(a => a.UserId == userId);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new UserCodingTestSummaryItem
+                {
+                    CodingTestId = a.CodingTestId,
+                    TestName = a.CodingTest != null ? a.CodingTest.TestName : "Unknown Test",
+                    AttemptNumber = a.AttemptNumber,
+                    TotalScore = a.TotalScore,
+                    MaxScore = a.MaxScore,
+                    Percentage = a.Percentage,
+                    IsPassed = a.Percentage >= 60,
+                    SubmissionTime = a.SubmittedAt ?? a.CreatedAt,
+                    TimeSpentMinutes = a.TimeSpentMinutes,
+                    Status = a.Status
+                })
+                .ToListAsync();
+
+            return new PagedResult<UserCodingTestSummaryItem>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PagedResult<UserPracticeTestSummaryItem>> GetUserPracticeTestHistoryAsync(long userId, int pageNumber, int pageSize)
+        {
+            var query = _context.PracticeTestResults
+                .Include(r => r.PracticeTest)
+                .Where(r => r.UserId == (int)userId);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(r => r.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => new UserPracticeTestSummaryItem
+                {
+                    PracticeTestId = r.PracticeTestId,
+                    TestName = r.PracticeTest != null ? r.PracticeTest.TestName : "Unknown Practice",
+                    AttemptNumber = r.AttemptNumber,
+                    ObtainedMarks = r.ObtainedMarks,
+                    TotalMarks = r.TotalMarks,
+                    Percentage = r.Percentage,
+                    IsPassed = r.IsPassed,
+                    CompletionTime = r.CompletedAt ?? r.StartedAt,
+                    TimeTakenMinutes = r.TimeTakenMinutes ?? 0,
+                    Status = r.Status
+                })
+                .ToListAsync();
+
+            return new PagedResult<UserPracticeTestSummaryItem>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<UserPracticeTestDetailResponse> GetUserPracticeTestDetailAsync(long userId, int practiceTestId, int? attemptNumber)
+        {
+            var query = _context.PracticeTestResults
+                .Include(r => r.PracticeTest)
+                .Include(r => r.QuestionResults)
+                    .ThenInclude(qr => qr.Problem)
+                .Where(r => r.UserId == (int)userId && r.PracticeTestId == practiceTestId);
+
+            if (attemptNumber.HasValue)
+                query = query.Where(r => r.AttemptNumber == attemptNumber.Value);
+            else
+                query = query.OrderByDescending(r => r.AttemptNumber);
+
+            var result = await query.FirstOrDefaultAsync();
+            if (result == null) return null;
+
+            return new UserPracticeTestDetailResponse
+            {
+                PracticeTestId = result.PracticeTestId,
+                TestName = result.PracticeTest?.TestName ?? "Unknown",
+                UserId = result.UserId,
+                AttemptNumber = result.AttemptNumber,
+                StartedAt = result.StartedAt,
+                CompletedAt = result.CompletedAt,
+                Percentage = result.Percentage,
+                Questions = result.QuestionResults.Select(qr => new UserPracticeQuestionDetail
+                {
+                    ProblemId = qr.ProblemId,
+                    ProblemTitle = qr.Problem?.Title ?? "Problem " + qr.ProblemId,
+                    SubmittedCode = qr.SubmittedCode ?? "",
+                    Language = qr.Language,
+                    Marks = qr.Marks,
+                    ObtainedMarks = qr.ObtainedMarks,
+                    IsCorrect = qr.IsCorrect,
+                    ExecutionTime = qr.ExecutionTime ?? 0,
+                    Status = qr.ExecutionStatus
+                }).ToList()
+            };
+        }
+
+        public async Task<UserFreePracticeSummaryResponse> GetUserFreePracticeSummaryAsync(long userId)
+        {
+            var stats = await GetFreePracticeSummaryAsync(userId);
+            return new UserFreePracticeSummaryResponse
+            {
+                TotalProblemsAttempted = stats.TotalProblemsAttempted,
+                TotalProblemsSolved = stats.TotalProblemsSolved,
+                AverageSuccessRate = stats.AverageSuccessRate,
+                TotalTimeSpentSeconds = stats.TotalTimeSpentSeconds,
+                LanguageBreakdown = stats.LanguageBreakdown
+            };
+        }
     }
 }
