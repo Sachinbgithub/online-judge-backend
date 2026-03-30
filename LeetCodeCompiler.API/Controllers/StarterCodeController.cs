@@ -89,9 +89,15 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all starter codes with problem information</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllStarterCodes()
+        public async Task<IActionResult> GetAllStarterCodes([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
-            var starterCodes = await _context.StarterCodes
+            var query = _context.StarterCodes;
+            var totalCount = await query.CountAsync();
+
+            var starterCodes = await query
+                .OrderBy(sc => sc.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(sc => new CreateStarterCodeResponse
                 {
                     Id = sc.Id,
@@ -105,7 +111,13 @@ namespace LeetCodeCompiler.API.Controllers
                 })
                 .ToListAsync();
             
-            return Ok(starterCodes);
+            return Ok(new PagedResult<CreateStarterCodeResponse>
+            {
+                Items = starterCodes,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
         /// <summary>
@@ -143,10 +155,15 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="problemId">Problem ID</param>
         /// <returns>List of starter codes for the specified problem</returns>
         [HttpGet("problem/{problemId}")]
-        public async Task<IActionResult> GetStarterCodesByProblemId(int problemId)
+        public async Task<IActionResult> GetStarterCodesByProblemId(int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
-            var starterCodes = await _context.StarterCodes
-                .Where(sc => sc.ProblemId == problemId)
+            var query = _context.StarterCodes.Where(sc => sc.ProblemId == problemId);
+            var totalCount = await query.CountAsync();
+
+            var starterCodes = await query
+                .OrderBy(sc => sc.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(sc => new CreateStarterCodeResponse
                 {
                     Id = sc.Id,
@@ -160,7 +177,13 @@ namespace LeetCodeCompiler.API.Controllers
                 })
                 .ToListAsync();
             
-            return Ok(starterCodes);
+            return Ok(new PagedResult<CreateStarterCodeResponse>
+            {
+                Items = starterCodes,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
         /// <summary>

@@ -26,6 +26,7 @@ namespace LeetCodeCompiler.API.Controllers
         private readonly JavaScriptExecutionService _javascriptService;
         private readonly JavaExecutionService _javaService;
         private readonly CppExecutionService _cppService;
+        private readonly CExecutionService _cService;
 
         // 🔧 DEVELOPMENT MODE: Security patterns disabled for faster development
         // private static readonly string[] DangerousPatterns = {
@@ -39,7 +40,8 @@ namespace LeetCodeCompiler.API.Controllers
             PythonExecutionService pythonService,
             JavaScriptExecutionService javascriptService,
             JavaExecutionService javaService,
-            CppExecutionService cppService)
+            CppExecutionService cppService,
+            CExecutionService cService)
         {
             _db = db;
             _activityTrackingService = activityTrackingService;
@@ -48,6 +50,7 @@ namespace LeetCodeCompiler.API.Controllers
             _javascriptService = javascriptService;
             _javaService = javaService;
             _cppService = cppService;
+            _cService = cService;
         }
 
         /// <summary>
@@ -171,6 +174,9 @@ namespace LeetCodeCompiler.API.Controllers
                     case "cpp":
                     case "c++":
                         service = _cppService;
+                        break;
+                    case "c":
+                        service = _cService;
                         break;
                     default:
                         break;
@@ -526,7 +532,8 @@ namespace LeetCodeCompiler.API.Controllers
                 "python" => _pythonService,
                 "javascript" or "js" => _javascriptService,
                 "java" => _javaService,
-                "cpp" => _cppService,
+                "cpp" or "c++" => _cppService,
+                "c" => _cService,
                 _ => null
             };
         }

@@ -78,9 +78,9 @@ dotnet LeetCodeCompiler.API.dll --urls "http://0.0.0.0:5081;https://0.0.0.0:7169
 
 ### Local Network Access
 Once deployed, the API will be available at:
-- **HTTP**: `http://[YOUR_IP_ADDRESS]:5081`
-- **HTTPS**: `https://[YOUR_IP_ADDRESS]:7169`
-- **Swagger UI**: `http://[YOUR_IP_ADDRESS]:5081/swagger`
+- **HTTP**: `http://192.168.0.102:5081`
+- **HTTPS**: `https://192.168.0.102:7169`
+- **Swagger UI**: `http://192.168.0.102:5081/swagger`
 
 ### Internet Access (Optional)
 To make the API accessible over the internet:
@@ -98,10 +98,10 @@ The current configuration uses a local SQL Server instance. For network deployme
 2. **Configure SQL Server to listen on all interfaces**
 3. **Update connection string** in `Program.cs` if using a remote database
 
-### Example Remote Database Connection
+### Current Database Connection
 ```csharp
-// Update the connection string in Program.cs
-options.UseSqlServer("Server=YOUR_SERVER_IP;Database=LeetCode;User Id=YOUR_USER;Password=YOUR_PASSWORD;TrustServerCertificate=True;");
+// Current connection string in Program.cs
+options.UseSqlServer("Server=192.168.0.102,1433;Database=LeetCode;User ID=sa;Password=pass@123;TrustServerCertificate=True;");
 ```
 
 ## Security Considerations

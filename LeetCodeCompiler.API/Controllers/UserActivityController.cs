@@ -16,14 +16,14 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("{userId}/problem/{problemId}")]
-        public async Task<IActionResult> GetUserActivityForProblem(int userId, int problemId)
+        public async Task<IActionResult> GetUserActivityForProblem(int userId, int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var activityLogs = await _activityTrackingService.GetUserActivityLogsAsync(userId, problemId);
+                var pagedLogs = await _activityTrackingService.GetUserActivityLogsAsync(userId, problemId, pageNumber, pageSize);
                 
                 // Format response for user-friendly display
-                var formattedLogs = activityLogs.Select(log => {
+                var formattedItems = pagedLogs.Items.Select(log => {
                     var sessionDuration = FormatDuration(log.TimeTakenSeconds);
                     var passedCount = string.IsNullOrEmpty(log.PassedTestCaseIDs) ? 0 : log.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id));
                     var failedCount = string.IsNullOrEmpty(log.FailedTestCaseIDs) ? 0 : log.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id));
@@ -58,7 +58,18 @@ namespace LeetCodeCompiler.API.Controllers
                     };
                 }).ToList();
 
-                return Ok(formattedLogs);
+                var response = new 
+                {
+                    items = formattedItems,
+                    totalCount = pagedLogs.TotalCount,
+                    pageNumber = pagedLogs.PageNumber,
+                    pageSize = pagedLogs.PageSize,
+                    totalPages = pagedLogs.TotalPages,
+                    hasPreviousPage = pagedLogs.HasPreviousPage,
+                    hasNextPage = pagedLogs.HasNextPage
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -69,49 +80,15 @@ namespace LeetCodeCompiler.API.Controllers
         [HttpGet("{userId}/summary")]
         public async Task<IActionResult> GetUserActivitySummary(int userId)
         {
-            var logs = await _activityTrackingService.GetUserActivityLogsAsync(userId);
-
-            var attempts = logs.Select(log => new {
-                problemId = log.ProblemId,
-                attemptNumber = log.AttemptNumber,
-                testType = log.TestType,
-                startTime = log.StartTime,
-                endTime = log.EndTime,
-                timeSpentSeconds = log.TimeTakenSeconds,
-                sessionDuration = FormatDuration(log.TimeTakenSeconds),
-                testCases = new {
-                    total = (string.IsNullOrEmpty(log.PassedTestCaseIDs) ? 0 : log.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id))) +
-                            (string.IsNullOrEmpty(log.FailedTestCaseIDs) ? 0 : log.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id))),
-                    passed = string.IsNullOrEmpty(log.PassedTestCaseIDs) ? 0 : log.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id)),
-                    failed = string.IsNullOrEmpty(log.FailedTestCaseIDs) ? 0 : log.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id))
-                }
-            }).ToList();
-
-            // Calculate total time spent across ALL problems (entire environment)
-            var totalTimeSpentSeconds = logs.Sum(log => log.TimeTakenSeconds);
-            var totalTimeFormatted = FormatDuration(totalTimeSpentSeconds);
-
-            // Calculate time spent by test type
-            var timeSpentByTestType = logs
-                .GroupBy(log => log.TestType)
-                .ToDictionary(
-                    g => g.Key,
-                    g => new { 
-                        seconds = g.Sum(log => log.TimeTakenSeconds),
-                        formatted = FormatDuration(g.Sum(log => log.TimeTakenSeconds))
-                    }
-                );
-
-            var response = new {
-                userId = userId,
-                totalProblemsAttempted = logs.Select(log => log.ProblemId).Distinct().Count(),
-                totalTimeSpentSeconds = totalTimeSpentSeconds,
-                totalTimeFormatted = totalTimeFormatted,
-                timeSpentByTestType = timeSpentByTestType,
-                attempts = attempts
-            };
-
-            return Ok(response);
+            try
+            {
+                var summary = await _activityTrackingService.GetUserActivitySummaryAsync(userId);
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve user activity summary", details = ex.Message });
+            }
         }
 
         [HttpPost("log")]
@@ -174,59 +151,8 @@ namespace LeetCodeCompiler.API.Controllers
         {
             try
             {
-                var activityLogs = await _activityTrackingService.GetUserActivityLogsAsync(userId, problemId);
-                
-                if (!activityLogs.Any())
-                {
-                    return Ok(new { 
-                        message = "No activity logs found for this problem",
-                        totalTimeSpent = 0,
-                        averageTimePerAttempt = 0,
-                        attempts = 0
-                    });
-                }
-
-                // Calculate time metrics
-                var totalTimeSpentSeconds = activityLogs.Sum(log => log.TimeTakenSeconds);
-                var averageTimePerAttempt = activityLogs.Average(log => log.TimeTakenSeconds);
-                var attempts = activityLogs.Count;
-                
-                // Get the most recent attempt
-                var latestAttempt = activityLogs.OrderByDescending(log => log.CreatedAt).First();
-                
-                // Format durations
-                var totalTimeFormatted = FormatDuration(totalTimeSpentSeconds);
-                var averageTimeFormatted = FormatDuration((int)averageTimePerAttempt);
-                var latestTimeFormatted = FormatDuration(latestAttempt.TimeTakenSeconds);
-
-                return Ok(new
-                {
-                    totalTimeSpent = totalTimeSpentSeconds,
-                    totalTimeFormatted = totalTimeFormatted,
-                    averageTimePerAttempt = (int)averageTimePerAttempt,
-                    averageTimeFormatted = averageTimeFormatted,
-                    attempts = attempts,
-                    latestAttempt = new
-                    {
-                        attemptNumber = latestAttempt.AttemptNumber,
-                        timeTaken = latestAttempt.TimeTakenSeconds,
-                        timeFormatted = latestTimeFormatted,
-                        testType = latestAttempt.TestType,
-                        createdAt = latestAttempt.CreatedAt,
-                        passedTestCases = string.IsNullOrEmpty(latestAttempt.PassedTestCaseIDs) ? 0 : latestAttempt.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id)),
-                        failedTestCases = string.IsNullOrEmpty(latestAttempt.FailedTestCaseIDs) ? 0 : latestAttempt.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id))
-                    },
-                    allAttempts = activityLogs.Select(log => new
-                    {
-                        attemptNumber = log.AttemptNumber,
-                        timeTaken = log.TimeTakenSeconds,
-                        timeFormatted = FormatDuration(log.TimeTakenSeconds),
-                        testType = log.TestType,
-                        createdAt = log.CreatedAt,
-                        passedTestCases = string.IsNullOrEmpty(log.PassedTestCaseIDs) ? 0 : log.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id)),
-                        failedTestCases = string.IsNullOrEmpty(log.FailedTestCaseIDs) ? 0 : log.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id))
-                    }).OrderByDescending(a => a.createdAt).ToList()
-                });
+                var analysis = await _activityTrackingService.GetProblemTimeAnalysisAsync(userId, problemId);
+                return Ok(analysis);
             }
             catch (Exception ex)
             {
@@ -287,6 +213,7 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+        [NonAction] // Hiding this endpoint for database security at scale
         [HttpGet("debug/all")]
         public async Task<IActionResult> GetAllActivityLogs()
         {

@@ -7,14 +7,20 @@ namespace LeetCodeCompiler.API.Services
     public class CodingTestService : ICodingTestService
     {
         private readonly AppDbContext _context;
+        private readonly StudentProfileService _studentProfileService;
 
-        public CodingTestService(AppDbContext context)
+        public CodingTestService(AppDbContext context, StudentProfileService studentProfileService)
         {
             _context = context;
+            _studentProfileService = studentProfileService;
         }
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
         {
+            // Only set CollegeId to 0 if not provided (is 0)
+            // If frontend sends a college ID, always store it as-is, regardless of IsGlobal
+            // CollegeId is the actual college identifier and should always be stored
+            
             var codingTest = new CodingTest
             {
                 TestName = request.TestName,
@@ -37,6 +43,8 @@ namespace LeetCodeCompiler.API.Services
                 BreachRuleLimit = request.BreachRuleLimit,
                 HostIP = request.HostIP,
                 ClassId = request.ClassId,
+                IsGlobal = request.IsGlobal,
+                CollegeId = request.CollegeId, // Store as-is from frontend
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -262,6 +270,28 @@ namespace LeetCodeCompiler.API.Services
             return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
         }
 
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetAllCodingTestsPagedAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts);
+                
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<List<CodingTestSummaryResponse>> GetCodingTestsByUserAsync(int userId, string? subjectName = null, string? topicName = null, bool isEnabled = true)
         {
             var query = _context.CodingTests
@@ -296,6 +326,50 @@ namespace LeetCodeCompiler.API.Services
             return codingTests.Select(ct => MapToSummaryResponse(ct, subjectName, topicName, isEnabled)).ToList();
         }
 
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetCodingTestsByUserPagedAsync(int userId, int pageNumber, int pageSize, string? subjectName = null, string? topicName = null, bool isEnabled = true)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Include(ct => ct.TopicData)
+                .Where(ct => ct.CreatedBy == userId);
+
+            // Apply isEnabled filter
+            if (isEnabled)
+            {
+                query = query.Where(ct => ct.IsActive);
+            }
+
+            // Apply subjectName filter (domain name)
+            if (!string.IsNullOrEmpty(subjectName))
+            {
+                query = query.Where(ct => ct.TopicData.Any(td => 
+                    _context.Domains.Any(d => d.DomainId == td.DomainId && d.DomainName.Contains(subjectName))));
+            }
+
+            // Apply topicName filter (subdomain name)
+            if (!string.IsNullOrEmpty(topicName))
+            {
+                query = query.Where(ct => ct.TopicData.Any(td => 
+                    _context.Subdomains.Any(sd => sd.SubdomainId == td.SubdomainId && sd.SubdomainName.Contains(topicName))));
+            }
+            
+            var totalCount = await query.CountAsync();
+
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct, subjectName, topicName, isEnabled)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<List<CodingTestFullResponse>> GetCodingTestsByCreatorAsync(int createdByUserId)
         {
             var codingTests = await _context.CodingTests
@@ -328,8 +402,261 @@ namespace LeetCodeCompiler.API.Services
                 BreachRuleLimit = ct.BreachRuleLimit,
                 HostIP = ct.HostIP,
                 ClassId = ct.ClassId,
+                IsGlobal = ct.IsGlobal,
+                CollegeId = ct.CollegeId,
                 TestType = ct.TestType
             }).ToList();
+        }
+
+        public async Task<PagedResult<CodingTestFullResponse>> GetCodingTestsByCreatorPagedAsync(int createdByUserId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Where(ct => ct.CreatedBy == createdByUserId);
+                
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestFullResponse>
+            {
+                Items = codingTests.Select(ct => new CodingTestFullResponse
+                {
+                    Id = ct.Id,
+                    TestName = ct.TestName,
+                    CreatedBy = ct.CreatedBy,
+                    CreatedAt = ct.CreatedAt,
+                    UpdatedAt = ct.UpdatedAt,
+                    StartDate = ct.StartDate,
+                    EndDate = ct.EndDate,
+                    DurationMinutes = ct.DurationMinutes,
+                    TotalQuestions = ct.TotalQuestions,
+                    TotalMarks = ct.TotalMarks,
+                    IsActive = ct.IsActive,
+                    IsPublished = ct.IsPublished,
+                    AllowMultipleAttempts = ct.AllowMultipleAttempts,
+                    MaxAttempts = ct.MaxAttempts,
+                    ShowResultsImmediately = ct.ShowResultsImmediately,
+                    AllowCodeReview = ct.AllowCodeReview,
+                    AccessCode = ct.AccessCode,
+                    Tags = ct.Tags,
+                    IsResultPublishAutomatically = ct.IsResultPublishAutomatically,
+                    ApplyBreachRule = ct.ApplyBreachRule,
+                    BreachRuleLimit = ct.BreachRuleLimit,
+                    HostIP = ct.HostIP,
+                    ClassId = ct.ClassId,
+                    IsGlobal = ct.IsGlobal,
+                    CollegeId = ct.CollegeId,
+                    TestType = ct.TestType
+                }).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        /// <summary>
+        /// Gets tests available to a college (global tests + tests specific to that college)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetGlobalCodingTestsByCollegeIdAsync(int collegeId)
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal || ct.CollegeId == collegeId)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetGlobalCodingTestsByCollegeIdPagedAsync(int collegeId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal || ct.CollegeId == collegeId);
+                
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        /// <summary>
+        /// Gets all global coding tests (IsGlobal = true)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetAllGlobalCodingTestsAsync()
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetAllGlobalCodingTestsPagedAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal);
+                
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        /// <summary>
+        /// Gets all tests specific to a college (CollegeId = collegeId, not global)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetCodingTestsByCollegeIdAsync(int collegeId)
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.CollegeId == collegeId && !ct.IsGlobal)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetCodingTestsByCollegeIdPagedAsync(int collegeId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.CollegeId == collegeId && !ct.IsGlobal);
+                
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        /// <summary>
+        /// Gets only global tests for a particular college (IsGlobal = true AND CollegeId = collegeId)
+        /// </summary>
+        public async Task<List<CodingTestSummaryResponse>> GetGlobalTestsByCollegeIdAsync(int collegeId)
+        {
+            var codingTests = await _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal && ct.CollegeId == collegeId)
+                .OrderByDescending(ct => ct.CreatedAt)
+                .ToListAsync();
+
+            return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
+        }
+
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetGlobalTestsByCollegeIdPagedAsync(int collegeId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .Where(ct => ct.IsGlobal && ct.CollegeId == collegeId);
+                
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetCodingTestsByFilterPagedAsync(CodingTestFilterRequest request)
+        {
+            var query = _context.CodingTests
+                .Include(ct => ct.Attempts)
+                .AsQueryable();
+
+            if (request.CodingTestId.HasValue)
+            {
+                query = query.Where(ct => ct.Id == request.CodingTestId.Value);
+            }
+
+            if (request.CreatedBy.HasValue)
+            {
+                query = query.Where(ct => ct.CreatedBy == request.CreatedBy.Value);
+            }
+
+            if (request.ClassId.HasValue)
+            {
+                query = query.Where(ct => ct.ClassId == request.ClassId.Value);
+            }
+
+            if (request.CollegeId.HasValue)
+            {
+                query = query.Where(ct => ct.CollegeId == request.CollegeId.Value);
+            }
+
+            if (request.AssignedToUserId.HasValue)
+            {
+                var assignedTestIds = _context.AssignedCodingTests
+                    .Where(act => act.AssignedToUserId == request.AssignedToUserId.Value && !act.IsDeleted)
+                    .Select(act => act.CodingTestId)
+                    .Distinct();
+                    
+                query = query.Where(ct => assignedTestIds.Contains(ct.Id));
+            }
+
+            var totalCount = await query.CountAsync();
+            
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
         }
 
         public async Task<CodingTestResponse> UpdateCodingTestAsync(UpdateCodingTestRequest request)
@@ -340,6 +667,14 @@ namespace LeetCodeCompiler.API.Services
             
             if (codingTest == null)
                 throw new ArgumentException($"Coding test with ID {request.Id} not found");
+
+            // Handle IsGlobal and CollegeId updates
+            // Store CollegeId as-is from frontend, only use default (0) if not provided
+            if (request.IsGlobal.HasValue || request.CollegeId.HasValue)
+            {
+                if (request.IsGlobal.HasValue) codingTest.IsGlobal = request.IsGlobal.Value;
+                if (request.CollegeId.HasValue) codingTest.CollegeId = request.CollegeId.Value;
+            }
 
             // Update only provided fields
             if (request.TestName != null) codingTest.TestName = request.TestName;
@@ -1080,6 +1415,47 @@ namespace LeetCodeCompiler.API.Services
             return submissions.Select(MapToSubmissionSummaryResponse).ToList();
         }
 
+        public async Task<PagedResult<CodingTestSubmissionSummaryResponse>> GetCodingTestSubmissionsPagedAsync(GetCodingTestSubmissionsRequest request)
+        {
+            var query = _context.CodingTestSubmissions
+                .Include(s => s.CodingTest)
+                .Include(s => s.Problem)
+                .AsQueryable();
+
+            // Apply filters
+            if (request.UserId.HasValue)
+                query = query.Where(s => s.UserId == request.UserId.Value);
+            
+            if (request.CodingTestId.HasValue)
+                query = query.Where(s => s.CodingTestId == request.CodingTestId.Value);
+            
+            if (request.ProblemId.HasValue)
+                query = query.Where(s => s.ProblemId == request.ProblemId.Value);
+            
+            if (request.StartDate.HasValue)
+                query = query.Where(s => s.SubmissionTime >= request.StartDate.Value);
+            
+            if (request.EndDate.HasValue)
+                query = query.Where(s => s.SubmissionTime <= request.EndDate.Value);
+
+            var totalCount = await query.CountAsync();
+
+            // Apply pagination
+            var submissions = await query
+                .OrderByDescending(s => s.SubmissionTime)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSubmissionSummaryResponse>
+            {
+                Items = submissions.Select(MapToSubmissionSummaryResponse).ToList(),
+                TotalCount = totalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
+        }
+
         public async Task<SubmitCodingTestResponse> GetCodingTestSubmissionByIdAsync(long submissionId)
         {
             var submission = await _context.CodingTestSubmissions
@@ -1223,14 +1599,43 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<TestStatusResponse> EndTestAsync(EndTestRequest request)
         {
+            // First try to find existing assignment
             var assignment = await _context.AssignedCodingTests
                 .Include(act => act.CodingTest)
-                .FirstOrDefaultAsync(act => act.AssignedToUserId == request.UserId && 
+                .FirstOrDefaultAsync(act => act.AssignedToUserId == request.UserId &&
                                           act.CodingTestId == request.CodingTestId &&
                                           !act.IsDeleted);
 
+            // If no assignment found, check if it's a global test that can be accessed without assignment
             if (assignment == null)
-                throw new ArgumentException($"Test assignment not found for user {request.UserId} and test {request.CodingTestId}");
+            {
+                var codingTest = await _context.CodingTests.FindAsync(request.CodingTestId);
+                if (codingTest == null)
+                    throw new ArgumentException($"Test {request.CodingTestId} not found");
+
+                // For global tests, create assignment record on-the-fly
+                if (codingTest.IsGlobal)
+                {
+                    assignment = new AssignedCodingTest
+                    {
+                        CodingTestId = request.CodingTestId,
+                        AssignedToUserId = request.UserId,
+                        AssignedToUserType = 1, // Default user type
+                        AssignedByUserId = request.UserId, // Self-assigned for global tests
+                        AssignedDate = DateTime.UtcNow,
+                        TestType = 1002, // Default test type
+                        TestMode = 5, // Default test mode
+                        CreatedAt = DateTime.UtcNow,
+                        CodingTest = codingTest // Include the test data
+                    };
+                    _context.AssignedCodingTests.Add(assignment);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ArgumentException($"Test assignment not found for user {request.UserId} and test {request.CodingTestId}");
+                }
+            }
 
             var now = DateTime.UtcNow;
 
@@ -1424,6 +1829,37 @@ namespace LeetCodeCompiler.API.Services
             return codingTests.Select(ct => MapToSummaryResponse(ct)).ToList();
         }
 
+        public async Task<PagedResult<CodingTestSummaryResponse>> GetCodingTestsByStatusPagedAsync(string status, int pageNumber, int pageSize)
+        {
+            var now = DateTime.UtcNow;
+            var query = _context.CodingTests.Include(ct => ct.Attempts).AsQueryable();
+
+            query = status.ToLower() switch
+            {
+                "upcoming" => query.Where(ct => ct.StartDate > now),
+                "active" => query.Where(ct => ct.StartDate <= now && ct.EndDate >= now && ct.IsActive && ct.IsPublished),
+                "completed" => query.Where(ct => ct.EndDate < now),
+                "expired" => query.Where(ct => ct.EndDate < now && !ct.IsActive),
+                _ => query
+            };
+
+            var totalCount = await query.CountAsync();
+
+            var codingTests = await query
+                .OrderByDescending(ct => ct.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestSummaryResponse>
+            {
+                Items = codingTests.Select(ct => MapToSummaryResponse(ct)).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
 
         public async Task<object> GetCodingTestAnalyticsAsync(int codingTestId)
         {
@@ -1465,6 +1901,32 @@ namespace LeetCodeCompiler.API.Services
             return attempts.Select(MapToAttemptResponse).ToList();
         }
 
+        public async Task<PagedResult<CodingTestAttemptResponse>> GetCodingTestResultsPagedAsync(int codingTestId, int pageNumber, int pageSize)
+        {
+            var query = _context.CodingTestAttempts
+                .Include(cta => cta.CodingTest)
+                .Include(cta => cta.QuestionAttempts)
+                    .ThenInclude(qa => qa.CodingTestQuestion)
+                        .ThenInclude(q => q.Problem)
+                .Where(cta => cta.CodingTestId == codingTestId && cta.Status == "Submitted");
+
+            var totalCount = await query.CountAsync();
+
+            var attempts = await query
+                .OrderByDescending(cta => cta.Percentage)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CodingTestAttemptResponse>
+            {
+                Items = attempts.Select(MapToAttemptResponse).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         // Validation methods
         public async Task<bool> ValidateAccessCodeAsync(int codingTestId, string accessCode)
         {
@@ -1482,14 +1944,22 @@ namespace LeetCodeCompiler.API.Services
             if (now < codingTest.StartDate || now > codingTest.EndDate)
                 return false;
 
-            // Check if the test is assigned to the user
-            var isAssigned = await _context.AssignedCodingTests
-                .AnyAsync(act => act.CodingTestId == codingTestId 
-                             && act.AssignedToUserId == userId 
-                             && !act.IsDeleted);
+            // Check access based on test type
+            if (codingTest.IsGlobal)
+            {
+                // Global test: No assignment record required - anyone with the URL can access
+            }
+            else
+            {
+                // College-specific test: Check for assignment record
+                var isAssigned = await _context.AssignedCodingTests
+                    .AnyAsync(act => act.CodingTestId == codingTestId
+                                 && act.AssignedToUserId == userId
+                                 && !act.IsDeleted);
 
-            if (!isAssigned)
-                return false;
+                if (!isAssigned)
+                    return false;
+            }
 
             if (!codingTest.AllowMultipleAttempts)
             {
@@ -1569,8 +2039,10 @@ namespace LeetCodeCompiler.API.Services
                 BreachRuleLimit = codingTest.BreachRuleLimit,
                 HostIP = codingTest.HostIP,
                 ClassId = codingTest.ClassId,
+                IsGlobal = codingTest.IsGlobal,
+                CollegeId = codingTest.CollegeId,
                 TopicData = codingTest.TopicData.Select(MapToTopicDataResponse).ToList(),
-                Questions = codingTest.Questions.Select(MapToQuestionResponse).ToList(),
+                Questions = codingTest.Questions?.Select(MapToQuestionResponse).ToList() ?? new List<CodingTestQuestionResponse>(),
                 TotalAttempts = codingTest.Attempts.Count,
                 CompletedAttempts = codingTest.Attempts.Count(a => a.Status == "Submitted")
             };
@@ -1675,7 +2147,9 @@ namespace LeetCodeCompiler.API.Services
                 CreatedAt = codingTest.CreatedAt,
                 SubjectName = subjectName,
                 TopicName = topicName,
-                IsEnabled = isEnabled
+                IsEnabled = isEnabled,
+                IsGlobal = codingTest.IsGlobal,
+                CollegeId = codingTest.CollegeId
             };
         }
 
@@ -1791,7 +2265,7 @@ namespace LeetCodeCompiler.API.Services
                            && act.AssignedToUserType == userType 
                            && !act.IsDeleted);
 
-            // Apply test type filter
+            // Apply test type filter only when testType was explicitly provided by the caller
             if (testType.HasValue)
             {
                 query = query.Where(act => act.TestType == testType.Value);
@@ -1808,6 +2282,42 @@ namespace LeetCodeCompiler.API.Services
                 .ToListAsync();
 
             return assignments.Select(MapToAssignedSummaryResponse).ToList();
+        }
+
+        public async Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserPagedAsync(long userId, byte userType, int pageNumber, int pageSize, int? testType = null, long? classId = null)
+        {
+            var query = _context.AssignedCodingTests
+                .Include(act => act.CodingTest)
+                .ThenInclude(ct => ct.TopicData)
+                .Where(act => act.AssignedToUserId == userId 
+                           && act.AssignedToUserType == userType 
+                           && !act.IsDeleted);
+
+            if (testType.HasValue)
+            {
+                query = query.Where(act => act.TestType == testType.Value);
+            }
+
+            if (classId.HasValue)
+            {
+                query = query.Where(act => act.CodingTest.ClassId == classId.Value || act.CodingTest.ClassId == 0);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var assignments = await query
+                .OrderByDescending(act => act.AssignedDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<AssignedCodingTestSummaryResponse>
+            {
+                Items = assignments.Select(MapToAssignedSummaryResponse).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<bool> UnassignCodingTestAsync(long assignedId, long unassignedByUserId)
@@ -1833,6 +2343,30 @@ namespace LeetCodeCompiler.API.Services
                 .ToListAsync();
 
             return assignments.Select(MapToAssignedSummaryResponse).ToList();
+        }
+
+        public async Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByTestPagedAsync(int codingTestId, int pageNumber, int pageSize)
+        {
+            var query = _context.AssignedCodingTests
+                .Include(act => act.CodingTest)
+                .ThenInclude(ct => ct.TopicData)
+                .Where(act => act.CodingTestId == codingTestId && !act.IsDeleted);
+
+            var totalCount = await query.CountAsync();
+
+            var assignments = await query
+                .OrderByDescending(act => act.AssignedDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<AssignedCodingTestSummaryResponse>
+            {
+                Items = assignments.Select(MapToAssignedSummaryResponse).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<List<AssignedCodingTestResponse>> GetAssignmentsByTestIdAsync(int codingTestId)
@@ -1861,6 +2395,46 @@ namespace LeetCodeCompiler.API.Services
                 TimeSpentMinutes = act.TimeSpentMinutes,
                 IsLateSubmission = act.IsLateSubmission
             }).ToList();
+        }
+
+        public async Task<PagedResult<AssignedCodingTestResponse>> GetAssignmentsByTestIdPagedAsync(int codingTestId, int pageNumber, int pageSize)
+        {
+            var query = _context.AssignedCodingTests
+                .Where(act => act.CodingTestId == codingTestId && !act.IsDeleted);
+
+            var totalCount = await query.CountAsync();
+
+            var assignments = await query
+                .OrderByDescending(act => act.AssignedDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<AssignedCodingTestResponse>
+            {
+                Items = assignments.Select(act => new AssignedCodingTestResponse
+                {
+                    AssignedId = act.AssignedId,
+                    CodingTestId = act.CodingTestId,
+                    AssignedToUserId = act.AssignedToUserId,
+                    AssignedToUserType = act.AssignedToUserType,
+                    AssignedByUserId = act.AssignedByUserId,
+                    AssignedDate = act.AssignedDate,
+                    TestType = act.TestType,
+                    TestMode = act.TestMode,
+                    IsDeleted = act.IsDeleted,
+                    CreatedAt = act.CreatedAt,
+                    UpdatedAt = act.UpdatedAt,
+                    Status = act.Status,
+                    StartedAt = act.StartedAt,
+                    CompletedAt = act.CompletedAt,
+                    TimeSpentMinutes = act.TimeSpentMinutes,
+                    IsLateSubmission = act.IsLateSubmission
+                }).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         private AssignedCodingTestSummaryResponse MapToAssignedSummaryResponse(AssignedCodingTest assignment)
@@ -1913,20 +2487,22 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<ComprehensiveTestResultResponse> GetComprehensiveTestResultsAsync(GetTestResultsRequest request)
         {
-            // Get the coding test details with full problem data
-            var codingTest = await _context.CodingTests
-                .Include(ct => ct.Questions)
-                    .ThenInclude(q => q.Problem)
-                        .ThenInclude(p => p.TestCases)
-                .Include(ct => ct.Questions)
-                    .ThenInclude(q => q.Problem)
-                        .ThenInclude(p => p.StarterCodes)
-                .FirstOrDefaultAsync(ct => ct.Id == request.CodingTestId);
+            try
+            {
+                // Get the coding test details with full problem data
+                var codingTest = await _context.CodingTests
+                    .Include(ct => ct.Questions)
+                        .ThenInclude(q => q.Problem)
+                            .ThenInclude(p => p.TestCases)
+                    .Include(ct => ct.Questions)
+                        .ThenInclude(q => q.Problem)
+                            .ThenInclude(p => p.StarterCodes)
+                    .FirstOrDefaultAsync(ct => ct.Id == request.CodingTestId);
 
             // If the problem data is not fully loaded, fetch it separately
             if (codingTest != null)
             {
-                var problemIds = codingTest.Questions.Select(q => q.ProblemId).ToList();
+                var problemIds = codingTest.Questions?.Select(q => q.ProblemId).ToList() ?? new List<int>();
                 var problems = await _context.Problems
                     .Include(p => p.TestCases)
                     .Include(p => p.StarterCodes)
@@ -1946,6 +2522,9 @@ namespace LeetCodeCompiler.API.Services
 
             if (codingTest == null)
                 throw new ArgumentException($"Coding test with ID {request.CodingTestId} not found");
+
+            // 🚀 NON-BLOCKING: Start fetching student profile data in parallel (won't fail the main operation)
+            var studentProfileTask = _studentProfileService.GetStudentProfileAsync(request.UserId);
 
             // Get all submissions for this user and test
             var submissionsQuery = _context.CodingTestSubmissions
@@ -1995,7 +2574,7 @@ namespace LeetCodeCompiler.API.Services
             var coreQuestionResults = await coreQuestionResultsQuery.ToListAsync();
 
             // Group test case results by problem ID (question-wise grouping)
-            var testCaseResultsByProblem = testCaseResults
+            var testCaseResultsByProblem = (testCaseResults ?? new List<CodingTestSubmissionResult>())
                 .GroupBy(r => r.ProblemId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -2126,7 +2705,7 @@ namespace LeetCodeCompiler.API.Services
                                $"UserId: {request.UserId}, CodingTestId: {request.CodingTestId}, ProblemId: {problemId}, AttemptNumber: {request.AttemptNumber}";
                 
                 // Get the problem details from the coding test questions
-                var problem = codingTest.Questions.FirstOrDefault(q => q.ProblemId == problemId)?.Problem;
+                var problem = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.Problem;
                 
                 // If problem is still null, fetch it directly from the database
                 if (problem == null)
@@ -2138,7 +2717,7 @@ namespace LeetCodeCompiler.API.Services
                 }
                 
                 // Calculate score based on test case results if no submission score is available
-                var maxScore = codingTest.Questions.FirstOrDefault(q => q.ProblemId == problemId)?.Marks ?? 0;
+                var maxScore = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.Marks ?? 0;
                 var totalTestCases = submission?.TotalTestCases ?? testCaseResultsForProblem.Count;
                 var passedTestCases = submission?.PassedTestCases ?? testCaseResultsForProblem.Count(tc => tc.IsPassed);
                 var calculatedScore = 0;
@@ -2156,7 +2735,7 @@ namespace LeetCodeCompiler.API.Services
                 {
                     ProblemId = problemId,
                     ProblemTitle = problem?.Title ?? "Unknown Problem",
-                    QuestionOrder = codingTest.Questions.FirstOrDefault(q => q.ProblemId == problemId)?.QuestionOrder ?? 0,
+                    QuestionOrder = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.QuestionOrder ?? 0,
                     MaxScore = maxScore,
                     LanguageUsed = languageUsed, // Use the best available language
                     FinalCodeSnapshot = finalCodeSnapshot, // Use the best available code snapshot
@@ -2191,6 +2770,30 @@ namespace LeetCodeCompiler.API.Services
             // Calculate summary
             var summary = CalculateTestSummary(problemResults, allTestCaseResults, codingTest);
 
+            // 🚀 NON-BLOCKING: Wait for student profile data (with timeout)
+            StudentProfileData? studentProfile = null;
+            try
+            {
+                // Create a timeout task
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(3));
+                var completedTask = await Task.WhenAny(studentProfileTask, timeoutTask);
+
+                if (completedTask == studentProfileTask)
+                {
+                    studentProfile = await studentProfileTask;
+                }
+                else
+                {
+                    // Timeout occurred - continue without student data
+                    Console.WriteLine($"Timeout waiting for student profile data for UserId: {request.UserId}. Continuing without student data.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Any exception occurred - log and continue without student data
+                Console.WriteLine($"Failed to fetch student profile for UserId: {request.UserId}. Continuing without student data. Error: {ex.Message}");
+            }
+
             return new ComprehensiveTestResultResponse
             {
                 CodingTestId = codingTest.Id,
@@ -2203,36 +2806,76 @@ namespace LeetCodeCompiler.API.Services
                 StartDate = codingTest.StartDate,
                 EndDate = codingTest.EndDate,
                 DurationMinutes = codingTest.DurationMinutes,
-                ProblemResults = problemResults.OrderBy(p => p.QuestionOrder).ToList(),
-                Summary = summary
+                ProblemResults = problemResults?.OrderBy(p => p.QuestionOrder).ToList() ?? new List<ProblemTestResult>(),
+                Summary = summary,
+                StudentProfile = studentProfile // Include student data (may be null)
             };
+            }
+            catch (Exception ex)
+            {
+                // Log the error and return a basic response
+                Console.WriteLine($"Error in GetComprehensiveTestResultsAsync: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                // Return a minimal response to prevent the API from crashing
+                return new ComprehensiveTestResultResponse
+                {
+                    CodingTestId = request.CodingTestId,
+                    TestName = "Error retrieving test data",
+                    UserId = request.UserId,
+                    TotalQuestions = 0,
+                    TotalMarks = 0,
+                    TotalScore = 0,
+                    Percentage = 0,
+                    StartDate = DateTime.MinValue,
+                    EndDate = DateTime.MinValue,
+                    DurationMinutes = 0,
+                    ProblemResults = new List<ProblemTestResult>(),
+                    Summary = new TestSummary(),
+                    StudentProfile = null
+                };
+            }
         }
 
         public async Task<object> GetDebugDataAsync(long userId, int codingTestId, int? problemId = null)
         {
-            var debugData = new
+            try
             {
-                UserId = userId,
-                CodingTestId = codingTestId,
-                ProblemId = problemId,
-                Submissions = await _context.CodingTestSubmissions
-                    .Where(s => s.UserId == userId && s.CodingTestId == codingTestId)
-                    .Select(s => new { s.SubmissionId, s.ProblemId, s.AttemptNumber, s.LanguageUsed, HasCode = !string.IsNullOrEmpty(s.FinalCodeSnapshot), s.SubmissionTime })
-                    .ToListAsync(),
-                QuestionAttempts = await _context.CodingTestQuestionAttempts
-                    .Where(qa => qa.UserId == userId)
-                    .Select(qa => new { qa.Id, qa.ProblemId, qa.CodingTestAttemptId, qa.LanguageUsed, HasCode = !string.IsNullOrEmpty(qa.CodeSubmitted), qa.CreatedAt })
-                    .ToListAsync(),
-                CoreResults = await _context.CoreQuestionResults
-                    .Where(cqr => cqr.UserId == userId)
-                    .Select(cqr => new { cqr.Id, cqr.ProblemId, cqr.AttemptNumber, cqr.LanguageUsed, HasCode = !string.IsNullOrEmpty(cqr.FinalCodeSnapshot), cqr.CreatedAt })
-                    .ToListAsync(),
-                TestCaseResults = await _context.CodingTestSubmissionResults
-                    .Select(r => new { r.ResultId, r.ProblemId, r.SubmissionId, r.IsPassed, r.CreatedAt })
-                    .ToListAsync()
-            };
+                var debugData = new
+                {
+                    UserId = userId,
+                    CodingTestId = codingTestId,
+                    ProblemId = problemId,
+                    Submissions = await _context.CodingTestSubmissions
+                        .Where(s => s.UserId == userId && s.CodingTestId == codingTestId)
+                        .Select(s => new { s.SubmissionId, s.ProblemId, s.AttemptNumber, s.LanguageUsed, HasCode = !string.IsNullOrEmpty(s.FinalCodeSnapshot), s.SubmissionTime })
+                        .ToListAsync(),
+                    QuestionAttempts = await _context.CodingTestQuestionAttempts
+                        .Where(qa => qa.UserId == userId)
+                        .Select(qa => new { qa.Id, qa.ProblemId, qa.CodingTestAttemptId, qa.LanguageUsed, HasCode = !string.IsNullOrEmpty(qa.CodeSubmitted), qa.CreatedAt })
+                        .ToListAsync(),
+                    CoreResults = await _context.CoreQuestionResults
+                        .Where(cqr => cqr.UserId == userId)
+                        .Select(cqr => new { cqr.Id, cqr.ProblemId, cqr.AttemptNumber, cqr.LanguageUsed, HasCode = !string.IsNullOrEmpty(cqr.FinalCodeSnapshot), cqr.CreatedAt })
+                        .ToListAsync(),
+                    TestCaseResults = await _context.CodingTestSubmissionResults
+                        .Select(r => new { r.ResultId, r.ProblemId, r.SubmissionId, r.IsPassed, r.CreatedAt })
+                        .ToListAsync()
+                };
 
-            return debugData;
+                return debugData;
+            }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    Error = "Failed to retrieve debug data",
+                    Details = ex.Message,
+                    UserId = userId,
+                    CodingTestId = codingTestId,
+                    ProblemId = problemId
+                };
+            }
         }
 
         private DetailedTestCaseResult MapToDetailedTestCaseResult(CodingTestSubmissionResult result)

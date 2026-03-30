@@ -21,11 +21,18 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all problem hints with problem information</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllProblemHints()
+        public async Task<IActionResult> GetAllProblemHints([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var problemHints = await _context.ProblemHints
+                var query = _context.ProblemHints;
+                var totalCount = await query.CountAsync();
+
+                var problemHints = await query
+                    .OrderBy(ph => ph.ProblemId)
+                    .ThenBy(ph => ph.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(ph => new CreateProblemHintResponse
                     {
                         Id = ph.Id,
@@ -36,11 +43,15 @@ namespace LeetCodeCompiler.API.Controllers
                             .Select(p => p.Title)
                             .FirstOrDefault() ?? "Unknown"
                     })
-                    .OrderBy(ph => ph.ProblemId)
-                    .ThenBy(ph => ph.Id)
                     .ToListAsync();
 
-                return Ok(problemHints);
+                return Ok(new PagedResult<CreateProblemHintResponse>
+                {
+                    Items = problemHints,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -91,7 +102,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="problemId">Problem ID</param>
         /// <returns>List of hints for the specified problem</returns>
         [HttpGet("problem/{problemId}")]
-        public async Task<IActionResult> GetProblemHintsByProblemId(int problemId)
+        public async Task<IActionResult> GetProblemHintsByProblemId(int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
@@ -104,8 +115,13 @@ namespace LeetCodeCompiler.API.Controllers
                     return NotFound(new { error = $"Problem with ID {problemId} not found" });
                 }
 
-                var problemHints = await _context.ProblemHints
-                    .Where(ph => ph.ProblemId == problemId)
+                var query = _context.ProblemHints.Where(ph => ph.ProblemId == problemId);
+                var totalCount = await query.CountAsync();
+
+                var problemHints = await query
+                    .OrderBy(ph => ph.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(ph => new CreateProblemHintResponse
                     {
                         Id = ph.Id,
@@ -116,10 +132,15 @@ namespace LeetCodeCompiler.API.Controllers
                             .Select(p => p.Title)
                             .FirstOrDefault() ?? "Unknown"
                     })
-                    .OrderBy(ph => ph.Id)
                     .ToListAsync();
 
-                return Ok(problemHints);
+                return Ok(new PagedResult<CreateProblemHintResponse>
+                {
+                    Items = problemHints,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

@@ -20,8 +20,9 @@ namespace LeetCodeCompiler.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllDomains()
         {
-                var domains = await _context.Domains
+            var domains = await _context.Domains
                 .Include(d => d.Subdomains)
+                .OrderBy(d => d.DomainId)
                 .Select(d => new DomainDto
                 {
                     DomainId = d.DomainId,
@@ -277,6 +278,7 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var domains = await query
+                    .OrderBy(d => d.DomainId)
                     .Select(d => new DomainDto
                     {
                         DomainId = d.DomainId,
@@ -376,6 +378,7 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var domains = await query
+                    .OrderBy(d => d.DomainId)
                     .Select(d => new DomainDto
                     {
                         DomainId = d.DomainId,
@@ -476,6 +479,7 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var domains = await query
+                    .OrderBy(d => d.DomainId)
                     .Select(d => new DomainDto
                     {
                         DomainId = d.DomainId,

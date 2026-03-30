@@ -21,20 +21,31 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all languages</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllLanguages()
+        public async Task<IActionResult> GetAllLanguages([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var languages = await _context.Languages
+                var query = _context.Languages;
+                var totalCount = await query.CountAsync();
+
+                var languages = await query
                     .Select(l => new CreateLanguageResponse
                     {
                         Id = l.Id,
                         LanguageName = l.LanguageName
                     })
                     .OrderBy(l => l.LanguageName)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
 
-                return Ok(languages);
+                return Ok(new PagedResult<CreateLanguageResponse>
+                {
+                    Items = languages,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {
@@ -311,11 +322,14 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all languages with their usage statistics</returns>
         [HttpGet("with-usage")]
-        public async Task<IActionResult> GetAllLanguagesWithUsage()
+        public async Task<IActionResult> GetAllLanguagesWithUsage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50)
         {
             try
             {
-                var languagesWithUsage = await _context.Languages
+                var query = _context.Languages;
+                var totalCount = await query.CountAsync();
+
+                var languagesWithUsage = await query
                     .Select(l => new
                     {
                         Id = l.Id,
@@ -328,9 +342,17 @@ namespace LeetCodeCompiler.API.Controllers
                             .Count()
                     })
                     .OrderBy(l => l.LanguageName)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
 
-                return Ok(languagesWithUsage);
+                return Ok(new PagedResult<object>
+                {
+                    Items = languagesWithUsage.Cast<object>().ToList(),
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                });
             }
             catch (Exception ex)
             {

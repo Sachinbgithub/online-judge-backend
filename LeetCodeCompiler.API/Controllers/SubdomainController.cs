@@ -22,6 +22,7 @@ namespace LeetCodeCompiler.API.Controllers
         {
             var subdomains = await _context.Subdomains
                 .Include(s => s.Domain)
+                .OrderBy(s => s.SubdomainId)
                 .Select(s => new SubdomainDto
                 {
                     SubdomainId = s.SubdomainId,
@@ -87,6 +88,7 @@ namespace LeetCodeCompiler.API.Controllers
             var subdomains = await _context.Subdomains
                 .Include(s => s.Domain)
                 .Where(s => s.DomainId == domainId)
+                .OrderBy(s => s.SubdomainId)
                 .Select(s => new SubdomainDto
                 {
                     SubdomainId = s.SubdomainId,
@@ -326,6 +328,7 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var subdomains = await query
+                    .OrderBy(s => s.SubdomainId)
                     .Select(s => new SubdomainDto
                     {
                         SubdomainId = s.SubdomainId,
@@ -421,6 +424,7 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var subdomains = await query
+                    .OrderBy(s => s.SubdomainId)
                     .Select(s => new SubdomainDto
                     {
                         SubdomainId = s.SubdomainId,
@@ -522,6 +526,7 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var subdomains = await query
+                    .OrderBy(s => s.SubdomainId)
                     .Select(s => new SubdomainDto
                     {
                         SubdomainId = s.SubdomainId,

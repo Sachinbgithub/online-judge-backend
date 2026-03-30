@@ -10,6 +10,14 @@ namespace LeetCodeCompiler.API.Services
         Task<CoreQuestionResult> CreateOrUpdateQuestionResultAsync(int userId, int problemId, int attemptNumber, string languageUsed, string finalCodeSnapshot, int totalTestCases, int passedTestCases, int failedTestCases);
         Task<CoreTestCaseResult> LogTestCaseResultAsync(int coreQuestionResultId, int userId, int problemId, int testCaseId, bool isPassed, string userOutput, string expectedOutput, double executionTime);
         Task<List<UserCodingActivityLog>> GetUserActivityLogsAsync(int userId, int? problemId = null);
+        
+        // Scalable, Paginated logs
+        Task<PagedResult<UserCodingActivityLog>> GetUserActivityLogsAsync(int userId, int? problemId, int pageNumber, int pageSize);
+        
+        // Scalable Aggregations
+        Task<object> GetUserActivitySummaryAsync(int userId);
+        Task<object> GetProblemTimeAnalysisAsync(int userId, int problemId);
+
         Task<List<CoreQuestionResult>> GetUserQuestionResultsAsync(int userId, int? problemId = null);
         Task<List<CoreTestCaseResult>> GetTestCaseResultsAsync(int coreQuestionResultId);
         Task<List<CoreQuestionResult>> GetAllQuestionResultsAsync();
