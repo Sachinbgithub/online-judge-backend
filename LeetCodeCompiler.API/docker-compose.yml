@@ -8,7 +8,7 @@ services:
       - "7169:7169"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://0.0.0.0:5081;http://0.0.0.0:7169
+      - ASPNETCORE_URLS=http://0.0.0.0:5081;https://0.0.0.0:7169
     networks:
       - leetcode-network
 

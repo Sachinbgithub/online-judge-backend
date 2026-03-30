@@ -83,22 +83,54 @@ Caching: In-Memory Cache + Memory Cache
 ### **Core Components**
 
 #### **1. Controllers Layer**
-- **`CodeExecutionController`**: Handles code execution requests with security validation
-- **`ProblemsController`**: Manages DSA problem data and retrieval
-- **`QuestionResultController`**: Processes user submission results
-- **`UserActivityController`**: Tracks user coding behavior and analytics
+
+| Controller | Responsibility |
+|---|---|
+| `CodeExecutionController` | Multi-language code execution with Docker container pool |
+| `ProblemsController` | Full CRUD for DSA problems + stream/creator filtering |
+| `TestCaseController` | Test case management per problem |
+| `StarterCodeController` | Starter code templates per language per problem |
+| `ProblemHintsController` | Hints management per problem |
+| `DomainController` | Domain (subject) CRUD + usage stats |
+| `SubdomainController` | Subdomain (topic) CRUD + usage stats |
+| `DifficultyController` | Difficulty levels CRUD |
+| `LanguagesController` | Supported languages CRUD + usage stats |
+| `CodingTestController` | Full test lifecycle: create, assign, start, submit, end, analytics |
+| `FacultyDashboardController` | Faculty view: students, leaderboard, problem analysis, practice students |
+| `FacultyPerformanceController` | Faculty-level performance aggregation |
+| `FacultyUserPerformanceController` | Per-student performance for a faculty's test |
+| `StudentPerformanceController` | Student's own performance history |
+| `PracticeTestController` | Practice test creation, submission, and results |
+| `QuestionResultController` | Question-level result processing and retrieval |
+| `TestCaseResultController` | Test case result storage and retrieval |
+| `UserActivityController` | User coding behavior tracking and activity logs |
 
 #### **2. Services Layer**
-- **`ContainerPoolService`**: Manages Docker container lifecycle and pooling
-- **`PythonExecutionService`**: Optimized Python code execution
-- **`JavaScriptExecutionService`**: Optimized JavaScript code execution  
-- **`JavaExecutionService`**: Optimized Java code execution
-- **`CppExecutionService`**: Optimized C++ code execution
-- **`ActivityTrackingService`**: User behavior analytics and tracking
+
+| Service | Type | Responsibility |
+|---|---|---|
+| `ContainerPoolService` | Singleton | Pre-pooled Docker container lifecycle management |
+| `CodingTestService` | Scoped | All coding test business logic (~3,600 lines) |
+| `PracticeTestService` | Scoped | Practice test creation and evaluation |
+| `PerformanceService` | Scoped | Leaderboard, student stats, problem analysis |
+| `ActivityTrackingService` | Scoped | User coding activity logging and analytics |
+| `StudentProfileService` | Scoped | Student profile data via external HTTP API |
+| `PythonExecutionService` | Scoped | Python code execution via container stdin streaming |
+| `JavaScriptExecutionService` | Scoped | JavaScript code execution (Node.js) |
+| `JavaExecutionService` | Scoped | Java code compilation + execution |
+| `CppExecutionService` | Scoped | C++ code compilation + execution |
+| `CExecutionService` | Scoped | C code compilation + execution |
 
 #### **3. Data Layer**
-- **Entity Framework Core** with SQL Server
-- **Models**: Problem, TestCase, StarterCode, UserCodingActivityLog
+- **Entity Framework Core** with SQL Server (`AppDbContext`)
+- **Core Problem Tables**: `Problems`, `TestCases`, `StarterCodes`, `ProblemHints`
+- **Taxonomy Tables**: `Domain`, `Subdomain`, `Difficulty`, `Languages`
+- **Coding Test Tables**: `CodingTests`, `CodingTestQuestions`, `CodingTestTopicData`
+- **Assignment Tables**: `AssignedCodingTests`
+- **Attempt Tables**: `CodingTestAttempts`, `CodingTestQuestionAttempts`
+- **Submission Tables**: `CodingTestSubmissions`, `CodingTestSubmissionResults`
+- **Practice Tables**: `PracticeTests`, `PracticeTestQuestions`, `PracticeTestResults`, `PracticeTestQuestionResults`
+- **Activity Tables**: `UserCodingActivityLog`, `CoreQuestionResult`, `CoreTestCaseResult`
 - **Migrations**: Database schema versioning and updates
 
 ---
@@ -207,13 +239,13 @@ Timeout: 3-5 seconds        # Prevents infinite loops
 Lifecycle: 1 hour           # Auto-refresh containers
 ```
 
-### **Rate Limiting Configuration**
+### **Rate Limiting Configuration** _(Production only — disabled in Development)_
 ```json
 {
   "RateLimiting": {
-    "GlobalRequestsPerMinute": 1000,    # API-wide limit
-    "CodeExecutionPerMinute": 5,        # Per user execution limit
-    "ApiRequestsPerMinute": 2000        # General API requests
+    "GlobalRequestsPerMinute": 100,     // API-wide global limit (per user/IP)
+    "CodeExecutionPerMinute": 10,       // Code execution limit per user
+    "ApiRequestsPerMinute": 200         // General API requests per user
   }
 }
 ```

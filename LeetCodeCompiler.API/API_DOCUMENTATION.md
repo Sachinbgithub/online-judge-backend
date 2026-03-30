@@ -3,8 +3,8 @@
 ## Overview
 This API provides comprehensive functionality for managing coding problems, test cases, starter code, languages, domains, subdomains, and problem hints in a LeetCode-style online judge system.
 
-**Base URL:** `http://192.168.0.101:5081/api`
-**Swagger UI:** `http://192.168.0.101:5081/swagger/index.html`
+**Base URL:** `http://192.168.0.102:5081/api`
+**Swagger UI:** `http://192.168.0.102:5081/swagger/index.html`
 
 ---
 
@@ -910,7 +910,7 @@ Implement client-side validation matching the API validation rules:
 ## Testing
 
 You can test all endpoints using the Swagger UI at:
-`http://192.168.0.101:5081/swagger/index.html`
+`http://192.168.0.102:5081/swagger/index.html`
 
 Or use the provided test files:
 - `TestDomainInsertion.http`
@@ -920,3 +920,352 @@ Or use the provided test files:
 - `TestStarterCodeInsertion.http`
 - `TestLanguagesAPI.http`
 - `TestProblemHintsAPI.http`
+
+---
+
+## Coding Test API
+
+**Base:** `http://192.168.0.102:5081/api/CodingTest`
+
+### Create Coding Test
+```http
+POST /api/CodingTest
+Content-Type: application/json
+
+{
+  "testName": "DSA Mock Test 1",
+  "createdBy": 101,
+  "startDate": "2026-04-01T09:00:00",
+  "endDate": "2026-04-01T11:00:00",
+  "durationMinutes": 120,
+  "totalQuestions": 5,
+  "totalMarks": 100,
+  "testType": 1002,
+  "isGlobal": false,
+  "collegeId": 10,
+  "classId": 500,
+  "topicData": [
+    { "sectionId": 1, "domainId": 2, "subdomainId": 9 }
+  ],
+  "questions": [
+    { "problemId": 1, "questionOrder": 1, "marks": 20, "timeLimitMinutes": 30 }
+  ]
+}
+```
+
+### Get Coding Test by ID
+```http
+GET /api/CodingTest/{id}
+```
+
+### Get All Coding Tests (Paged)
+```http
+GET /api/CodingTest?pageNumber=1&pageSize=10
+```
+
+### Get Tests Created by a User
+```http
+GET /api/CodingTest/created-by/{createdBy}?pageNumber=1&pageSize=10
+```
+
+### Get Tests by Filter
+```http
+GET /api/CodingTest/filter?codingTestId=&createdBy=101&classId=500&collegeId=10&assignedToUserId=&pageNumber=1&pageSize=10
+```
+
+### Get Tests Available to a User
+```http
+GET /api/CodingTest/user/{userId}?pageNumber=1&pageSize=10&subjectName=&topicName=&isEnabled=true
+```
+
+### Get Tests for a College
+```http
+GET /api/CodingTest/college/{collegeId}             # College-specific tests
+GET /api/CodingTest/college/{collegeId}/available   # Global + college-specific
+GET /api/CodingTest/college/{collegeId}/global      # Only global tests for college
+GET /api/CodingTest/global                          # All global tests
+```
+
+### Update / Delete / Publish
+```http
+PUT    /api/CodingTest               # Update test (body: UpdateCodingTestRequest)
+DELETE /api/CodingTest/{id}
+POST   /api/CodingTest/{id}/publish
+POST   /api/CodingTest/{id}/unpublish
+```
+
+### Start a Test (Student)
+```http
+POST /api/CodingTest/start
+Content-Type: application/json
+
+{
+  "codingTestId": 1000017,
+  "userId": 40115,
+  "accessCode": ""
+}
+```
+
+### Submit a Whole Test
+```http
+POST /api/CodingTest/submit-whole-test
+Content-Type: application/json
+
+{
+  "userId": 40115,
+  "codingTestId": 1000017,
+  "attemptNumber": 1,
+  "questionSubmissions": [
+    {
+      "problemId": 1,
+      "languageUsed": "python",
+      "finalCodeSnapshot": "def twoSum(nums, target): ...",
+      "totalTestCases": 3,
+      "passedTestCases": 2,
+      "failedTestCases": 1
+    }
+  ],
+  "totalTimeSpentMinutes": 45,
+  "isLateSubmission": false,
+  "classId": 500
+}
+```
+
+### Submit a Single Question
+```http
+POST /api/CodingTest/submit
+Content-Type: application/json
+
+{
+  "userId": 40115,
+  "codingTestId": 1000017,
+  "problemId": 1,
+  "attemptNumber": 1,
+  "languageUsed": "java",
+  "finalCodeSnapshot": "...",
+  "totalTestCases": 3,
+  "passedTestCases": 3,
+  "failedTestCases": 0
+}
+```
+
+### End a Test
+```http
+POST /api/CodingTest/end-test
+Content-Type: application/json
+
+{
+  "userId": 40115,
+  "codingTestId": 1000017,
+  "status": "Completed",
+  "timeSpentMinutes": 90,
+  "isLateSubmission": false
+}
+```
+
+### Get Combined Results (Faculty View)
+```http
+GET /api/CodingTest/combined-results?userId=40115&codingTestId=1000017
+```
+
+### Assign a Test to a User
+```http
+POST /api/CodingTest/assign
+Content-Type: application/json
+
+{
+  "codingTestId": 1000017,
+  "assignedToUserId": 40115,
+  "assignedToUserType": 25,
+  "assignedByUserId": 101,
+  "testType": 1002,
+  "testMode": 5
+}
+```
+
+### Get Assigned Tests for a User
+```http
+GET /api/CodingTest/assigned/user/{userId}?userType=25&pageNumber=1&pageSize=10&testType=1002
+```
+
+### Unassign a Test
+```http
+DELETE /api/CodingTest/assigned/{assignedId}?unassignedByUserId=101
+```
+
+### Submissions
+```http
+POST /api/CodingTest/submissions              # Get submissions (filter body)
+GET  /api/CodingTest/submissions/{submissionId}
+GET  /api/CodingTest/submissions/{submissionId}/test-cases
+GET  /api/CodingTest/{codingTestId}/statistics
+```
+
+### Attempt Management
+```http
+GET  /api/CodingTest/attempt/{attemptId}
+GET  /api/CodingTest/user/{userId}/test/{codingTestId}/attempts
+POST /api/CodingTest/attempt/{attemptId}/abandon      # body: userId (int)
+```
+
+### Question Attempts
+```http
+POST /api/CodingTest/attempt/{codingTestAttemptId}/question/{questionId}/start   # body: userId
+GET  /api/CodingTest/question-attempt/{questionAttemptId}
+GET  /api/CodingTest/attempt/{codingTestAttemptId}/questions
+POST /api/CodingTest/question/submit
+```
+
+### Validation
+```http
+POST /api/CodingTest/{id}/validate-access       # body: "accessCode"
+GET  /api/CodingTest/{id}/can-attempt?userId=40115
+GET  /api/CodingTest/{id}/is-active
+GET  /api/CodingTest/{id}/is-expired
+```
+
+### Analytics
+```http
+GET /api/CodingTest/{id}/analytics
+GET /api/CodingTest/{id}/results?pageNumber=1&pageSize=10
+GET /api/CodingTest/status/{status}?pageNumber=1&pageSize=10   # status: Active, Completed, Expired
+```
+
+---
+
+## Faculty Dashboard API
+
+**Base:** `http://192.168.0.102:5081/api/FacultyDashboard`
+
+```http
+GET /api/FacultyDashboard/{codingTestId}/students?pageNumber=1&pageSize=10
+GET /api/FacultyDashboard/{codingTestId}/leaderboard?pageNumber=1&pageSize=10
+GET /api/FacultyDashboard/{practiceTestId}/practice-students?pageNumber=1&pageSize=10
+GET /api/FacultyDashboard/{codingTestId}/problem-analysis?pageNumber=1&pageSize=10
+```
+
+---
+
+## Faculty Performance API
+
+**Base:** `http://192.168.0.102:5081/api/FacultyPerformance`
+
+```http
+GET /api/FacultyPerformance/{codingTestId}/students?pageNumber=1&pageSize=10
+GET /api/FacultyPerformance/{codingTestId}/leaderboard?pageNumber=1&pageSize=10
+GET /api/FacultyPerformance/{codingTestId}/problem-analysis?pageNumber=1&pageSize=10
+```
+
+---
+
+## Faculty User Performance API
+
+**Base:** `http://192.168.0.102:5081/api/FacultyUserPerformance`
+
+```http
+GET /api/FacultyUserPerformance/{codingTestId}/user/{userId}?pageNumber=1&pageSize=10
+```
+
+---
+
+## Student Performance API
+
+**Base:** `http://192.168.0.102:5081/api/StudentPerformance`
+
+```http
+GET /api/StudentPerformance/{userId}?pageNumber=1&pageSize=10
+```
+
+---
+
+## Practice Test API
+
+**Base:** `http://192.168.0.102:5081/api/PracticeTest`
+
+```http
+GET  /api/PracticeTest/{id}
+GET  /api/PracticeTest/user/{userId}
+POST /api/PracticeTest                    # Create practice test
+POST /api/PracticeTest/{id}/submit        # Submit practice test
+GET  /api/PracticeTest/{id}/results
+```
+
+---
+
+## User Activity API
+
+**Base:** `http://192.168.0.102:5081/api/UserActivity`
+
+```http
+POST /api/UserActivity/log
+Content-Type: application/json
+
+{
+  "userId": 40115,
+  "problemId": 1,
+  "action": "code_execution",
+  "metadata": { "language": "python", "runtimeMs": 150 }
+}
+```
+
+---
+
+## Code Execution API
+
+**Base:** `http://192.168.0.102:5081/api/CodeExecution`
+
+```http
+POST /api/CodeExecution
+Content-Type: application/json
+
+{
+  "language": "python",
+  "code": "def twoSum(nums, target):\n    for i in range(len(nums)):\n        for j in range(i+1, len(nums)):\n            if nums[i] + nums[j] == target:\n                return [i,j]",
+  "testCases": [
+    {
+      "id": 1,
+      "problemId": 1,
+      "input": "[2,7,11,15]\n9",
+      "expectedOutput": "[0,1]"
+    }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "results": [
+    {
+      "input": "[2,7,11,15]\n9",
+      "output": "[0,1]",
+      "expected": "[0,1]",
+      "passed": true,
+      "runtimeMs": 0.15,
+      "memoryMb": 8.2,
+      "error": null
+    }
+  ],
+  "executionTime": 0.15
+}
+```
+
+**Supported languages:** `python`, `javascript`, `java`, `cpp`, `c`
+
+---
+
+## Health Check
+
+```http
+GET /health
+```
+
+**Response:**
+```json
+{
+  "status": "Healthy",
+  "checks": [
+    { "name": "code-execution", "status": "Healthy", "duration": "00:00:00.001" }
+  ]
+}
+```
