@@ -66,8 +66,8 @@ builder.Services.AddCors(options =>
             {
                 "http://localhost:8081",
                 "http://192.168.0.101:8081", // Vite default
-                "http://127.0.0.1:8081",,
-                "https://yourdomain.com"
+                "http://127.0.0.1:8081",
+                "https://preplacementtest.com"
             };
 
             static bool IsOrigin(string? o) =>
