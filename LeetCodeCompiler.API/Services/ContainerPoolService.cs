@@ -26,7 +26,7 @@ namespace LeetCodeCompiler.API.Services
             {
                 ["python"] = "python:3.11-alpine",
                 ["javascript"] = "node:18",
-                ["java"] = "openjdk:17",
+                ["java"] = "eclipse-temurin:17-jdk-jammy",
                 ["cpp"] = "gcc:11",
                 ["c"] = "gcc:11"
             };
