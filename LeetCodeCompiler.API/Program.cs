@@ -60,14 +60,38 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // In production, use specific origins for security
+            // Production: browser CORS requires the *page's* origin (scheme + host + port), not the API URL.
+            // Add more via env on EC2: CORS_ALLOWED_ORIGINS="http://localhost:5173,https://app.example.com"
+            var productionOrigins = new List<string>
+            {
+                "http://localhost:8081",
+                "http://192.168.0.101:8081", // Vite default
+                "http://127.0.0.1:8081",,
+                "https://yourdomain.com"
+            };
+
+            static bool IsOrigin(string? o) =>
+                !string.IsNullOrWhiteSpace(o) && Uri.TryCreate(o.Trim(), UriKind.Absolute, out var u)
+                && (u.Scheme == Uri.UriSchemeHttp || u.Scheme == Uri.UriSchemeHttps);
+
+            var fromEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
+            if (!string.IsNullOrWhiteSpace(fromEnv))
+            {
+                foreach (var o in fromEnv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    if (IsOrigin(o))
+                        productionOrigins.Add(o.Trim());
+            }
+
+            var fromConfig = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            if (fromConfig != null)
+            {
+                foreach (var o in fromConfig)
+                    if (IsOrigin(o))
+                        productionOrigins.Add(o.Trim());
+            }
+
             policy
-                .WithOrigins(
-                    "http://localhost:3000", // React development
-                    "http://localhost:8081", // React Native
-                    "http://192.168.0.239:8081", // React Native on network
-                    "https://yourdomain.com" // Production domain - update this
-                )
+                .WithOrigins(productionOrigins.Distinct(StringComparer.Ordinal).ToArray())
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
