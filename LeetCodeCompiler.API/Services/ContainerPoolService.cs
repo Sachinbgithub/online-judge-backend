@@ -347,11 +347,11 @@ namespace LeetCodeCompiler.API.Services
 
     public class ContainerPoolOptions
     {
-        public int PythonPoolSize { get; set; } = 10;
-        public int JavaScriptPoolSize { get; set; } = 8;
-        public int JavaPoolSize { get; set; } = 6;
-        public int CppPoolSize { get; set; } = 6;
-        public int CPoolSize { get; set; } = 6;
-        public int DefaultPoolSize { get; set; } = 5;
+        public int PythonPoolSize { get; set; } = 2;
+        public int JavaScriptPoolSize { get; set; } = 2;
+        public int JavaPoolSize { get; set; } = 1;
+        public int CppPoolSize { get; set; } = 1;
+        public int CPoolSize { get; set; } = 1;
+        public int DefaultPoolSize { get; set; } = 1;
     }
 }

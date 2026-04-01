@@ -9,6 +9,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:5081;https://0.0.0.0:7169
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - leetcode-network
 
