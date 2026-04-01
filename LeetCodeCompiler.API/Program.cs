@@ -275,13 +275,8 @@ if (app.Environment.IsDevelopment())
 // Add CORS
 app.UseCors();
 
-// Enable HTTPS redirection for security
+// HTTPS redirection disabled: Production Docker/EC2 listens on HTTP only; terminate TLS at ALB/nginx.
 // app.UseHttpsRedirection();
-// Enable HTTPS redirection for security (disabled in development to prevent CORS issues)
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
 // 🔧 DEVELOPMENT MODE: Skip security headers in development for easier testing
 if (!app.Environment.IsDevelopment())
 {
@@ -338,8 +333,8 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.Urls.Add("http://192.168.0.102:5081");
-    app.Urls.Add("https://192.168.0.102:7169");
+    // 0.0.0.0 for Docker/EC2; ASPNETCORE_URLS can override if set
+    app.Urls.Add("http://0.0.0.0:5081");
 }
 
 try
