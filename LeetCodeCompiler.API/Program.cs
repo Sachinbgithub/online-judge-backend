@@ -76,10 +76,33 @@ builder.Services.AddCors(options =>
 });
 
 // Configure database with connection pooling and retry policy
+var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+var dbConnectionFromConfiguration = false;
+if (builder.Environment.IsProduction())
+{
+    if (string.IsNullOrWhiteSpace(dbConnectionString))
+        throw new InvalidOperationException("DB_CONNECTION_STRING environment variable is required in Production");
+}
+else if (string.IsNullOrWhiteSpace(dbConnectionString))
+{
+    dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    dbConnectionFromConfiguration = true;
+}
+
+if (dbConnectionFromConfiguration)
+    Log.Information("Database connection string loaded from configuration (ConnectionStrings:DefaultConnection)");
+else
+    Log.Information("Database connection string loaded from environment variable DB_CONNECTION_STRING");
+
+if (dbConnectionString is null || string.IsNullOrWhiteSpace(dbConnectionString))
+    throw new InvalidOperationException("Database connection string is not configured properly");
+
+string connectionString = dbConnectionString;
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(
-        "Server=192.168.0.102,1433;Database=LeetCode;User ID=sa;Password=pass@123;TrustServerCertificate=True;",
+        connectionString,
         sqlOptions =>
         {
             sqlOptions.CommandTimeout(30);
@@ -198,8 +221,23 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddHealthChecks()
     .AddCheck("code-execution", () => HealthCheckResult.Healthy("Code execution service is healthy"));
 
-// Configure container pool options
+// Configure container pool options (appsettings ContainerPool, or env ContainerPool__PythonPoolSize, etc.)
 builder.Services.Configure<ContainerPoolOptions>(builder.Configuration.GetSection("ContainerPool"));
+builder.Services.PostConfigure<ContainerPoolOptions>(opts =>
+{
+    static void Apply(string? value, Action<int> set)
+    {
+        if (!string.IsNullOrWhiteSpace(value) && int.TryParse(value, out var n) && n >= 0)
+            set(n);
+    }
+
+    Apply(Environment.GetEnvironmentVariable("CONTAINER_POOL_PYTHON_POOL_SIZE"), v => opts.PythonPoolSize = v);
+    Apply(Environment.GetEnvironmentVariable("CONTAINER_POOL_JAVASCRIPT_POOL_SIZE"), v => opts.JavaScriptPoolSize = v);
+    Apply(Environment.GetEnvironmentVariable("CONTAINER_POOL_JAVA_POOL_SIZE"), v => opts.JavaPoolSize = v);
+    Apply(Environment.GetEnvironmentVariable("CONTAINER_POOL_CPP_POOL_SIZE"), v => opts.CppPoolSize = v);
+    Apply(Environment.GetEnvironmentVariable("CONTAINER_POOL_C_POOL_SIZE"), v => opts.CPoolSize = v);
+    Apply(Environment.GetEnvironmentVariable("CONTAINER_POOL_DEFAULT_POOL_SIZE"), v => opts.DefaultPoolSize = v);
+});
 
 // Register services
 builder.Services.AddScoped<IActivityTrackingService, ActivityTrackingService>();
@@ -300,8 +338,8 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.Urls.Add("http://192.168.0.239:5081");
-    app.Urls.Add("https://192.168.0.239:7169");
+    app.Urls.Add("http://192.168.0.102:5081");
+    app.Urls.Add("https://192.168.0.102:7169");
 }
 
 try
