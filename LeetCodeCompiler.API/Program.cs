@@ -46,17 +46,18 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddMemoryCache();
 
 // 🔧 DEVELOPMENT MODE: Simplified CORS for faster development
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy(FrontendCorsPolicy, policy =>
     {
         if (builder.Environment.IsDevelopment())
         {
             // In development, allow all origins for easier testing
-        policy
+            policy
                 .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+                .AllowAnyHeader()
+                .AllowAnyMethod();
         }
         else
         {
@@ -67,7 +68,8 @@ builder.Services.AddCors(options =>
                 "http://localhost:8081",
                 "http://192.168.0.101:8081", // Vite default
                 "http://127.0.0.1:8081",
-                "https://preplacementtest.com"
+                "https://preplacementtest.com",
+                "https://www.preplacementtest.com"
             };
 
             static bool IsOrigin(string? o) =>
@@ -296,8 +298,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Add CORS
-app.UseCors();
+// Add CORS before auth so preflight OPTIONS can pass
+app.UseCors(FrontendCorsPolicy);
 
 // HTTPS redirection disabled: Production Docker/EC2 listens on HTTP only; terminate TLS at ALB/nginx.
 // app.UseHttpsRedirection();
