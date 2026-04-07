@@ -154,14 +154,22 @@ builder.Services.AddRateLimiter(options =>
 {
     // Global rate limiting
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
+    {
+        // Always allow CORS preflight requests to pass through
+        if (HttpMethods.IsOptions(httpContext.Request.Method))
+        {
+            return RateLimitPartition.GetNoLimiter("cors-preflight");
+        }
+
+        return RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
             factory: partition => new FixedWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
                 PermitLimit = 100,
                 Window = TimeSpan.FromMinutes(1)
-            }));
+            });
+    });
 
     // Code execution rate limiting (more restrictive)
     options.AddPolicy("CodeExecution", httpContext =>
@@ -297,6 +305,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRouting();
 
 // Add CORS before auth so preflight OPTIONS can pass
 app.UseCors(FrontendCorsPolicy);
