@@ -219,14 +219,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            // LMS tokens omit iss/aud; validate signature + lifetime only.
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "YourMainAppIssuer",
-            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "YourMainAppAudience",
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "YourMainAppSecretKey"))
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["Jwt:Secret"]
+                    ?? builder.Configuration["Jwt:Key"]
+                    ?? throw new InvalidOperationException(
+                        "Jwt:Secret or Jwt:Key must be configured for production JWT validation.")))
         };
         
         options.Events = new JwtBearerEvents
