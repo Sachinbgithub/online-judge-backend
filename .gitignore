@@ -417,3 +417,4 @@ coverage/
 # Performance logs
 *.perflog
 
+mcp/

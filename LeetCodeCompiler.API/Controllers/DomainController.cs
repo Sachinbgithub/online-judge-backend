@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Data;
 using LeetCodeCompiler.API.Models;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class DomainController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -87,6 +89,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Domain creation request</param>
         /// <returns>Created domain</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateDomain([FromBody] CreateDomainRequest request)
         {
             try
@@ -144,6 +147,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Domain update request</param>
         /// <returns>Updated domain</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateDomain(int id, [FromBody] UpdateDomainRequest request)
         {
             try
@@ -223,6 +227,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Domain ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteDomain(int id)
         {
             try
@@ -311,6 +316,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="streamId">New stream ID (can be null)</param>
         /// <returns>Updated domain</returns>
         [HttpPut("{id}/stream")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateDomainStreamId(int id, [FromBody] int? streamId)
         {
             try
@@ -412,6 +418,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="createdByUserId">New created by user ID (can be null)</param>
         /// <returns>Updated domain</returns>
         [HttpPut("{id}/created-by")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateDomainCreatedByUserId(int id, [FromBody] int? createdByUserId)
         {
             try
@@ -514,6 +521,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="updatedByUserId">New updated by user ID (can be null)</param>
         /// <returns>Updated domain</returns>
         [HttpPut("{id}/updated-by")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateDomainUpdatedByUserId(int id, [FromBody] int? updatedByUserId)
         {
             try

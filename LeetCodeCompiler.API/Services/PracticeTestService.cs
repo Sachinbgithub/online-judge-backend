@@ -171,6 +171,16 @@ namespace LeetCodeCompiler.API.Services
                     };
                 }
 
+                // Ownership check: only the creator can attempt their own practice test
+                if (practiceTest.CreatedBy != request.UserId)
+                {
+                    return new StartPracticeTestResponse
+                    {
+                        Success = false,
+                        Message = "You can only start practice tests that you created"
+                    };
+                }
+
                 // Check if user has exceeded max attempts
                 var existingAttempts = await _context.PracticeTestResults
                     .Where(ptr => ptr.PracticeTestId == request.PracticeTestId && ptr.UserId == request.UserId)

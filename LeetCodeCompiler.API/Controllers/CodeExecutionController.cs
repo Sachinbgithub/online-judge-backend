@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     // 🔧 DEVELOPMENT MODE: Rate limiting disabled for faster development
     // [EnableRateLimiting("ApiLimiter")]
     public class CodeExecutionController : ControllerBase

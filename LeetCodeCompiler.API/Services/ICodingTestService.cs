@@ -60,7 +60,7 @@ namespace LeetCodeCompiler.API.Services
 
         // Validation
         Task<bool> ValidateAccessCodeAsync(int codingTestId, string accessCode);
-        Task<bool> CanUserAttemptTestAsync(int userId, int codingTestId);
+        Task<bool> CanUserAttemptTestAsync(int userId, int codingTestId, string? accessCode = null);
         Task<bool> IsTestActiveAsync(int codingTestId);
         Task<bool> IsTestExpiredAsync(int codingTestId);
 

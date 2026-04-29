@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Models;
 using LeetCodeCompiler.API.Services;
@@ -22,6 +23,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">The coding test creation request</param>
         /// <returns>The created coding test</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateCodingTest([FromBody] CreateCodingTestRequest request)
         {
             try
@@ -46,6 +48,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">The coding test ID</param>
         /// <returns>The coding test details</returns>
         [HttpGet("{id}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTest(int id)
         {
             try
@@ -65,6 +68,7 @@ namespace LeetCodeCompiler.API.Controllers
 
 /// testing result faculty dashboard
 [HttpGet("combined-results")]
+[Authorize(Policy = "TestSetterOnly")]
 public async Task<IActionResult> GetCombinedTestResults(
     [FromQuery] long userId, 
     [FromQuery] int codingTestId)
@@ -112,6 +116,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="request">Filter parameters and pagination</param>
         /// <returns>Paged list of coding tests</returns>
         [HttpGet("filter")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTestsByFilter([FromQuery] CodingTestFilterRequest request)
         {
             try
@@ -130,6 +135,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// </summary>
         /// <returns>List of all coding tests</returns>
         [HttpGet]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetAllCodingTests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -150,6 +156,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="createdBy">User ID who created the tests</param>
         /// <returns>List of coding tests created by the specified user</returns>
         [HttpGet("created-by/{createdBy}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetCodingTestsByCreator(int createdBy, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -169,6 +176,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="collegeId">College ID</param>
         /// <returns>List of coding tests available to the college</returns>
         [HttpGet("college/{collegeId}/available")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetGlobalCodingTestsByCollegeId(int collegeId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -187,6 +195,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// </summary>
         /// <returns>List of all global coding tests</returns>
         [HttpGet("global")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetAllGlobalCodingTests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -206,6 +215,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="collegeId">College ID</param>
         /// <returns>List of coding tests specific to the college</returns>
         [HttpGet("college/{collegeId}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTestsByCollegeId(int collegeId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -225,6 +235,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="collegeId">College ID</param>
         /// <returns>List of global coding tests for the specified college</returns>
         [HttpGet("college/{collegeId}/global")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetGlobalTestsByCollegeId(int collegeId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -239,6 +250,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("user/{userId}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTestsByUser(int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? subjectName = null, [FromQuery] string? topicName = null, [FromQuery] bool isEnabled = true)
         {
             try
@@ -253,6 +265,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPut]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateCodingTest([FromBody] UpdateCodingTestRequest request)
         {
             try
@@ -276,6 +289,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteCodingTest(int id)
         {
             try
@@ -294,6 +308,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPost("{id}/publish")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> PublishCodingTest(int id)
         {
             try
@@ -312,6 +327,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPost("{id}/unpublish")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UnpublishCodingTest(int id)
         {
             try
@@ -331,6 +347,7 @@ public async Task<IActionResult> GetCombinedTestResults(
 
         // Test Attempt Endpoints
         [HttpPost("start")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> StartCodingTest([FromBody] StartCodingTestRequest request)
         {
             try
@@ -354,6 +371,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("attempt/{attemptId}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTestAttempt(int attemptId)
         {
             try
@@ -372,6 +390,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("user/{userId}/test/{codingTestId}/attempts")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetUserCodingTestAttempts(int userId, int codingTestId)
         {
             try
@@ -386,6 +405,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPost("submit")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> SubmitCodingTest([FromBody] SubmitCodingTestRequest request)
         {
             try
@@ -413,6 +433,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPost("submit-whole-test")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> SubmitWholeCodingTest([FromBody] SubmitWholeCodingTestRequest request)
         {
             try
@@ -449,6 +470,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="request">Filter request</param>
         /// <returns>List of submissions</returns>
         [HttpPost("submissions")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetCodingTestSubmissions([FromBody] GetCodingTestSubmissionsRequest request)
         {
             try
@@ -473,6 +495,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="submissionId">Submission ID</param>
         /// <returns>Submission details</returns>
         [HttpGet("submissions/{submissionId}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTestSubmissionById(long submissionId)
         {
             try
@@ -496,6 +519,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="submissionId">Submission ID</param>
         /// <returns>List of test case results</returns>
         [HttpGet("submissions/{submissionId}/test-cases")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetSubmissionTestCaseResults(long submissionId)
         {
             try
@@ -515,6 +539,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="codingTestId">Coding test ID</param>
         /// <returns>Test statistics</returns>
         [HttpGet("{codingTestId}/statistics")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetCodingTestStatistics(int codingTestId)
         {
             try
@@ -542,6 +567,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="request">End test request with status</param>
         /// <returns>Test status</returns>
         [HttpPost("end-test")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> EndTest([FromBody] EndTestRequest request)
         {
             try
@@ -569,6 +595,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPost("attempt/{attemptId}/abandon")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> AbandonCodingTest(int attemptId, [FromBody] int userId)
         {
             try
@@ -588,6 +615,7 @@ public async Task<IActionResult> GetCombinedTestResults(
 
         // Question Attempt Endpoints
         [HttpPost("attempt/{codingTestAttemptId}/question/{questionId}/start")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> StartQuestionAttempt(int codingTestAttemptId, int questionId, [FromBody] int userId)
         {
             try
@@ -610,6 +638,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("question-attempt/{questionAttemptId}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetQuestionAttempt(int questionAttemptId)
         {
             try
@@ -628,6 +657,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("attempt/{codingTestAttemptId}/questions")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetQuestionAttemptsForTest(int codingTestAttemptId)
         {
             try
@@ -642,6 +672,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpPost("question/submit")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> SubmitQuestion([FromBody] SubmitQuestionRequest request)
         {
             try
@@ -666,6 +697,7 @@ public async Task<IActionResult> GetCombinedTestResults(
 
         // Analytics and Reports Endpoints
         [HttpGet("status/{status}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetCodingTestsByStatus(string status, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -681,6 +713,7 @@ public async Task<IActionResult> GetCombinedTestResults(
 
 
         [HttpGet("{id}/analytics")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetCodingTestAnalytics(int id)
         {
             try
@@ -699,6 +732,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("{id}/results")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetCodingTestResults(int id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -714,6 +748,7 @@ public async Task<IActionResult> GetCombinedTestResults(
 
         // Validation Endpoints
         [HttpPost("{id}/validate-access")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> ValidateAccessCode(int id, [FromBody] string accessCode)
         {
             try
@@ -728,6 +763,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("{id}/can-attempt")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> CanUserAttemptTest(int id, [FromQuery] int userId)
         {
             try
@@ -742,6 +778,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("{id}/is-active")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> IsTestActive(int id)
         {
             try
@@ -756,6 +793,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("{id}/is-expired")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> IsTestExpired(int id)
         {
             try
@@ -779,6 +817,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="request">Assignment request</param>
         /// <returns>Assignment details</returns>
         [HttpPost("assign")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> AssignCodingTest([FromBody] AssignCodingTestRequest request)
         {
             try
@@ -815,6 +854,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="classId">Optional class ID filter</param>
         /// <returns>List of assigned tests</returns>
         [HttpGet("assigned/user/{userId}")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetAssignedTestsByUser(long userId, 
             [FromQuery] byte userType, 
             [FromQuery] int pageNumber = 1,
@@ -841,6 +881,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="codingTestId">Coding test ID</param>
         /// <returns>List of assigned users</returns>
         [HttpGet("assigned/test/{codingTestId}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetAssignedTestsByTest(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -860,6 +901,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="codingTestId">Coding test ID</param>
         /// <returns>List of assignment records for the given test</returns>
         [HttpGet("{codingTestId}/assignments")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetAssignedUsersByTestId(int codingTestId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
@@ -880,6 +922,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="unassignedByUserId">User ID who is unassigning</param>
         /// <returns>Success status</returns>
         [HttpDelete("assigned/{assignedId}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UnassignCodingTest(long assignedId, [FromQuery] long unassignedByUserId)
         {
             try
@@ -907,6 +950,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="userId">User ID</param>
         /// <returns>Detailed diagnostic information</returns>
         [HttpGet("{codingTestId}/diagnose-user-access/{userId}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DiagnoseUserAccess(int codingTestId, int userId)
         {
             try
@@ -964,6 +1008,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="request">Request containing UserId, CodingTestId, and optional AttemptNumber</param>
         /// <returns>Comprehensive test results with detailed test case results and summary</returns>
         [HttpPost("results/comprehensive")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetComprehensiveTestResults([FromBody] GetTestResultsRequest request)
         {
             try
@@ -994,6 +1039,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// <param name="attemptNumber">Optional attempt number</param>
         /// <returns>Comprehensive test results with detailed test case results and summary</returns>
         [HttpGet("results/comprehensive")]
+        [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetComprehensiveTestResultsByQuery(
             [FromQuery] long userId, 
             [FromQuery] int codingTestId, 
@@ -1022,6 +1068,7 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         [HttpGet("debug/data")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetDebugData(
             [FromQuery] long userId, 
             [FromQuery] int codingTestId, 

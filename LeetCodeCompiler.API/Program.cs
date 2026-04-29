@@ -207,6 +207,8 @@ if (builder.Environment.IsDevelopment())
         options.AddPolicy("CodeExecution", policy => policy.RequireAssertion(_ => true));
         options.AddPolicy("ProblemAccess", policy => policy.RequireAssertion(_ => true));
         options.AddPolicy("AdminAccess", policy => policy.RequireAssertion(_ => true));
+        options.AddPolicy("TestSetterOnly", policy => policy.RequireAssertion(_ => true));
+        options.AddPolicy("AnyAuthenticated", policy => policy.RequireAssertion(_ => true));
     });
 }
 else
@@ -246,8 +248,11 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CodeExecution", policy => policy.RequireAuthenticatedUser());
     options.AddPolicy("ProblemAccess", policy => policy.RequireAuthenticatedUser());
-    options.AddPolicy("AdminAccess", policy => 
+    options.AddPolicy("AdminAccess", policy =>
             policy.RequireClaim("user_type_id", "25", "26", "27"));
+    options.AddPolicy("TestSetterOnly", policy =>
+            policy.RequireClaim("user_type_id", "0", "25", "26", "27", "28", "29", "30"));
+    options.AddPolicy("AnyAuthenticated", policy => policy.RequireAuthenticatedUser());
 });
 }
 
