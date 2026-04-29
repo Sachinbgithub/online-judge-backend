@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LeetCodeCompiler.API.Data;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class LanguagesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -123,6 +125,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Language creation request</param>
         /// <returns>Created language</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateLanguage([FromBody] CreateLanguageRequest request)
         {
             try
@@ -183,6 +186,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Language update request</param>
         /// <returns>Updated language</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateLanguage(int id, [FromBody] UpdateLanguageRequest request)
         {
             try
@@ -241,6 +245,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Language ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteLanguage(int id)
         {
             try

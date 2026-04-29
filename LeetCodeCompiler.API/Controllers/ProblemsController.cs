@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Data;
 using LeetCodeCompiler.API.Models;
@@ -8,6 +9,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class ProblemsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -128,6 +130,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Problem creation request</param>
         /// <returns>Created problem</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateProblem([FromBody] CreateProblemRequest request)
         {
             try
@@ -225,6 +228,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Problem update request</param>
         /// <returns>Updated problem</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateProblem(int id, [FromBody] UpdateProblemRequest request)
         {
             try
@@ -336,6 +340,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Problem ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteProblem(int id)
         {
             try
@@ -429,6 +434,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="streamId">New stream ID (can be null)</param>
         /// <returns>Updated problem</returns>
         [HttpPut("{id}/stream")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateProblemStreamId(int id, [FromBody] int? streamId)
         {
             try
@@ -508,6 +514,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="createdByUserId">New created by user ID (can be null)</param>
         /// <returns>Updated problem</returns>
         [HttpPut("{id}/created-by")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateProblemCreatedByUserId(int id, [FromBody] int? createdByUserId)
         {
             try
@@ -587,6 +594,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="updatedByUserId">New updated by user ID (can be null)</param>
         /// <returns>Updated problem</returns>
         [HttpPut("{id}/updated-by")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateProblemUpdatedByUserId(int id, [FromBody] int? updatedByUserId)
         {
             try

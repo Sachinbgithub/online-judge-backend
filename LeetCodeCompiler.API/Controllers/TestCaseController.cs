@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LeetCodeCompiler.API.Data;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class TestCaseController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -156,6 +158,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Test case creation request</param>
         /// <returns>Created test case</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateTestCase([FromBody] CreateTestCaseRequest request)
         {
             try
@@ -215,6 +218,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Test case update request</param>
         /// <returns>Updated test case</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateTestCase(int id, [FromBody] UpdateTestCaseRequest request)
         {
             try
@@ -274,6 +278,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Test case ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteTestCase(int id)
         {
             try
@@ -303,6 +308,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="problemId">Problem ID</param>
         /// <returns>Success message with count of deleted test cases</returns>
         [HttpDelete("problem/{problemId}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteTestCasesByProblemId(int problemId)
         {
             try

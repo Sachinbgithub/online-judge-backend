@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LeetCodeCompiler.API.Data;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class ProblemHintsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -154,6 +156,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Problem hint creation request</param>
         /// <returns>Created problem hint</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateProblemHint([FromBody] CreateProblemHintRequest request)
         {
             try
@@ -211,6 +214,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Problem hint update request</param>
         /// <returns>Updated problem hint</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateProblemHint(int id, [FromBody] UpdateProblemHintRequest request)
         {
             try
@@ -268,6 +272,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Problem hint ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteProblemHint(int id)
         {
             try
@@ -297,6 +302,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="problemId">Problem ID</param>
         /// <returns>Success message with count of deleted hints</returns>
         [HttpDelete("problem/{problemId}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteProblemHintsByProblemId(int problemId)
         {
             try

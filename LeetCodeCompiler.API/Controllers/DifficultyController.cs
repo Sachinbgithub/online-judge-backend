@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Data;
 using LeetCodeCompiler.API.Models;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class DifficultyController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -123,6 +125,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Difficulty creation request</param>
         /// <returns>Created difficulty</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateDifficulty([FromBody] CreateDifficultyRequest request)
         {
             try
@@ -188,6 +191,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Difficulty update request</param>
         /// <returns>Updated difficulty</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateDifficulty(int id, [FromBody] UpdateDifficultyRequest request)
         {
             try
@@ -257,6 +261,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Difficulty ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteDifficulty(int id)
         {
             try

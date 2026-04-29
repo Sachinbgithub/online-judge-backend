@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Data;
 using LeetCodeCompiler.API.Models;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class StarterCodeController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -192,6 +194,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Starter code creation request</param>
         /// <returns>Created starter code</returns>
         [HttpPost]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> CreateStarterCode([FromBody] CreateStarterCodeRequest request)
         {
             try
@@ -276,6 +279,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="request">Update request</param>
         /// <returns>Updated starter code</returns>
         [HttpPut("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> UpdateStarterCode(int id, [FromBody] UpdateStarterCodeRequest request)
         {
             try
@@ -343,6 +347,7 @@ namespace LeetCodeCompiler.API.Controllers
         /// <param name="id">Starter code ID</param>
         /// <returns>Success message</returns>
         [HttpDelete("{id}")]
+        [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> DeleteStarterCode(int id)
         {
             try

@@ -1,11 +1,13 @@
 using LeetCodeCompiler.API.Models;
 using LeetCodeCompiler.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class PracticeTestController : ControllerBase
     {
         private readonly IPracticeTestService _practiceTestService;

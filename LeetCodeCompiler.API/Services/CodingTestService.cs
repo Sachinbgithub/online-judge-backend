@@ -790,12 +790,9 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<CodingTestAttemptResponse> StartCodingTestAsync(StartCodingTestRequest request)
         {
-            // Validate access
-            if (!await CanUserAttemptTestAsync(request.UserId, request.CodingTestId))
+            // Validate access (pass access code so global tests with a code can be validated)
+            if (!await CanUserAttemptTestAsync(request.UserId, request.CodingTestId, request.AccessCode))
                 throw new InvalidOperationException("User cannot attempt this test");
-
-            // Access code validation removed - access code is now completely optional
-            // Test can be started with just codingTestId and userId
 
             // Check if user already has an attempt
             var existingAttempt = await _context.CodingTestAttempts
@@ -1934,7 +1931,7 @@ namespace LeetCodeCompiler.API.Services
             return codingTest != null && codingTest.AccessCode == accessCode;
         }
 
-        public async Task<bool> CanUserAttemptTestAsync(int userId, int codingTestId)
+        public async Task<bool> CanUserAttemptTestAsync(int userId, int codingTestId, string? accessCode = null)
         {
             var codingTest = await _context.CodingTests.FindAsync(codingTestId);
             if (codingTest == null || !codingTest.IsActive || !codingTest.IsPublished)
@@ -1947,7 +1944,13 @@ namespace LeetCodeCompiler.API.Services
             // Check access based on test type
             if (codingTest.IsGlobal)
             {
-                // Global test: No assignment record required - anyone with the URL can access
+                // Global test: if the test has an access code set, the caller must supply the matching code
+                if (!string.IsNullOrEmpty(codingTest.AccessCode))
+                {
+                    if (string.IsNullOrEmpty(accessCode) || codingTest.AccessCode != accessCode)
+                        return false;
+                }
+                // IsGlobal with no access code set = open to all authenticated users
             }
             else
             {

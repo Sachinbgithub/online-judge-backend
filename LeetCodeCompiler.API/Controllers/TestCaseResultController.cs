@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Services;
 using LeetCodeCompiler.API.Models;
@@ -8,6 +9,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AnyAuthenticated")]
     public class TestCaseResultController : ControllerBase
     {
         private readonly IActivityTrackingService _activityTrackingService;

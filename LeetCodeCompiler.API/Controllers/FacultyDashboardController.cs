@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Services;
 using LeetCodeCompiler.API.Models;
@@ -7,6 +8,7 @@ namespace LeetCodeCompiler.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "TestSetterOnly")]
     public class FacultyDashboardController : ControllerBase
     {
         private readonly IPerformanceService _performanceService;
