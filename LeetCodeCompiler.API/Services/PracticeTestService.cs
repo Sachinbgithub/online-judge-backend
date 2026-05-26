@@ -7,10 +7,12 @@ namespace LeetCodeCompiler.API.Services
     public class PracticeTestService : IPracticeTestService
     {
         private readonly AppDbContext _context;
+        private readonly IJudgeService _judgeService;
 
-        public PracticeTestService(AppDbContext context)
+        public PracticeTestService(AppDbContext context, IJudgeService judgeService)
         {
             _context = context;
+            _judgeService = judgeService;
         }
 
         public async Task<CreatePracticeTestResponse> CreatePracticeTestAsync(CreatePracticeTestRequest request)
@@ -320,34 +322,66 @@ namespace LeetCodeCompiler.API.Services
                         };
                     }
 
-                    // Calculate totals
-                    var totalObtainedMarks = request.QuestionResults.Sum(q => q.ObtainedMarks);
-                    var percentage = practiceTestResult.TotalMarks > 0 ? (totalObtainedMarks / practiceTestResult.TotalMarks) * 100 : 0;
-                    var timeTakenMinutes = (int)(request.EndTime - request.StartTime).TotalMinutes;
-                    var isPassed = percentage >= practiceTestResult.PracticeTest.PassingPercentage;
+                    // Calculate totals from server-side judge (Option B — ignore client marks)
+                    decimal totalObtainedMarks = 0;
+                    var serverQuestionSummaries = new List<(QuestionResultSubmission Q, JudgeResult Judge, PracticeTestQuestion Ptq)>();
 
-                    // Update practice test result
-                    practiceTestResult.CompletedAt = DateTime.UtcNow;
-                    practiceTestResult.ObtainedMarks = totalObtainedMarks;
-                    practiceTestResult.Percentage = percentage;
-                    practiceTestResult.IsPassed = isPassed;
-                    practiceTestResult.TimeTakenMinutes = timeTakenMinutes;
-                    practiceTestResult.Status = "Completed";
-                    practiceTestResult.UpdatedAt = DateTime.UtcNow;
-
-                    // Create question results
                     foreach (var questionResult in request.QuestionResults)
                     {
-                        // Get the practice test question
                         var practiceTestQuestion = await _context.PracticeTestQuestions
                             .FirstOrDefaultAsync(ptq => ptq.PracticeTestId == request.PracticeTestId &&
                                                        ptq.ProblemId == questionResult.ProblemId &&
                                                        ptq.QuestionOrder == questionResult.QuestionOrder);
 
                         if (practiceTestQuestion == null)
-                        {
-                            continue; // Skip if question not found
-                        }
+                            continue;
+
+                        var judgeResult = await _judgeService.EvaluateAsync(
+                            questionResult.ProblemId,
+                            questionResult.Language,
+                            questionResult.SubmittedCode);
+
+                        serverQuestionSummaries.Add((questionResult, judgeResult, practiceTestQuestion));
+                    }
+
+                    foreach (var (questionResult, judgeResult, practiceTestQuestion) in serverQuestionSummaries)
+                    {
+                        var maxMarks = practiceTestQuestion.Marks;
+                        var obtained = judgeResult.TotalTestCases > 0
+                            ? Math.Round((decimal)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxMarks, 2, MidpointRounding.AwayFromZero)
+                            : 0m;
+                        totalObtainedMarks += obtained;
+                    }
+
+                    var percentageDecimal = practiceTestResult.TotalMarks > 0
+                        ? totalObtainedMarks / practiceTestResult.TotalMarks * 100m
+                        : 0m;
+                    var timeTakenMinutes = (int)(request.EndTime - request.StartTime).TotalMinutes;
+                    var isPassed = percentageDecimal >= practiceTestResult.PracticeTest.PassingPercentage;
+
+                    // Update practice test result
+                    practiceTestResult.CompletedAt = DateTime.UtcNow;
+                    practiceTestResult.ObtainedMarks = totalObtainedMarks;
+                    practiceTestResult.Percentage = Math.Round(percentageDecimal, 2, MidpointRounding.AwayFromZero);
+                    practiceTestResult.IsPassed = isPassed;
+                    practiceTestResult.TimeTakenMinutes = timeTakenMinutes;
+                    practiceTestResult.Status = "Completed";
+                    practiceTestResult.UpdatedAt = DateTime.UtcNow;
+
+                    // Create question results (authoritative marks from judge)
+                    foreach (var (questionResult, judgeResult, practiceTestQuestion) in serverQuestionSummaries)
+                    {
+                        var maxMarks = practiceTestQuestion.Marks;
+                        var obtained = judgeResult.TotalTestCases > 0
+                            ? Math.Round((decimal)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxMarks, 2, MidpointRounding.AwayFromZero)
+                            : 0m;
+
+                        var compilationStatus = judgeResult.TestCaseResults.Any(r => r.ErrorType == "CompilationError")
+                            ? "Failed"
+                            : "Success";
+                        var executionStatus = judgeResult.TestCaseResults.Any(r => !r.IsPassed && r.ErrorType == "RuntimeError")
+                            ? "Failed"
+                            : judgeResult.IsCorrect ? "Success" : "Failed";
 
                         var questionResultEntity = new PracticeTestQuestionResult
                         {
@@ -357,16 +391,16 @@ namespace LeetCodeCompiler.API.Services
                             QuestionOrder = questionResult.QuestionOrder,
                             SubmittedCode = questionResult.SubmittedCode,
                             Language = questionResult.Language,
-                            Marks = questionResult.Marks,
-                            ObtainedMarks = questionResult.ObtainedMarks,
-                            IsCorrect = questionResult.IsCorrect,
-                            ExecutionTime = questionResult.ExecutionTime,
-                            MemoryUsed = questionResult.MemoryUsed,
-                            TestCasesPassed = questionResult.TestCasesPassed,
-                            TotalTestCases = questionResult.TotalTestCases,
-                            ErrorMessage = questionResult.ErrorMessage,
-                            CompilationStatus = questionResult.CompilationStatus,
-                            ExecutionStatus = questionResult.ExecutionStatus,
+                            Marks = maxMarks,
+                            ObtainedMarks = obtained,
+                            IsCorrect = judgeResult.IsCorrect,
+                            ExecutionTime = judgeResult.ExecutionTimeMs,
+                            MemoryUsed = judgeResult.MemoryUsedKB,
+                            TestCasesPassed = judgeResult.PassedTestCases,
+                            TotalTestCases = judgeResult.TotalTestCases,
+                            ErrorMessage = judgeResult.TestCaseResults.FirstOrDefault(r => !string.IsNullOrEmpty(r.ErrorMessage))?.ErrorMessage,
+                            CompilationStatus = compilationStatus,
+                            ExecutionStatus = executionStatus,
                             SubmittedAt = DateTime.UtcNow,
                             TimeTakenMinutes = questionResult.TimeTakenMinutes
                         };
@@ -384,7 +418,7 @@ namespace LeetCodeCompiler.API.Services
                         AttemptNumber = request.AttemptNumber,
                         TotalMarks = practiceTestResult.TotalMarks,
                         ObtainedMarks = totalObtainedMarks,
-                        Percentage = Math.Round(percentage, 2),
+                        Percentage = Math.Round(percentageDecimal, 2, MidpointRounding.AwayFromZero),
                         IsPassed = isPassed,
                         TimeTakenMinutes = timeTakenMinutes,
                         Status = "Completed",

@@ -295,6 +295,7 @@ builder.Services.AddScoped<JavaScriptExecutionService>();
 builder.Services.AddScoped<JavaExecutionService>();
 builder.Services.AddScoped<CppExecutionService>();
 builder.Services.AddScoped<CExecutionService>();
+builder.Services.AddScoped<IJudgeService, JudgeService>();
 
 // Add memory cache
 builder.Services.AddMemoryCache();

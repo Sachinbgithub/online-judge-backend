@@ -843,6 +843,10 @@ public class CombinedTestResultResponse
         public int TotalTestCases { get; set; } = 0;
         public int PassedTestCases { get; set; } = 0;
         public int FailedTestCases { get; set; } = 0;
+        /// <summary>
+        /// Ignored for authoritative grading: scores are computed server-side from DB test cases.
+        /// Kept for backward compatibility with clients that still send this field.
+        /// </summary>
         public int Score { get; set; } = 0;
         public bool RequestedHelp { get; set; } = false;
 
@@ -859,6 +863,10 @@ public class CombinedTestResultResponse
         public List<TestCaseSubmissionResult> TestCaseResults { get; set; } = new List<TestCaseSubmissionResult>();
     }
 
+    /// <summary>
+    /// Per-test-case payload from the client. On submit, the server re-runs the judge and persists
+    /// results from <see cref="Services.JudgeService"/>; client-supplied pass/fail and outputs are not trusted for grading.
+    /// </summary>
     public class TestCaseSubmissionResult
     {
         [Required]

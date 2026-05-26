@@ -8,11 +8,13 @@ namespace LeetCodeCompiler.API.Services
     {
         private readonly AppDbContext _context;
         private readonly StudentProfileService _studentProfileService;
+        private readonly IJudgeService _judgeService;
 
-        public CodingTestService(AppDbContext context, StudentProfileService studentProfileService)
+        public CodingTestService(AppDbContext context, StudentProfileService studentProfileService, IJudgeService judgeService)
         {
             _context = context;
             _studentProfileService = studentProfileService;
+            _judgeService = judgeService;
         }
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
@@ -967,7 +969,10 @@ namespace LeetCodeCompiler.API.Services
                 }
             }
 
-            // Create the submission record
+            var judgeResult = await _judgeService.EvaluateAsync(
+                request.ProblemId, request.LanguageUsed, request.FinalCodeSnapshot);
+
+            // Create the submission record (authoritative counts from server-side judge)
             var submission = new CodingTestSubmission
             {
                 CodingTestId = attempt.CodingTestId,
@@ -978,9 +983,9 @@ namespace LeetCodeCompiler.API.Services
                 AttemptNumber = request.AttemptNumber,
                 LanguageUsed = request.LanguageUsed,
                 FinalCodeSnapshot = request.FinalCodeSnapshot,
-                TotalTestCases = request.TotalTestCases,
-                PassedTestCases = request.PassedTestCases,
-                FailedTestCases = request.FailedTestCases,
+                TotalTestCases = judgeResult.TotalTestCases,
+                PassedTestCases = judgeResult.PassedTestCases,
+                FailedTestCases = judgeResult.FailedTestCases,
                 RequestedHelp = request.RequestedHelp,
                 LanguageSwitchCount = request.LanguageSwitchCount,
                 RunClickCount = request.RunClickCount,
@@ -992,16 +997,20 @@ namespace LeetCodeCompiler.API.Services
                 ClassId = request.ClassId,
                 SubmissionTime = DateTime.UtcNow,
                 IsLateSubmission = attempt.CodingTest != null && DateTime.UtcNow > attempt.CodingTest.EndDate,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ExecutionTimeMs = judgeResult.ExecutionTimeMs,
+                MemoryUsedKB = judgeResult.MemoryUsedKB
             };
 
-            // Calculate score based on passed test cases
+            // Calculate score based on server judge results
             var maxScore = questionAttempt.CodingTestQuestion.Marks;
-            var score = request.TotalTestCases > 0 ? (int)((double)request.PassedTestCases / request.TotalTestCases * maxScore) : 0;
-            
+            var score = judgeResult.TotalTestCases > 0
+                ? (int)((double)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxScore)
+                : 0;
+
             submission.Score = score;
             submission.MaxScore = maxScore;
-            submission.IsCorrect = request.PassedTestCases == request.TotalTestCases && request.TotalTestCases > 0;
+            submission.IsCorrect = judgeResult.IsCorrect;
 
             // Note: Removed CodingTestSubmissions.Add(submission) as submissions should not be stored in CodingTestSubmissions table
 
@@ -1010,8 +1019,8 @@ namespace LeetCodeCompiler.API.Services
             questionAttempt.CompletedAt = DateTime.UtcNow;
             questionAttempt.LanguageUsed = request.LanguageUsed;
             questionAttempt.CodeSubmitted = request.FinalCodeSnapshot;
-            questionAttempt.TestCasesPassed = request.PassedTestCases;
-            questionAttempt.TotalTestCases = request.TotalTestCases;
+            questionAttempt.TestCasesPassed = judgeResult.PassedTestCases;
+            questionAttempt.TotalTestCases = judgeResult.TotalTestCases;
             questionAttempt.RunCount = request.RunClickCount;
             questionAttempt.SubmitCount = request.SubmitClickCount;
             questionAttempt.IsCorrect = submission.IsCorrect;
@@ -1067,19 +1076,19 @@ namespace LeetCodeCompiler.API.Services
                 UserId = request.UserId,
                 AttemptNumber = request.AttemptNumber,
                 LanguageUsed = request.LanguageUsed,
-                TotalTestCases = request.TotalTestCases,
-                PassedTestCases = request.PassedTestCases,
-                FailedTestCases = request.FailedTestCases,
+                TotalTestCases = judgeResult.TotalTestCases,
+                PassedTestCases = judgeResult.PassedTestCases,
+                FailedTestCases = judgeResult.FailedTestCases,
                 Score = score,
                 MaxScore = maxScore,
-                IsCorrect = request.PassedTestCases == request.TotalTestCases && request.TotalTestCases > 0,
+                IsCorrect = judgeResult.IsCorrect,
                 IsLateSubmission = submission.IsLateSubmission,
                 SubmissionTime = DateTime.UtcNow,
-                ExecutionTimeMs = 0, // Not available without actual execution
-                MemoryUsedKB = 0, // Not available without actual execution
-                ErrorMessage = null, // Not available without actual execution
-                ErrorType = null, // Not available without actual execution
-                TestCaseResults = new List<SubmissionTestCaseResult>(), // Will be populated if needed
+                ExecutionTimeMs = judgeResult.ExecutionTimeMs,
+                MemoryUsedKB = judgeResult.MemoryUsedKB,
+                ErrorMessage = null,
+                ErrorType = null,
+                TestCaseResults = MapJudgeToSubmissionTestCaseResults(judgeResult),
                 CreatedAt = DateTime.UtcNow
             };
         }
@@ -1139,13 +1148,41 @@ namespace LeetCodeCompiler.API.Services
             }
 
             // Create a combined code snapshot for the whole test
-            var combinedCodeSnapshot = string.Join("\n\n--- QUESTION SEPARATOR ---\n\n", 
-                request.QuestionSubmissions.Select((q, index) => 
+            var combinedCodeSnapshot = string.Join("\n\n--- QUESTION SEPARATOR ---\n\n",
+                request.QuestionSubmissions.Select((q, index) =>
                     $"// Question {index + 1} (Problem ID: {q.ProblemId})\n" +
                     $"// Language: {q.LanguageUsed}\n" +
                     q.FinalCodeSnapshot));
 
-            // Create the main submission record for the whole test
+            // Server-side judge for every question before persisting aggregates (integrity)
+            var evaluatedQuestions =
+                new List<(QuestionSubmission Qs, JudgeResult Judge, CodingTestQuestion Ctq)>();
+            foreach (var questionSubmission in request.QuestionSubmissions)
+            {
+                var codingTestQuestion = await _context.CodingTestQuestions
+                    .Include(ctq => ctq.Problem)
+                    .FirstOrDefaultAsync(ctq => ctq.ProblemId == questionSubmission.ProblemId &&
+                                               ctq.CodingTestId == request.CodingTestId);
+
+                if (codingTestQuestion == null)
+                    throw new ArgumentException(
+                        $"Problem {questionSubmission.ProblemId} is not part of coding test {request.CodingTestId}");
+
+                var judgeResult = await _judgeService.EvaluateAsync(
+                    questionSubmission.ProblemId,
+                    questionSubmission.LanguageUsed,
+                    questionSubmission.FinalCodeSnapshot);
+
+                evaluatedQuestions.Add((questionSubmission, judgeResult, codingTestQuestion));
+            }
+
+            var serverTotalTests = evaluatedQuestions.Sum(x => x.Judge.TotalTestCases);
+            var serverPassed = evaluatedQuestions.Sum(x => x.Judge.PassedTestCases);
+            var serverFailed = evaluatedQuestions.Sum(x => x.Judge.FailedTestCases);
+            var serverExecutionMs = evaluatedQuestions.Sum(x => x.Judge.ExecutionTimeMs);
+            var serverMemoryKb = evaluatedQuestions.Sum(x => x.Judge.MemoryUsedKB);
+
+            // Create the main submission record for the whole test (authoritative aggregates)
             var submission = new CodingTestSubmission
             {
                 CodingTestId = request.CodingTestId,
@@ -1156,9 +1193,9 @@ namespace LeetCodeCompiler.API.Services
                 AttemptNumber = request.AttemptNumber,
                 LanguageUsed = string.Join(", ", request.QuestionSubmissions.Select(q => q.LanguageUsed).Distinct()),
                 FinalCodeSnapshot = combinedCodeSnapshot,
-                TotalTestCases = request.QuestionSubmissions.Sum(q => q.TotalTestCases),
-                PassedTestCases = request.QuestionSubmissions.Sum(q => q.PassedTestCases),
-                FailedTestCases = request.QuestionSubmissions.Sum(q => q.FailedTestCases),
+                TotalTestCases = serverTotalTests,
+                PassedTestCases = serverPassed,
+                FailedTestCases = serverFailed,
                 RequestedHelp = request.QuestionSubmissions.Any(q => q.RequestedHelp),
                 LanguageSwitchCount = request.QuestionSubmissions.Sum(q => q.LanguageSwitchCount),
                 RunClickCount = request.QuestionSubmissions.Sum(q => q.RunClickCount),
@@ -1170,11 +1207,13 @@ namespace LeetCodeCompiler.API.Services
                 ClassId = request.ClassId,
                 SubmissionTime = DateTime.UtcNow,
                 IsLateSubmission = request.IsLateSubmission,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ExecutionTimeMs = serverExecutionMs,
+                MemoryUsedKB = serverMemoryKb
             };
 
             _context.CodingTestSubmissions.Add(submission);
-            
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -1188,18 +1227,8 @@ namespace LeetCodeCompiler.API.Services
             var totalScore = 0;
             var totalMaxScore = 0;
 
-            // Process each question submission
-            foreach (var questionSubmission in request.QuestionSubmissions)
+            foreach (var (questionSubmission, judgeResult, codingTestQuestion) in evaluatedQuestions)
             {
-                // Find the coding test question
-                var codingTestQuestion = await _context.CodingTestQuestions
-                    .Include(ctq => ctq.Problem)
-                    .FirstOrDefaultAsync(ctq => ctq.ProblemId == questionSubmission.ProblemId && 
-                                               ctq.CodingTestId == request.CodingTestId);
-
-                if (codingTestQuestion == null)
-                    throw new ArgumentException($"Problem {questionSubmission.ProblemId} is not part of coding test {request.CodingTestId}");
-
                 // Find or create the question attempt
                 var questionAttempt = attempt.QuestionAttempts?
                     .FirstOrDefault(qa => qa.CodingTestQuestion?.ProblemId == questionSubmission.ProblemId);
@@ -1219,7 +1248,7 @@ namespace LeetCodeCompiler.API.Services
                         CreatedAt = DateTime.UtcNow
                     };
                     _context.CodingTestQuestionAttempts.Add(questionAttempt);
-                    
+
                     try
                     {
                         await _context.SaveChangesAsync();
@@ -1232,24 +1261,21 @@ namespace LeetCodeCompiler.API.Services
                     questionAttempt.CodingTestQuestion = codingTestQuestion;
                 }
 
-                // Calculate score for this question
                 var maxScore = codingTestQuestion.Marks;
-                // Use provided score if available, otherwise calculate based on test case results
-                var score = questionSubmission.Score > 0 ? 
-                    questionSubmission.Score : 
-                    (questionSubmission.TotalTestCases > 0 ? 
-                        (int)((double)questionSubmission.PassedTestCases / questionSubmission.TotalTestCases * maxScore) : 0);
+                var score = judgeResult.TotalTestCases > 0
+                    ? (int)((double)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxScore)
+                    : 0;
 
                 // Update the question attempt
                 questionAttempt.Status = "Completed";
                 questionAttempt.CompletedAt = DateTime.UtcNow;
                 questionAttempt.LanguageUsed = questionSubmission.LanguageUsed;
                 questionAttempt.CodeSubmitted = questionSubmission.FinalCodeSnapshot;
-                questionAttempt.TestCasesPassed = questionSubmission.PassedTestCases;
-                questionAttempt.TotalTestCases = questionSubmission.TotalTestCases;
+                questionAttempt.TestCasesPassed = judgeResult.PassedTestCases;
+                questionAttempt.TotalTestCases = judgeResult.TotalTestCases;
                 questionAttempt.RunCount = questionSubmission.RunClickCount;
                 questionAttempt.SubmitCount = questionSubmission.SubmitClickCount;
-                questionAttempt.IsCorrect = questionSubmission.PassedTestCases == questionSubmission.TotalTestCases && questionSubmission.TotalTestCases > 0;
+                questionAttempt.IsCorrect = judgeResult.IsCorrect;
                 questionAttempt.Score = score;
                 questionAttempt.MaxScore = maxScore;
                 questionAttempt.UpdatedAt = DateTime.UtcNow;
@@ -1257,63 +1283,40 @@ namespace LeetCodeCompiler.API.Services
                 totalScore += score;
                 totalMaxScore += maxScore;
 
-                // Create test case results for this question
-                foreach (var testCaseResult in questionSubmission.TestCaseResults)
+                foreach (var tc in judgeResult.TestCaseResults)
                 {
-                    try
+                    var submissionResult = new CodingTestSubmissionResult
                     {
-                        // Validate that the TestCase exists before creating the result
-                        var testCaseExists = await _context.TestCases
-                            .AnyAsync(tc => tc.Id == testCaseResult.TestCaseId);
+                        SubmissionId = submission.SubmissionId,
+                        TestCaseId = tc.TestCaseId,
+                        ProblemId = questionSubmission.ProblemId,
+                        TestCaseOrder = tc.TestCaseOrder,
+                        Input = tc.Input,
+                        ExpectedOutput = tc.ExpectedOutput,
+                        ActualOutput = tc.ActualOutput,
+                        IsPassed = tc.IsPassed,
+                        ExecutionTimeMs = tc.ExecutionTimeMs,
+                        MemoryUsedKB = tc.MemoryUsedKB,
+                        ErrorMessage = tc.ErrorMessage,
+                        ErrorType = tc.ErrorType,
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-                        if (!testCaseExists)
-                        {
-                            throw new ArgumentException($"TestCase with ID {testCaseResult.TestCaseId} does not exist in the database. Please check the TestCase IDs in your request.");
-                        }
-
-                        var submissionResult = new CodingTestSubmissionResult
-                        {
-                            SubmissionId = submission.SubmissionId,
-                            TestCaseId = testCaseResult.TestCaseId,
-                            ProblemId = questionSubmission.ProblemId, // Add ProblemId from the question submission
-                            TestCaseOrder = testCaseResult.TestCaseOrder,
-                            Input = testCaseResult.Input,
-                            ExpectedOutput = testCaseResult.ExpectedOutput,
-                            ActualOutput = testCaseResult.ActualOutput,
-                            IsPassed = testCaseResult.IsPassed,
-                            ExecutionTimeMs = testCaseResult.ExecutionTimeMs,
-                            MemoryUsedKB = testCaseResult.MemoryUsedKB,
-                            ErrorMessage = testCaseResult.ErrorMessage,
-                            ErrorType = testCaseResult.ErrorType,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        _context.CodingTestSubmissionResults.Add(submissionResult);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // Re-throw ArgumentException as-is (it has the proper message)
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException($"Failed to create test case result for TestCaseId {testCaseResult.TestCaseId}: {ex.Message}. Inner exception: {ex.InnerException?.Message}", ex);
-                    }
+                    _context.CodingTestSubmissionResults.Add(submissionResult);
                 }
 
-                // Add to response
                 questionSubmissionResponses.Add(new QuestionSubmissionResponse
                 {
                     ProblemId = questionSubmission.ProblemId,
                     ProblemTitle = codingTestQuestion.Problem?.Title ?? "Unknown Problem",
                     LanguageUsed = questionSubmission.LanguageUsed,
-                    TotalTestCases = questionSubmission.TotalTestCases,
-                    PassedTestCases = questionSubmission.PassedTestCases,
-                    FailedTestCases = questionSubmission.FailedTestCases,
+                    TotalTestCases = judgeResult.TotalTestCases,
+                    PassedTestCases = judgeResult.PassedTestCases,
+                    FailedTestCases = judgeResult.FailedTestCases,
                     Score = score,
                     MaxScore = maxScore,
-                    IsCorrect = questionSubmission.PassedTestCases == questionSubmission.TotalTestCases && questionSubmission.TotalTestCases > 0,
-                    TestCaseResults = questionSubmission.TestCaseResults
+                    IsCorrect = judgeResult.IsCorrect,
+                    TestCaseResults = MapJudgeToTestCaseSubmissionResults(judgeResult)
                 });
             }
 
@@ -1795,13 +1798,18 @@ namespace LeetCodeCompiler.API.Services
             questionAttempt.SubmitCount = request.SubmitCount;
             questionAttempt.UpdatedAt = DateTime.UtcNow;
 
-            // TODO: Execute code and calculate score
-            // This would integrate with your existing code execution service
-            questionAttempt.Score = 0; // Placeholder
+            var judgeResult = await _judgeService.EvaluateAsync(
+                questionAttempt.ProblemId,
+                request.LanguageUsed,
+                request.CodeSubmitted);
+
             questionAttempt.MaxScore = questionAttempt.CodingTestQuestion.Marks;
-            questionAttempt.TestCasesPassed = 0; // Placeholder
-            questionAttempt.TotalTestCases = 0; // Placeholder
-            questionAttempt.IsCorrect = false; // Placeholder
+            questionAttempt.Score = judgeResult.TotalTestCases > 0
+                ? (int)((double)judgeResult.PassedTestCases / judgeResult.TotalTestCases * questionAttempt.MaxScore)
+                : 0;
+            questionAttempt.TestCasesPassed = judgeResult.PassedTestCases;
+            questionAttempt.TotalTestCases = judgeResult.TotalTestCases;
+            questionAttempt.IsCorrect = judgeResult.IsCorrect;
 
             await _context.SaveChangesAsync();
             return await GetQuestionAttemptAsync(questionAttempt.Id);
@@ -3029,6 +3037,41 @@ namespace LeetCodeCompiler.API.Services
                 FirstSubmissionTime = firstSubmissionTime,
                 LastSubmissionTime = lastSubmissionTime
             };
+        }
+
+        private static List<SubmissionTestCaseResult> MapJudgeToSubmissionTestCaseResults(JudgeResult judge)
+        {
+            return judge.TestCaseResults.Select(r => new SubmissionTestCaseResult
+            {
+                ResultId = 0,
+                TestCaseId = r.TestCaseId,
+                TestCaseOrder = r.TestCaseOrder,
+                Input = r.Input,
+                ExpectedOutput = r.ExpectedOutput,
+                ActualOutput = r.ActualOutput,
+                IsPassed = r.IsPassed,
+                ExecutionTimeMs = r.ExecutionTimeMs,
+                MemoryUsedKB = r.MemoryUsedKB,
+                ErrorMessage = r.ErrorMessage,
+                ErrorType = r.ErrorType
+            }).ToList();
+        }
+
+        private static List<TestCaseSubmissionResult> MapJudgeToTestCaseSubmissionResults(JudgeResult judge)
+        {
+            return judge.TestCaseResults.Select(r => new TestCaseSubmissionResult
+            {
+                TestCaseId = r.TestCaseId,
+                TestCaseOrder = r.TestCaseOrder,
+                Input = r.Input,
+                ExpectedOutput = r.ExpectedOutput,
+                ActualOutput = r.ActualOutput,
+                IsPassed = r.IsPassed,
+                ExecutionTimeMs = r.ExecutionTimeMs,
+                MemoryUsedKB = r.MemoryUsedKB,
+                ErrorMessage = r.ErrorMessage,
+                ErrorType = r.ErrorType
+            }).ToList();
         }
     }
 }
