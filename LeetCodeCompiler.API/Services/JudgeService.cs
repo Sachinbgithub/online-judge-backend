@@ -1,12 +1,12 @@
 using LeetCodeCompiler.API.Data;
+using LeetCodeCompiler.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace LeetCodeCompiler.API.Services
 {
     /// <summary>
-    /// Loads official test cases from the database and executes code using the same
-    /// language services as <see cref="Controllers.CodeExecutionController"/>.
+    /// Canonical server-side evaluator: loads test cases and runs code via language execution services.
     /// </summary>
     public class JudgeService : IJudgeService
     {
@@ -38,23 +38,39 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<JudgeResult> EvaluateAsync(int problemId, string language, string code)
         {
-            var result = new JudgeResult();
-            var lang = (language ?? "").Trim();
-            if (string.IsNullOrEmpty(lang))
-                throw new ArgumentException("Language is required for evaluation.", nameof(language));
-
-            var service = GetExecutionService(lang);
-            if (service == null)
-                throw new ArgumentException($"Unsupported language for evaluation: {language}", nameof(language));
-
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("Code is required for evaluation.", nameof(code));
+            ValidateLanguageAndCode(language, code);
 
             var testCases = await _context.TestCases
                 .AsNoTracking()
                 .Where(tc => tc.ProblemId == problemId)
                 .OrderBy(tc => tc.Id)
                 .ToListAsync();
+
+            return await EvaluateCoreAsync(language, code, testCases, problemId);
+        }
+
+        public Task<JudgeResult> EvaluateTestCasesAsync(string language, string code, IReadOnlyList<TestCase> testCases)
+        {
+            ValidateLanguageAndCode(language, code);
+
+            if (testCases == null || testCases.Count == 0)
+                throw new ArgumentException("At least one test case is required.", nameof(testCases));
+
+            return EvaluateCoreAsync(language, code, testCases, problemId: null);
+        }
+
+        private async Task<JudgeResult> EvaluateCoreAsync(
+            string language,
+            string code,
+            IReadOnlyList<TestCase> testCases,
+            int? problemId)
+        {
+            var result = new JudgeResult();
+            var lang = language.Trim();
+
+            var service = GetExecutionService(lang);
+            if (service == null)
+                throw new ArgumentException($"Unsupported language for evaluation: {language}", nameof(language));
 
             result.TotalTestCases = testCases.Count;
             if (testCases.Count == 0)
@@ -77,7 +93,7 @@ namespace LeetCodeCompiler.API.Services
                 {
                     var exec = await service.ExecuteAsync(code, input);
                     var actual = exec.Output ?? "";
-                    var passed = string.IsNullOrEmpty(exec.Error) && actual.Trim() == expected.Trim();
+                    var passed = IsTestCasePassed(exec, expected);
 
                     row = new JudgeTestCaseResult
                     {
@@ -89,6 +105,8 @@ namespace LeetCodeCompiler.API.Services
                         IsPassed = passed,
                         ExecutionTimeMs = (int)Math.Round(exec.RuntimeMs),
                         MemoryUsedKB = (int)Math.Round(exec.MemoryMb * 1024.0),
+                        Stdout = exec.Stdout ?? "",
+                        Stderr = exec.Stderr ?? "",
                         ErrorMessage = string.IsNullOrEmpty(exec.Error) ? null : exec.Error,
                         ErrorType = ClassifyError(passed, exec)
                     };
@@ -102,7 +120,9 @@ namespace LeetCodeCompiler.API.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Judge execution failed for ProblemId={ProblemId}, TestCaseId={TestCaseId}", problemId, tc.Id);
+                    _logger.LogError(ex,
+                        "Judge execution failed for ProblemId={ProblemId}, TestCaseId={TestCaseId}",
+                        problemId, tc.Id);
                     row = new JudgeTestCaseResult
                     {
                         TestCaseId = tc.Id,
@@ -113,6 +133,8 @@ namespace LeetCodeCompiler.API.Services
                         IsPassed = false,
                         ExecutionTimeMs = 0,
                         MemoryUsedKB = 0,
+                        Stdout = "",
+                        Stderr = "",
                         ErrorMessage = "Execution failed: " + ex.Message,
                         ErrorType = "RuntimeError"
                     };
@@ -124,6 +146,24 @@ namespace LeetCodeCompiler.API.Services
 
             result.IsCorrect = result.TotalTestCases > 0 && result.PassedTestCases == result.TotalTestCases;
             return result;
+        }
+
+        private static void ValidateLanguageAndCode(string language, string code)
+        {
+            if (string.IsNullOrWhiteSpace(language))
+                throw new ArgumentException("Language is required for evaluation.", nameof(language));
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("Code is required for evaluation.", nameof(code));
+        }
+
+        private static bool IsTestCasePassed(ExecutionResult exec, string expectedOutput)
+        {
+            if (string.IsNullOrWhiteSpace(expectedOutput))
+                return string.IsNullOrEmpty(exec.Error) && string.IsNullOrEmpty(exec.Stderr);
+
+            return string.IsNullOrEmpty(exec.Error)
+                && string.IsNullOrEmpty(exec.Stderr)
+                && (exec.Output ?? "").Trim() == expectedOutput.Trim();
         }
 
         private static string? ClassifyError(bool passed, ExecutionResult exec)

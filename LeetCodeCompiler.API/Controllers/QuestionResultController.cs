@@ -16,28 +16,16 @@ namespace LeetCodeCompiler.API.Controllers
     {
         private readonly IActivityTrackingService _activityTrackingService;
         private readonly AppDbContext _dbContext;
-        private readonly PythonExecutionService _pythonService;
-        private readonly JavaScriptExecutionService _javascriptService;
-        private readonly JavaExecutionService _javaService;
-        private readonly CppExecutionService _cppService;
-        private readonly CExecutionService _cService;
+        private readonly IJudgeService _judgeService;
 
         public QuestionResultController(
-            IActivityTrackingService activityTrackingService, 
+            IActivityTrackingService activityTrackingService,
             AppDbContext dbContext,
-            PythonExecutionService pythonService,
-            JavaScriptExecutionService javascriptService,
-            JavaExecutionService javaService,
-            CppExecutionService cppService,
-            CExecutionService cService)
+            IJudgeService judgeService)
         {
             _activityTrackingService = activityTrackingService;
             _dbContext = dbContext;
-            _pythonService = pythonService;
-            _javascriptService = javascriptService;
-            _javaService = javaService;
-            _cppService = cppService;
-            _cService = cService;
+            _judgeService = judgeService;
         }
 
         [HttpPost("submit")]
@@ -59,35 +47,23 @@ namespace LeetCodeCompiler.API.Controllers
 
                 Console.WriteLine($"✅ Activity log created with ID: {activityLog.Id}");
 
-                // ✅ STEP 2: Get test cases for the problem
-                var testCases = _dbContext.TestCases.Where(tc => tc.ProblemId == request.ProblemId).ToList();
-                
-                if (!testCases.Any())
+                // ✅ STEP 2: Verify test cases exist for the problem
+                var testCaseCount = await _dbContext.TestCases
+                    .CountAsync(tc => tc.ProblemId == request.ProblemId);
+
+                if (testCaseCount == 0)
                 {
                     Console.WriteLine("❌ No test cases found");
                     return BadRequest(new { error = "No test cases found for this problem." });
                 }
 
-                Console.WriteLine($"✅ Found {testCases.Count} test cases");
+                Console.WriteLine($"✅ Found {testCaseCount} test cases");
 
-                // ✅ STEP 3: Execute code against test cases
-                var codeExecutionRequest = new CodeExecutionRequest
-                {
-                    Language = request.LanguageUsed,
-                    Code = request.FinalCodeSnapshot,
-                    TestCases = testCases
-                };
+                // ✅ STEP 3: Execute code via canonical judge (same rules as Run/Submit elsewhere)
+                var judgeResult = await _judgeService.EvaluateAsync(
+                    request.ProblemId, request.LanguageUsed, request.FinalCodeSnapshot);
 
-                // Create a temporary CodeExecutionController to execute the code
-                var codeExecutionController = new CodeExecutionController(_dbContext, _activityTrackingService, Microsoft.Extensions.Logging.Abstractions.NullLogger<CodeExecutionController>.Instance, _pythonService, _javascriptService, _javaService, _cppService, _cService);
-                var executionResult = await codeExecutionController.ExecuteCode(codeExecutionRequest) as OkObjectResult;
-                var response = executionResult?.Value as CodeExecutionResponse;
-
-                if (response == null)
-                {
-                    Console.WriteLine("❌ Code execution failed");
-                    return StatusCode(500, new { error = "Failed to execute code" });
-                }
+                var results = JudgeResultMapper.ToTestCaseResults(judgeResult);
 
                 // ✅ STEP 4: Calculate execution time and results
                 var endTime = DateTime.UtcNow;
@@ -96,14 +72,14 @@ namespace LeetCodeCompiler.API.Controllers
                 Console.WriteLine($"✅ Code execution completed in {timeTaken} seconds");
 
                 // ✅ STEP 5: Extract passed and failed test case IDs
-                var passedTestCaseIds = response.Results
-                    .Where(r => r.Passed)
-                    .Select((r, index) => testCases[index].Id.ToString())
+                var passedTestCaseIds = judgeResult.TestCaseResults
+                    .Where(r => r.IsPassed)
+                    .Select(r => r.TestCaseId.ToString())
                     .ToList();
 
-                var failedTestCaseIds = response.Results
-                    .Where(r => !r.Passed)
-                    .Select((r, index) => testCases[index].Id.ToString())
+                var failedTestCaseIds = judgeResult.TestCaseResults
+                    .Where(r => !r.IsPassed)
+                    .Select(r => r.TestCaseId.ToString())
                     .ToList();
 
                 Console.WriteLine($"✅ Passed: {passedTestCaseIds.Count}, Failed: {failedTestCaseIds.Count}");
@@ -128,35 +104,31 @@ namespace LeetCodeCompiler.API.Controllers
                 Console.WriteLine($"✅ Activity log updated successfully");
 
                 // ✅ STEP 7: Create or update question result
-                var passedCount = response.Results.Count(r => r.Passed);
-                var failedCount = response.Results.Count(r => !r.Passed);
-
                 var questionResult = await _activityTrackingService.CreateOrUpdateQuestionResultAsync(
                     request.UserId,
                     request.ProblemId,
                     request.AttemptNumber,
                     request.LanguageUsed,
                     request.FinalCodeSnapshot,
-                    response.Results.Count,
-                    passedCount,
-                    failedCount
+                    judgeResult.TotalTestCases,
+                    judgeResult.PassedTestCases,
+                    judgeResult.FailedTestCases
                 );
 
                 Console.WriteLine($"✅ Question result created/updated with ID: {questionResult.Id}");
 
                 // ✅ STEP 8: Log individual test case results
-                for (int i = 0; i < response.Results.Count; i++)
+                foreach (var caseResult in judgeResult.TestCaseResults)
                 {
-                    var result = response.Results[i];
                     await _activityTrackingService.LogTestCaseResultAsync(
                         questionResult.Id,
                         request.UserId,
                         request.ProblemId,
-                        testCases[i].Id,
-                        result.Passed,
-                        result.Output ?? "",
-                        result.Expected ?? "",
-                        result.RuntimeMs
+                        caseResult.TestCaseId,
+                        caseResult.IsPassed,
+                        caseResult.ActualOutput ?? "",
+                        caseResult.ExpectedOutput,
+                        caseResult.ExecutionTimeMs
                     );
                 }
 
@@ -180,13 +152,17 @@ namespace LeetCodeCompiler.API.Controllers
                     // Add activity log ID for reference
                     activityLogId = activityLog.Id,
                     // Add test case results
-                    results = response.Results,
+                    results = results,
                     // Add execution time
                     timeTakenSeconds = timeTaken
                 };
 
                 Console.WriteLine($"✅ Returning response with QuestionResultId: {questionResult.Id}");
                 return Ok(finalResponse);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -587,42 +563,6 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
-        private ICodeExecutionService? GetExecutionService(string language)
-        {
-            return language.ToLower() switch
-            {
-                "python" => _pythonService,
-                "javascript" or "js" => _javascriptService,
-                "java" => _javaService,
-                "cpp" or "c++" => _cppService,
-                "c" => _cService,
-                _ => null
-            };
-        }
-
-        private string WrapCode(string language, string code, string problemType)
-        {
-            return language.ToLower() switch
-            {
-                // "python" => FlexibleWrapperTemplates.WrapPython(code, problemType),
-                // "javascript" or "js" => FlexibleWrapperTemplates.WrapJavaScript(code, problemType),
-                // "java" => FlexibleWrapperTemplates.WrapJava(code, problemType),
-                // "cpp" or "c++" => FlexibleWrapperTemplates.WrapCpp(code, problemType),
-                _ => code
-            };
-        }
-
-        private string GetProblemType(int problemId)
-        {
-            return problemId switch
-            {
-                1 => "two_sum",
-                6 => "reverse_integer",
-                7 => "sum_of_squares",
-                8 => "count_vowels_in_string",
-                _ => "two_sum" // default fallback
-            };
-        }
     }
 
     public class SubmitQuestionResultRequest
