@@ -28,9 +28,9 @@ namespace LeetCodeCompiler.API.Models
         [Required]
         public string Status { get; set; } = "InProgress"; // InProgress, Completed, Submitted, Abandoned
 
-        public int TotalScore { get; set; } = 0;
+        public decimal TotalScore { get; set; } = 0;
 
-        public int MaxScore { get; set; } = 0;
+        public decimal MaxScore { get; set; } = 0;
 
         public double Percentage { get; set; } = 0.0;
 

@@ -35,9 +35,9 @@ namespace LeetCodeCompiler.API.Models
         [Required]
         public string CodeSubmitted { get; set; } = "";
 
-        public int Score { get; set; } = 0;
+        public decimal Score { get; set; } = 0;
 
-        public int MaxScore { get; set; } = 0;
+        public decimal MaxScore { get; set; } = 0;
 
         public int TestCasesPassed { get; set; } = 0;
 

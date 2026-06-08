@@ -1,4 +1,5 @@
 using LeetCodeCompiler.API.Data;
+using LeetCodeCompiler.API.Models;
 using LeetCodeCompiler.API.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
@@ -296,6 +297,7 @@ builder.Services.AddScoped<JavaExecutionService>();
 builder.Services.AddScoped<CppExecutionService>();
 builder.Services.AddScoped<CExecutionService>();
 builder.Services.AddScoped<IJudgeService, JudgeService>();
+builder.Services.Configure<ScoringOptions>(builder.Configuration.GetSection("Scoring"));
 
 // Add memory cache
 builder.Services.AddMemoryCache();

@@ -347,9 +347,8 @@ namespace LeetCodeCompiler.API.Services
                     foreach (var (questionResult, judgeResult, practiceTestQuestion) in serverQuestionSummaries)
                     {
                         var maxMarks = practiceTestQuestion.Marks;
-                        var obtained = judgeResult.TotalTestCases > 0
-                            ? Math.Round((decimal)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxMarks, 2, MidpointRounding.AwayFromZero)
-                            : 0m;
+                        var obtained = ScoreCalculator.DecimalScore(
+                            judgeResult.PassedTestCases, judgeResult.TotalTestCases, maxMarks);
                         totalObtainedMarks += obtained;
                     }
 
@@ -372,9 +371,8 @@ namespace LeetCodeCompiler.API.Services
                     foreach (var (questionResult, judgeResult, practiceTestQuestion) in serverQuestionSummaries)
                     {
                         var maxMarks = practiceTestQuestion.Marks;
-                        var obtained = judgeResult.TotalTestCases > 0
-                            ? Math.Round((decimal)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxMarks, 2, MidpointRounding.AwayFromZero)
-                            : 0m;
+                        var obtained = ScoreCalculator.DecimalScore(
+                            judgeResult.PassedTestCases, judgeResult.TotalTestCases, maxMarks);
 
                         var compilationStatus = judgeResult.TestCaseResults.Any(r => r.ErrorType == "CompilationError")
                             ? "Failed"

@@ -19,7 +19,7 @@ namespace LeetCodeCompiler.API.Models
         public int QuestionOrder { get; set; } // Order of question in test
 
         [Required]
-        public int Marks { get; set; }
+        public decimal Marks { get; set; }
 
         [Required]
         public int TimeLimitMinutes { get; set; } // Individual question time limit

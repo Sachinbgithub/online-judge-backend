@@ -10,8 +10,8 @@ namespace LeetCodeCompiler.API.Models
         // Coding Tests Summary
         public int TotalCodingTestsAttempted { get; set; }
         public double AverageCodingTestScorePercentage { get; set; }
-        public int TotalCodingTestMarksObtained { get; set; }
-        public int TotalCodingTestMaxMarks { get; set; }
+        public decimal TotalCodingTestMarksObtained { get; set; }
+        public decimal TotalCodingTestMaxMarks { get; set; }
 
         // Practice Tests Summary
         public int TotalPracticeTestsAttempted { get; set; }
@@ -45,8 +45,8 @@ namespace LeetCodeCompiler.API.Models
         public int CodingTestId { get; set; }
         public string TestName { get; set; } = "";
         public int AttemptNumber { get; set; }
-        public int TotalScore { get; set; }
-        public int MaxScore { get; set; }
+        public decimal TotalScore { get; set; }
+        public decimal MaxScore { get; set; }
         public double Percentage { get; set; }
         public bool IsPassed { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -86,8 +86,8 @@ namespace LeetCodeCompiler.API.Models
         public string FullName { get; set; } = "";
         public string EmailId { get; set; } = "";
         public string RollNo { get; set; } = "";
-        public int TotalScore { get; set; }
-        public int MaxScore { get; set; }
+        public decimal TotalScore { get; set; }
+        public decimal MaxScore { get; set; }
         public double Percentage { get; set; }
         public int Rank { get; set; }
         public int TimeSpentMinutes { get; set; }
@@ -101,7 +101,7 @@ namespace LeetCodeCompiler.API.Models
         public int Rank { get; set; }
         public long UserId { get; set; }
         public string FullName { get; set; } = "";
-        public int TotalScore { get; set; }
+        public decimal TotalScore { get; set; }
         public double Percentage { get; set; }
         public int TimeSpentMinutes { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -189,8 +189,8 @@ namespace LeetCodeCompiler.API.Models
         public int CodingTestId { get; set; }
         public string TestName { get; set; } = "";
         public int AttemptNumber { get; set; }
-        public int Score { get; set; }
-        public int MaxScore { get; set; }
+        public decimal Score { get; set; }
+        public decimal MaxScore { get; set; }
         public double Percentage { get; set; }
         public bool IsPassed { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -237,8 +237,8 @@ namespace LeetCodeCompiler.API.Models
         public int CodingTestId { get; set; }
         public string TestName { get; set; } = "";
         public int AttemptNumber { get; set; }
-        public int TotalScore { get; set; }
-        public int MaxScore { get; set; }
+        public decimal TotalScore { get; set; }
+        public decimal MaxScore { get; set; }
         public double Percentage { get; set; }
         public bool IsPassed { get; set; }
         public DateTime SubmissionTime { get; set; }

@@ -27,8 +27,8 @@ namespace LeetCodeCompiler.API.Models
         public int TotalQuestions { get; set; }
 
         [Required]
-        [Range(1, 1000)]
-        public int TotalMarks { get; set; }
+        [Range(typeof(decimal), "0.01", "1000")]
+        public decimal TotalMarks { get; set; }
 
         [Range(1, 10000)]
         public int TestType { get; set; } = 1; // Custom test type values
@@ -96,8 +96,8 @@ namespace LeetCodeCompiler.API.Models
         public int QuestionOrder { get; set; }
 
         [Required]
-        [Range(1, 100)]
-        public int Marks { get; set; }
+        [Range(typeof(decimal), "0.01", "100")]
+        public decimal Marks { get; set; }
 
         [Required]
         [Range(1, 120)]
@@ -125,8 +125,8 @@ namespace LeetCodeCompiler.API.Models
         [Range(1, 480)]
         public int? DurationMinutes { get; set; }
 
-        [Range(1, 1000)]
-        public int? TotalMarks { get; set; }
+        [Range(typeof(decimal), "0.01", "1000")]
+        public decimal? TotalMarks { get; set; }
 
         public bool? IsActive { get; set; }
 
@@ -171,7 +171,7 @@ namespace LeetCodeCompiler.API.Models
         public int? Id { get; set; } // If null, it's a new question
         public int? ProblemId { get; set; }
         public int? QuestionOrder { get; set; }
-        public int? Marks { get; set; }
+        public decimal? Marks { get; set; }
         public int? TimeLimitMinutes { get; set; }
         public string? CustomInstructions { get; set; }
         public bool? IsDeleted { get; set; } // If true, remove this question
@@ -204,8 +204,8 @@ public class CombinedTestResultResponse
     public int UserId { get; set; }
     public int AttemptNumber { get; set; }
     public int TotalQuestions { get; set; }
-    public int TotalScore { get; set; }
-    public int MaxScore { get; set; }
+    public decimal TotalScore { get; set; }
+    public decimal MaxScore { get; set; }
     public double Percentage { get; set; }
     public bool IsLateSubmission { get; set; }
     public DateTime SubmissionTime { get; set; }
@@ -222,7 +222,7 @@ public class CombinedTestResultResponse
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int DurationMinutes { get; set; }
-    public int TotalMarks { get; set; }
+    public decimal TotalMarks { get; set; }
     public bool CanStart { get; set; }
     public bool CanEnd { get; set; }
     public bool IsExpired { get; set; }
@@ -235,7 +235,7 @@ public class CombinedTestResultResponse
     public int CorrectTestCases { get; set; } // Total test cases that passed
     public double ProblemAccuracy { get; set; } // Percentage of problems solved correctly
     public double TestCaseAccuracy { get; set; } // Percentage of test cases passed
-    public double FinalScore { get; set; } // Score out of totalMarks (combines problemAccuracy + testCaseAccuracy)
+    public double FinalScore { get; set; } // Same as TotalScore (kept for backward compatibility)
 }
 
 
@@ -311,8 +311,8 @@ public class CombinedTestResultResponse
         public int TotalTestCases { get; set; }
         public int PassedTestCases { get; set; }
         public int FailedTestCases { get; set; }
-        public int Score { get; set; }
-        public int MaxScore { get; set; }
+        public decimal Score { get; set; }
+        public decimal MaxScore { get; set; }
         public bool IsCorrect { get; set; }
         public bool IsLateSubmission { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -352,8 +352,8 @@ public class CombinedTestResultResponse
         public int TotalTestCases { get; set; }
         public int PassedTestCases { get; set; }
         public int FailedTestCases { get; set; }
-        public int Score { get; set; }
-        public int MaxScore { get; set; }
+        public decimal Score { get; set; }
+        public decimal MaxScore { get; set; }
         public bool IsCorrect { get; set; }
         public bool IsLateSubmission { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -468,7 +468,7 @@ public class CombinedTestResultResponse
         public DateTime EndDate { get; set; }
         public int DurationMinutes { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
         public bool CanStart { get; set; }
         public bool CanEnd { get; set; }
         public bool IsExpired { get; set; }
@@ -519,7 +519,7 @@ public class CombinedTestResultResponse
         public DateTime EndDate { get; set; }
         public int DurationMinutes { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
         public bool IsActive { get; set; }
         public bool IsPublished { get; set; }
         public int TestType { get; set; } = 1;
@@ -557,7 +557,7 @@ public class CombinedTestResultResponse
         public DateTime EndDate { get; set; }
         public int DurationMinutes { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
         public bool IsActive { get; set; }
         public bool IsPublished { get; set; }
         public bool AllowMultipleAttempts { get; set; }
@@ -592,7 +592,7 @@ public class CombinedTestResultResponse
         public int CodingTestId { get; set; }
         public int ProblemId { get; set; }
         public int QuestionOrder { get; set; }
-        public int Marks { get; set; }
+        public decimal Marks { get; set; }
         public int TimeLimitMinutes { get; set; }
         public string CustomInstructions { get; set; } = "";
         public DateTime CreatedAt { get; set; }
@@ -637,8 +637,8 @@ public class CombinedTestResultResponse
         public DateTime? CompletedAt { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public string Status { get; set; } = "";
-        public int TotalScore { get; set; }
-        public int MaxScore { get; set; }
+        public decimal TotalScore { get; set; }
+        public decimal MaxScore { get; set; }
         public double Percentage { get; set; }
         public int TimeSpentMinutes { get; set; }
         public bool IsLateSubmission { get; set; }
@@ -660,8 +660,8 @@ public class CombinedTestResultResponse
         public string Status { get; set; } = "";
         public string LanguageUsed { get; set; } = "";
         public string CodeSubmitted { get; set; } = "";
-        public int Score { get; set; }
-        public int MaxScore { get; set; }
+        public decimal Score { get; set; }
+        public decimal MaxScore { get; set; }
         public int TestCasesPassed { get; set; }
         public int TotalTestCases { get; set; }
         public double ExecutionTime { get; set; }
@@ -682,7 +682,7 @@ public class CombinedTestResultResponse
         public DateTime EndDate { get; set; }
         public int DurationMinutes { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
         public bool IsActive { get; set; }
         public bool IsPublished { get; set; }
         public int TestType { get; set; } = 1;
@@ -748,7 +748,7 @@ public class CombinedTestResultResponse
         public DateTime EndDate { get; set; }
         public int DurationMinutes { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
         public int TestType { get; set; }
         public byte TestMode { get; set; }
         public string Status { get; set; } = ""; // assigned, submitted, expired
@@ -847,7 +847,7 @@ public class CombinedTestResultResponse
         /// Ignored for authoritative grading: scores are computed server-side from DB test cases.
         /// Kept for backward compatibility with clients that still send this field.
         /// </summary>
-        public int Score { get; set; } = 0;
+        public decimal Score { get; set; } = 0;
         public bool RequestedHelp { get; set; } = false;
 
         // Activity tracking properties
@@ -897,8 +897,8 @@ public class CombinedTestResultResponse
         public int UserId { get; set; }
         public int AttemptNumber { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalScore { get; set; }
-        public int MaxScore { get; set; }
+        public decimal TotalScore { get; set; }
+        public decimal MaxScore { get; set; }
         public double Percentage { get; set; }
         public bool IsLateSubmission { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -914,8 +914,8 @@ public class CombinedTestResultResponse
         public int TotalTestCases { get; set; }
         public int PassedTestCases { get; set; }
         public int FailedTestCases { get; set; }
-        public int Score { get; set; }
-        public int MaxScore { get; set; }
+        public decimal Score { get; set; }
+        public decimal MaxScore { get; set; }
         public bool IsCorrect { get; set; }
         public List<TestCaseSubmissionResult> TestCaseResults { get; set; } = new List<TestCaseSubmissionResult>();
     }
@@ -941,8 +941,8 @@ public class CombinedTestResultResponse
         public string TestName { get; set; } = "";
         public long UserId { get; set; }
         public int TotalQuestions { get; set; }
-        public int TotalMarks { get; set; }
-        public int TotalScore { get; set; } // User's total score across all questions
+        public decimal TotalMarks { get; set; }
+        public decimal TotalScore { get; set; } // User's total score across all questions
         public double Percentage { get; set; } // Percentage score (TotalScore / TotalMarks * 100)
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -959,7 +959,7 @@ public class CombinedTestResultResponse
         public int ProblemId { get; set; }
         public string ProblemTitle { get; set; } = "";
         public int QuestionOrder { get; set; }
-        public int MaxScore { get; set; }
+        public decimal MaxScore { get; set; }
         public string LanguageUsed { get; set; } = "";
         public string FinalCodeSnapshot { get; set; } = "";
         public string CodeSource { get; set; } = ""; // Source of the code: "submission", "question_attempt", "core_result", or "none"
@@ -967,7 +967,7 @@ public class CombinedTestResultResponse
         public int TotalTestCases { get; set; }
         public int PassedTestCases { get; set; }
         public int FailedTestCases { get; set; }
-        public int Score { get; set; }
+        public decimal Score { get; set; }
         public bool IsCorrect { get; set; }
         public bool IsLateSubmission { get; set; }
         public DateTime SubmissionTime { get; set; }
@@ -1042,8 +1042,8 @@ public class CombinedTestResultResponse
 
     public class TestSummary
     {
-        public int TotalScore { get; set; }
-        public int MaxPossibleScore { get; set; }
+        public decimal TotalScore { get; set; }
+        public decimal MaxPossibleScore { get; set; }
         public double Percentage { get; set; }
         public int TotalTestCases { get; set; }
         public int PassedTestCases { get; set; }

@@ -163,7 +163,7 @@ namespace LeetCodeCompiler.API.Services
 
             return string.IsNullOrEmpty(exec.Error)
                 && string.IsNullOrEmpty(exec.Stderr)
-                && (exec.Output ?? "").Trim() == expectedOutput.Trim();
+                && OutputComparer.Matches(exec.Output, expectedOutput);
         }
 
         private static string? ClassifyError(bool passed, ExecutionResult exec)

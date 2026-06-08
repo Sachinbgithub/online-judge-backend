@@ -50,8 +50,8 @@ namespace LeetCodeCompiler.API.Models
         public DateTime SubmissionTime { get; set; } = DateTime.UtcNow;
         public int ExecutionTimeMs { get; set; } = 0;
         public int MemoryUsedKB { get; set; } = 0;
-        public int Score { get; set; } = 0;
-        public int MaxScore { get; set; } = 0;
+        public decimal Score { get; set; } = 0;
+        public decimal MaxScore { get; set; } = 0;
         public bool IsCorrect { get; set; } = false;
         public bool IsLateSubmission { get; set; } = false;
 

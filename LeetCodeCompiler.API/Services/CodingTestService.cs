@@ -1,6 +1,7 @@
 using LeetCodeCompiler.API.Data;
 using LeetCodeCompiler.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace LeetCodeCompiler.API.Services
 {
@@ -9,20 +10,40 @@ namespace LeetCodeCompiler.API.Services
         private readonly AppDbContext _context;
         private readonly StudentProfileService _studentProfileService;
         private readonly IJudgeService _judgeService;
+        private readonly ScoringOptions _scoringOptions;
 
-        public CodingTestService(AppDbContext context, StudentProfileService studentProfileService, IJudgeService judgeService)
+        public CodingTestService(
+            AppDbContext context,
+            StudentProfileService studentProfileService,
+            IJudgeService judgeService,
+            IOptions<ScoringOptions> scoringOptions)
         {
             _context = context;
             _studentProfileService = studentProfileService;
             _judgeService = judgeService;
+            _scoringOptions = scoringOptions.Value;
         }
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
         {
-            // Only set CollegeId to 0 if not provided (is 0)
-            // If frontend sends a college ID, always store it as-is, regardless of IsGlobal
-            // CollegeId is the actual college identifier and should always be stored
-            
+            var problemIds = request.Questions.Select(q => q.ProblemId).Distinct().ToList();
+            var problemDifficulties = await _context.Problems
+                .AsNoTracking()
+                .Where(p => problemIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id, p => p.Difficulty);
+
+            var totalQuestionMarks = request.Questions.Sum(q =>
+                q.Marks > 0
+                    ? q.Marks
+                    : _scoringOptions.GetDefaultMarks(
+                        problemDifficulties.GetValueOrDefault(q.ProblemId, 2)));
+
+            if (totalQuestionMarks != request.TotalMarks)
+            {
+                throw new ArgumentException(
+                    $"Total marks ({request.TotalMarks}) must equal sum of question marks ({totalQuestionMarks})");
+            }
+
             var codingTest = new CodingTest
             {
                 TestName = request.TestName,
@@ -53,15 +74,20 @@ namespace LeetCodeCompiler.API.Services
             _context.CodingTests.Add(codingTest);
             await _context.SaveChangesAsync();
 
-            // Add questions
+            // Add questions (default marks from difficulty when Marks <= 0)
             foreach (var questionRequest in request.Questions)
             {
+                var marks = questionRequest.Marks > 0
+                    ? questionRequest.Marks
+                    : _scoringOptions.GetDefaultMarks(
+                        problemDifficulties.GetValueOrDefault(questionRequest.ProblemId, 2));
+
                 var question = new CodingTestQuestion
                 {
                     CodingTestId = codingTest.Id,
                     ProblemId = questionRequest.ProblemId,
                     QuestionOrder = questionRequest.QuestionOrder,
-                    Marks = questionRequest.Marks,
+                    Marks = marks,
                     TimeLimitMinutes = questionRequest.TimeLimitMinutes,
                     CustomInstructions = questionRequest.CustomInstructions,
                     CreatedAt = DateTime.UtcNow
@@ -117,14 +143,29 @@ namespace LeetCodeCompiler.API.Services
     if (assignmentData == null)
         throw new ArgumentException($"No assignment found for user {userId} and test {codingTestId}");
 
-    // Get question attempts with test case results using JOIN queries (similar to comprehensive results)
+    var submissionId = submissionData.Submission.SubmissionId;
+    var attemptNumber = submissionData.Submission.AttemptNumber;
+
+    var storedTestCaseResults = await _context.CodingTestSubmissionResults
+        .Where(r => r.SubmissionId == submissionId)
+        .OrderBy(r => r.ProblemId)
+        .ThenBy(r => r.TestCaseOrder)
+        .ToListAsync();
+
+    var testCaseResultsByProblem = storedTestCaseResults
+        .GroupBy(r => r.ProblemId)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+    // Get question attempts for this submission's attempt number
     var questionAttempts = await (from qa in _context.CodingTestQuestionAttempts
                                  join cta in _context.CodingTestAttempts on qa.CodingTestAttemptId equals cta.Id
                                  join ct in _context.CodingTests on cta.CodingTestId equals ct.Id
                                  join cq in _context.CodingTestQuestions on qa.CodingTestQuestionId equals cq.Id
                                  join p in _context.Problems on cq.ProblemId equals p.Id into problemJoin
                                  from p in problemJoin.DefaultIfEmpty()
-                                 where qa.UserId == userId && cta.CodingTestId == codingTestId
+                                 where qa.UserId == userId
+                                       && cta.CodingTestId == codingTestId
+                                       && cta.AttemptNumber == attemptNumber
                                  select new
                                  {
                                      QuestionAttempt = qa,
@@ -148,10 +189,9 @@ namespace LeetCodeCompiler.API.Services
             .OrderByDescending(a => a.QuestionAttempt.UpdatedAt ?? a.QuestionAttempt.CreatedAt)
             .First().QuestionAttempt;
 
-        // Create test case results from question attempt data (since we don't have CodingTestSubmissionResults)
-        var testCaseResults = new List<TestCaseSubmissionResult>();
-        // Note: For whole-test submissions, we don't have individual test case results stored
-        // We can only show the summary from the question attempt
+        var testCaseResults = testCaseResultsByProblem.TryGetValue(problemId, out var stored)
+            ? stored.Select(MapStoredToTestCaseSubmissionResult).ToList()
+            : new List<TestCaseSubmissionResult>();
 
         questionSubmissionResponses.Add(new QuestionSubmissionResponse
         {
@@ -164,14 +204,19 @@ namespace LeetCodeCompiler.API.Services
             Score = bestAttempt.Score,
             MaxScore = bestAttempt.MaxScore,
             IsCorrect = bestAttempt.IsCorrect,
-            TestCaseResults = testCaseResults // Empty for now, as we don't have individual test case results
+            TestCaseResults = testCaseResults
         });
     }
 
-    // Calculate totals from question attempts
-    var totalScore = questionSubmissionResponses.Sum(q => q.Score);
-    var maxScore = questionSubmissionResponses.Sum(q => q.MaxScore);
-    var percentage = maxScore > 0 ? (totalScore * 100.0) / maxScore : 0;
+    // Prefer authoritative totals from the submission row when present (whole-test submit)
+    var submission = submissionData.Submission;
+    var totalScore = submission.MaxScore > 0
+        ? submission.Score
+        : questionSubmissionResponses.Sum(q => q.Score);
+    var maxScore = submission.MaxScore > 0
+        ? submission.MaxScore
+        : questionSubmissionResponses.Sum(q => q.MaxScore);
+    var percentage = maxScore > 0 ? (double)totalScore / (double)maxScore * 100 : 0;
 
     // Calculate additional statistics
     var totalProblems = questionSubmissionResponses.Count;
@@ -180,9 +225,6 @@ namespace LeetCodeCompiler.API.Services
     var correctTestCases = questionSubmissionResponses.Sum(q => q.PassedTestCases);
     var problemAccuracy = totalProblems > 0 ? (correctProblems * 100.0) / totalProblems : 0;
     var testCaseAccuracy = totalTestCases > 0 ? (correctTestCases * 100.0) / totalTestCases : 0;
-
-    // Calculate final score
-    var finalScore = CalculateFinalScore(problemAccuracy, testCaseAccuracy, assignmentData.Test.TotalMarks);
 
     return new CombinedTestResultResponse
     {
@@ -224,7 +266,8 @@ namespace LeetCodeCompiler.API.Services
         CorrectTestCases = correctTestCases,
         ProblemAccuracy = problemAccuracy,
         TestCaseAccuracy = testCaseAccuracy,
-        FinalScore = finalScore
+        // Official score: same as TotalScore (backward-compatible field for clients reading FinalScore)
+        FinalScore = (double)totalScore
     };
 }
 
@@ -703,6 +746,8 @@ namespace LeetCodeCompiler.API.Services
             codingTest.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
+            await ValidateCodingTestMarksAlignmentAsync(codingTest.Id);
+
             return await GetCodingTestByIdAsync(codingTest.Id);
         }
 
@@ -744,7 +789,7 @@ namespace LeetCodeCompiler.API.Services
                         CodingTestId = codingTestId,
                         ProblemId = questionUpdate.ProblemId.Value,
                         QuestionOrder = questionUpdate.QuestionOrder ?? 1,
-                        Marks = questionUpdate.Marks ?? 10,
+                        Marks = questionUpdate.Marks ?? 10m,
                         TimeLimitMinutes = questionUpdate.TimeLimitMinutes ?? 30,
                         CustomInstructions = questionUpdate.CustomInstructions ?? "",
                         CreatedAt = DateTime.UtcNow
@@ -1004,9 +1049,8 @@ namespace LeetCodeCompiler.API.Services
 
             // Calculate score based on server judge results
             var maxScore = questionAttempt.CodingTestQuestion.Marks;
-            var score = judgeResult.TotalTestCases > 0
-                ? (int)((double)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxScore)
-                : 0;
+            var score = ScoreCalculator.DecimalScore(
+                judgeResult.PassedTestCases, judgeResult.TotalTestCases, maxScore);
 
             submission.Score = score;
             submission.MaxScore = maxScore;
@@ -1031,7 +1075,7 @@ namespace LeetCodeCompiler.API.Services
             // Update the overall test attempt
             var totalScore = attempt.QuestionAttempts.Sum(qa => qa.Score);
             var totalMaxScore = attempt.QuestionAttempts.Sum(qa => qa.MaxScore);
-            var percentage = totalMaxScore > 0 ? (double)totalScore / totalMaxScore * 100 : 0;
+            var percentage = totalMaxScore > 0 ? (double)totalScore / (double)totalMaxScore * 100 : 0;
 
             attempt.Status = "Submitted";
             attempt.SubmittedAt = DateTime.UtcNow;
@@ -1224,8 +1268,8 @@ namespace LeetCodeCompiler.API.Services
             }
 
             var questionSubmissionResponses = new List<QuestionSubmissionResponse>();
-            var totalScore = 0;
-            var totalMaxScore = 0;
+            var totalScore = 0m;
+            var totalMaxScore = 0m;
 
             foreach (var (questionSubmission, judgeResult, codingTestQuestion) in evaluatedQuestions)
             {
@@ -1262,9 +1306,8 @@ namespace LeetCodeCompiler.API.Services
                 }
 
                 var maxScore = codingTestQuestion.Marks;
-                var score = judgeResult.TotalTestCases > 0
-                    ? (int)((double)judgeResult.PassedTestCases / judgeResult.TotalTestCases * maxScore)
-                    : 0;
+                var score = ScoreCalculator.DecimalScore(
+                    judgeResult.PassedTestCases, judgeResult.TotalTestCases, maxScore);
 
                 // Update the question attempt
                 questionAttempt.Status = "Completed";
@@ -1326,7 +1369,7 @@ namespace LeetCodeCompiler.API.Services
             submission.IsCorrect = submission.PassedTestCases == submission.TotalTestCases && submission.TotalTestCases > 0;
 
             // Update the overall test attempt
-            var percentage = totalMaxScore > 0 ? (double)totalScore / totalMaxScore * 100 : 0;
+            var percentage = totalMaxScore > 0 ? (double)totalScore / (double)totalMaxScore * 100 : 0;
 
             attempt.Status = "Submitted";
             attempt.SubmittedAt = DateTime.UtcNow;
@@ -1513,7 +1556,7 @@ namespace LeetCodeCompiler.API.Services
                 UniqueUsers = submissions.Select(s => s.UserId).Distinct().Count(),
                 UniqueProblems = submissions.Select(s => s.ProblemId).Distinct().Count(),
                 AverageSuccessRate = submissions.Any() ? submissions.Average(s => (double)s.PassedTestCases / Math.Max(s.TotalTestCases, 1)) : 0,
-                AverageScoreRate = submissions.Any() ? submissions.Average(s => (double)s.Score / Math.Max(s.MaxScore, 1)) : 0,
+                AverageScoreRate = submissions.Any() ? submissions.Average(s => (double)s.Score / (double)Math.Max(s.MaxScore, 1m)) : 0,
                 AverageExecutionTimeMs = submissions.Any() ? submissions.Average(s => s.ExecutionTimeMs) : 0,
                 AverageMemoryUsedKB = submissions.Any() ? submissions.Average(s => s.MemoryUsedKB) : 0,
                 TotalLanguageSwitches = submissions.Sum(s => s.LanguageSwitchCount),
@@ -1804,9 +1847,8 @@ namespace LeetCodeCompiler.API.Services
                 request.CodeSubmitted);
 
             questionAttempt.MaxScore = questionAttempt.CodingTestQuestion.Marks;
-            questionAttempt.Score = judgeResult.TotalTestCases > 0
-                ? (int)((double)judgeResult.PassedTestCases / judgeResult.TotalTestCases * questionAttempt.MaxScore)
-                : 0;
+            questionAttempt.Score = ScoreCalculator.DecimalScore(
+                judgeResult.PassedTestCases, judgeResult.TotalTestCases, questionAttempt.MaxScore);
             questionAttempt.TestCasesPassed = judgeResult.PassedTestCases;
             questionAttempt.TotalTestCases = judgeResult.TotalTestCases;
             questionAttempt.IsCorrect = judgeResult.IsCorrect;
@@ -2731,14 +2773,12 @@ namespace LeetCodeCompiler.API.Services
                 var maxScore = codingTest.Questions?.FirstOrDefault(q => q.ProblemId == problemId)?.Marks ?? 0;
                 var totalTestCases = submission?.TotalTestCases ?? testCaseResultsForProblem.Count;
                 var passedTestCases = submission?.PassedTestCases ?? testCaseResultsForProblem.Count(tc => tc.IsPassed);
-                var calculatedScore = 0;
+                var calculatedScore = 0m;
                 var isCorrect = false;
 
                 if (totalTestCases > 0)
                 {
-                    // Calculate score based on percentage of passed test cases
-                    var passPercentage = (double)passedTestCases / totalTestCases;
-                    calculatedScore = (int)Math.Round(maxScore * passPercentage);
+                    calculatedScore = ScoreCalculator.DecimalScore(passedTestCases, totalTestCases, maxScore);
                     isCorrect = passedTestCases == totalTestCases;
                 }
                 
@@ -2908,23 +2948,6 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        private double CalculateFinalScore(double problemAccuracy, double testCaseAccuracy, int totalMarks)
-        {
-            // Weights for different metrics
-            const double PROBLEM_WEIGHT = 0.6;    // 60% weight on problem solving
-            const double TESTCASE_WEIGHT = 0.4;   // 40% weight on test case accuracy
-
-            // Calculate weighted score
-            var problemScore = problemAccuracy / 100.0;      // Convert to 0-1 scale
-            var testCaseScore = testCaseAccuracy / 100.0;    // Convert to 0-1 scale
-
-            // Combine scores with weights
-            var combinedScore = (problemScore * PROBLEM_WEIGHT) + (testCaseScore * TESTCASE_WEIGHT);
-
-            // Convert to score out of totalMarks
-            return Math.Round(combinedScore * totalMarks, 2);
-        }
-
         private QuestionDetails MapToQuestionDetails(Problem? problem)
         {
             if (problem == null)
@@ -2989,7 +3012,7 @@ namespace LeetCodeCompiler.API.Services
         {
             var totalScore = problemResults.Sum(p => p.Score);
             var maxPossibleScore = problemResults.Sum(p => p.MaxScore);
-            var percentage = maxPossibleScore > 0 ? (double)totalScore / maxPossibleScore * 100 : 0;
+            var percentage = maxPossibleScore > 0 ? (double)totalScore / (double)maxPossibleScore * 100 : 0;
 
             var totalTestCases = allTestCaseResults.Count;
             var passedTestCases = allTestCaseResults.Count(tc => tc.IsPassed);
@@ -3072,6 +3095,41 @@ namespace LeetCodeCompiler.API.Services
                 ErrorMessage = r.ErrorMessage,
                 ErrorType = r.ErrorType
             }).ToList();
+        }
+
+        private static TestCaseSubmissionResult MapStoredToTestCaseSubmissionResult(CodingTestSubmissionResult r)
+        {
+            return new TestCaseSubmissionResult
+            {
+                TestCaseId = r.TestCaseId,
+                TestCaseOrder = r.TestCaseOrder,
+                Input = r.Input,
+                ExpectedOutput = r.ExpectedOutput,
+                ActualOutput = r.ActualOutput,
+                IsPassed = r.IsPassed,
+                ExecutionTimeMs = r.ExecutionTimeMs,
+                MemoryUsedKB = r.MemoryUsedKB,
+                ErrorMessage = r.ErrorMessage,
+                ErrorType = r.ErrorType
+            };
+        }
+
+        private async Task ValidateCodingTestMarksAlignmentAsync(int codingTestId)
+        {
+            var test = await _context.CodingTests
+                .AsNoTracking()
+                .Include(ct => ct.Questions)
+                .FirstOrDefaultAsync(ct => ct.Id == codingTestId);
+
+            if (test == null)
+                return;
+
+            var sumQuestionMarks = test.Questions.Sum(q => q.Marks);
+            if (sumQuestionMarks != test.TotalMarks)
+            {
+                throw new ArgumentException(
+                    $"Total marks ({test.TotalMarks}) must equal sum of question marks ({sumQuestionMarks})");
+            }
         }
     }
 }
