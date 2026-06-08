@@ -33,8 +33,8 @@ namespace LeetCodeCompiler.API.Services
                 .ToListAsync();
 
             int totalCodingTests = codingTestAttempts.Select(a => a.CodingTestId).Distinct().Count();
-            int totalCodingScore = codingTestAttempts.Sum(a => a.TotalScore);
-            int totalCodingMaxScore = codingTestAttempts.Sum(a => a.MaxScore);
+            decimal totalCodingScore = codingTestAttempts.Sum(a => a.TotalScore);
+            decimal totalCodingMaxScore = codingTestAttempts.Sum(a => a.MaxScore);
             double avgCodingPerc = codingTestAttempts.Any() ? codingTestAttempts.Average(a => a.Percentage) : 0;
 
             // 2. Practice Tests

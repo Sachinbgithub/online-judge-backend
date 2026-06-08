@@ -34,7 +34,7 @@ namespace LeetCodeCompiler.API.Models
         public int TotalQuestions { get; set; }
 
         [Required]
-        public int TotalMarks { get; set; }
+        public decimal TotalMarks { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true;

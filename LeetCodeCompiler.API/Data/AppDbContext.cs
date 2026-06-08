@@ -42,6 +42,17 @@ namespace LeetCodeCompiler.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Decimal marks/scores (matches DB DECIMAL(6,2))
+            modelBuilder.Entity<CodingTest>().Property(e => e.TotalMarks).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestQuestion>().Property(e => e.Marks).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestSubmission>().Property(e => e.Score).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestSubmission>().Property(e => e.MaxScore).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestAttempt>().Property(e => e.TotalScore).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestAttempt>().Property(e => e.MaxScore).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestQuestionAttempt>().Property(e => e.Score).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestQuestionAttempt>().Property(e => e.MaxScore).HasColumnType("decimal(6,2)");
+
             // Table name configurations
             modelBuilder.Entity<UserCodingActivityLog>().ToTable("UserCodingActivityLog");
             modelBuilder.Entity<CoreTestCaseResult>().ToTable("CoreTestCaseResult");
