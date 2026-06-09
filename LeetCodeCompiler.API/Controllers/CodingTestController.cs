@@ -34,7 +34,11 @@ namespace LeetCodeCompiler.API.Controllers
                 }
 
                 var result = await _codingTestService.CreateCodingTestAsync(request);
-                return CreatedAtAction(nameof(GetCodingTest), new { id = result.Id }, result);
+                return Created($"/api/CodingTest/{result.Id}", result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {
