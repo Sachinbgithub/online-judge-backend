@@ -110,7 +110,26 @@ namespace LeetCodeCompiler.API.Services
             }
 
             await _context.SaveChangesAsync();
-            return await GetCodingTestByIdAsync(codingTest.Id);
+            return await GetCodingTestCreatedResponseAsync(codingTest.Id);
+        }
+
+        /// <summary>
+        /// Lightweight load for create/update responses — avoids pulling full problem graphs
+        /// (test cases, starter code) which can fail or time out behind production proxies.
+        /// </summary>
+        private async Task<CodingTestResponse> GetCodingTestCreatedResponseAsync(int id)
+        {
+            var codingTest = await _context.CodingTests
+                .Include(ct => ct.Questions)
+                .Include(ct => ct.TopicData)
+                .Include(ct => ct.Attempts)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ct => ct.Id == id);
+
+            if (codingTest == null)
+                throw new ArgumentException($"Coding test with ID {id} not found");
+
+            return MapToResponse(codingTest);
         }
 
 
@@ -290,6 +309,7 @@ namespace LeetCodeCompiler.API.Services
         public async Task<CodingTestResponse> GetCodingTestByIdAsync(int id)
         {
             var codingTest = await _context.CodingTests
+                .Include(ct => ct.TopicData)
                 .Include(ct => ct.Questions)
                     .ThenInclude(q => q.Problem)
                         .ThenInclude(p => p.TestCases)
@@ -2140,8 +2160,8 @@ namespace LeetCodeCompiler.API.Services
                 Examples = problem.Examples,
                 Constraints = problem.Constraints,
                 Difficulty = problem.Difficulty.ToString(),
-                TestCases = problem.TestCases.Select(MapToTestCaseResponse).ToList(),
-                StarterCodes = problem.StarterCodes.Select(MapToStarterCodeResponse).ToList()
+                TestCases = problem.TestCases?.Select(MapToTestCaseResponse).ToList() ?? new List<TestCaseResponse>(),
+                StarterCodes = problem.StarterCodes?.Select(MapToStarterCodeResponse).ToList() ?? new List<StarterCodeResponse>()
             };
         }
 
