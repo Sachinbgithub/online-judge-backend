@@ -833,7 +833,7 @@ public async Task<IActionResult> GetCombinedTestResults(
 
                 var result = await _codingTestService.AssignCodingTestAsync(request);
                 return CreatedAtAction(nameof(GetAssignedTestsByUser), 
-                    new { userId = request.AssignedToUserId, userType = request.AssignedToUserType }, result);
+                    new { userId = request.AssignedToUserId }, result);
             }
             catch (ArgumentException ex)
             {
@@ -853,14 +853,12 @@ public async Task<IActionResult> GetCombinedTestResults(
         /// Gets all assigned tests for a specific user
         /// </summary>
         /// <param name="userId">User ID</param>
-        /// <param name="userType">User type</param>
         /// <param name="testType">Optional test type filter</param>
         /// <param name="classId">Optional class ID filter</param>
         /// <returns>List of assigned tests</returns>
         [HttpGet("assigned/user/{userId}")]
         [Authorize(Policy = "AnyAuthenticated")]
         public async Task<IActionResult> GetAssignedTestsByUser(long userId, 
-            [FromQuery] byte userType, 
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int? testType = null, 
@@ -870,7 +868,7 @@ public async Task<IActionResult> GetCombinedTestResults(
             {
                 // Only pass testType to filter when it was explicitly provided in the query string
                 int? filterByTestType = Request.Query.ContainsKey("testType") ? testType : null;
-                var result = await _codingTestService.GetAssignedTestsByUserPagedAsync(userId, userType, pageNumber, pageSize, filterByTestType, classId);
+                var result = await _codingTestService.GetAssignedTestsByUserPagedAsync(userId, pageNumber, pageSize, filterByTestType, classId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -963,7 +961,7 @@ public async Task<IActionResult> GetCombinedTestResults(
                 var now = DateTime.UtcNow;
                 
                 // Check assignment
-                var assignments = await _codingTestService.GetAssignedTestsByUserAsync(userId, 25, 1002, null);
+                var assignments = await _codingTestService.GetAssignedTestsByUserAsync(userId);
                 var userAssignment = assignments.FirstOrDefault(a => a.CodingTestId == codingTestId);
                 
                 // Check existing attempts
