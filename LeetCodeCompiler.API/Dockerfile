@@ -16,5 +16,9 @@ RUN dotnet publish "LeetCodeCompiler.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
+# Docker CLI talks to the host daemon via /var/run/docker.sock (mounted at runtime).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends docker.io \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "LeetCodeCompiler.API.dll"] 
