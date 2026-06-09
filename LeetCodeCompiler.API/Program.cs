@@ -70,7 +70,11 @@ builder.Services.AddCors(options =>
                 "http://192.168.0.101:8081", // Vite default
                 "http://127.0.0.1:8081",
                 "https://preplacementtest.com",
-                "https://www.preplacementtest.com"
+                "https://www.preplacementtest.com",
+                "https://gatetutor.in",
+                "http://gatetutor.in",
+                "https://www.gatetutor.in",
+                "https://pragyaai.in",
             };
 
             static bool IsOrigin(string? o) =>
