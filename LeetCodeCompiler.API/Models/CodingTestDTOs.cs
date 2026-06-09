@@ -752,6 +752,7 @@ public class CombinedTestResultResponse
         public int TestType { get; set; }
         public byte TestMode { get; set; }
         public string Status { get; set; } = ""; // assigned, submitted, expired
+        public long AssignedByUserId { get; set; }
         public string AssignedByName { get; set; } = "";
         
         // Subject and Topic information

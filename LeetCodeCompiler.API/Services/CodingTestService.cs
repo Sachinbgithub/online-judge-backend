@@ -2324,8 +2324,7 @@ namespace LeetCodeCompiler.API.Services
                 AssignedDate = assignment.AssignedDate,
                 TestType = assignment.TestType,
                 TestMode = assignment.TestMode,
-                TestName = codingTest.TestName,
-                AssignedByName = "System" // You might want to get this from a user service
+                TestName = codingTest.TestName
             };
         }
 
@@ -2544,7 +2543,7 @@ namespace LeetCodeCompiler.API.Services
                 TestType = assignment.TestType,
                 TestMode = assignment.TestMode,
                 Status = status, // Now using the actual Status column from AssignedCodingTests
-                AssignedByName = "System", // You might want to get this from a user service
+                AssignedByUserId = assignment.AssignedByUserId,
                 SubjectName = subjectName,
                 TopicName = topicName
             };
