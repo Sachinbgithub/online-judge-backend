@@ -787,10 +787,6 @@ public class CombinedTestResultResponse
         [Required]
         public long UserId { get; set; }
 
-        [Required]
-        [Range(1, 255)]
-        public byte UserType { get; set; }
-
         public int? TestType { get; set; } // Optional: 1002, etc.
         public long? ClassId { get; set; } // Optional: Class filter
     }

@@ -2329,14 +2329,12 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        public async Task<List<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserAsync(long userId, byte userType, int? testType = null, long? classId = null)
+        public async Task<List<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserAsync(long userId, int? testType = null, long? classId = null)
         {
             var query = _context.AssignedCodingTests
                 .Include(act => act.CodingTest)
                 .ThenInclude(ct => ct.TopicData)
-                .Where(act => act.AssignedToUserId == userId 
-                           && act.AssignedToUserType == userType 
-                           && !act.IsDeleted);
+                .Where(act => act.AssignedToUserId == userId && !act.IsDeleted);
 
             // Apply test type filter only when testType was explicitly provided by the caller
             if (testType.HasValue)
@@ -2357,14 +2355,12 @@ namespace LeetCodeCompiler.API.Services
             return assignments.Select(MapToAssignedSummaryResponse).ToList();
         }
 
-        public async Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserPagedAsync(long userId, byte userType, int pageNumber, int pageSize, int? testType = null, long? classId = null)
+        public async Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserPagedAsync(long userId, int pageNumber, int pageSize, int? testType = null, long? classId = null)
         {
             var query = _context.AssignedCodingTests
                 .Include(act => act.CodingTest)
                 .ThenInclude(ct => ct.TopicData)
-                .Where(act => act.AssignedToUserId == userId 
-                           && act.AssignedToUserType == userType 
-                           && !act.IsDeleted);
+                .Where(act => act.AssignedToUserId == userId && !act.IsDeleted);
 
             if (testType.HasValue)
             {
