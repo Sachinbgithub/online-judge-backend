@@ -57,6 +57,18 @@ namespace LeetCodeCompiler.API.Models
 
         public int BreachRuleLimit { get; set; } = 0;
 
+        public int WarningThreshold { get; set; } = 3;
+
+        public int FlagThreshold { get; set; } = 5;
+
+        public bool RequireFullscreen { get; set; } = false;
+
+        public bool BlockPaste { get; set; } = false;
+
+        public bool EnableProctoring { get; set; } = true;
+
+        public bool EnablePlagiarismCheck { get; set; } = true;
+
         [StringLength(50)]
         public string HostIP { get; set; } = "";
 
@@ -72,6 +84,8 @@ namespace LeetCodeCompiler.API.Models
 
         [Required]
         public List<CodingTestQuestionRequest> Questions { get; set; } = new List<CodingTestQuestionRequest>();
+
+        public List<PoolSectionRequest> PoolSections { get; set; } = new();
     }
 
     public class TopicDataRequest
@@ -532,12 +546,19 @@ public class CombinedTestResultResponse
         public bool IsResultPublishAutomatically { get; set; }
         public bool ApplyBreachRule { get; set; }
         public int BreachRuleLimit { get; set; }
+        public int WarningThreshold { get; set; }
+        public int FlagThreshold { get; set; }
+        public bool RequireFullscreen { get; set; }
+        public bool BlockPaste { get; set; }
+        public bool EnableProctoring { get; set; }
+        public bool EnablePlagiarismCheck { get; set; }
         public string HostIP { get; set; } = "";
         public int ClassId { get; set; }
         public bool IsGlobal { get; set; }
         public int CollegeId { get; set; }
         public List<TopicDataResponse> TopicData { get; set; } = new List<TopicDataResponse>();
         public List<CodingTestQuestionResponse> Questions { get; set; } = new List<CodingTestQuestionResponse>();
+        public List<PoolSectionRequest> PoolSections { get; set; } = new();
         public int TotalAttempts { get; set; }
         public int CompletedAttempts { get; set; }
     }
@@ -645,6 +666,13 @@ public class CombinedTestResultResponse
         public string Notes { get; set; } = "";
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public string IntegrityStatus { get; set; } = "Normal";
+        public bool RequireFullscreen { get; set; }
+        public bool BlockPaste { get; set; }
+        public int WarningThreshold { get; set; }
+        public int FlagThreshold { get; set; }
+        public int BreachRuleLimit { get; set; }
+        public List<AttemptQuestionResponse> Questions { get; set; } = new();
         public List<CodingTestQuestionAttemptResponse> QuestionAttempts { get; set; } = new List<CodingTestQuestionAttemptResponse>();
     }
 
@@ -652,7 +680,7 @@ public class CombinedTestResultResponse
     {
         public int Id { get; set; }
         public int CodingTestAttemptId { get; set; }
-        public int CodingTestQuestionId { get; set; }
+        public int? CodingTestQuestionId { get; set; }
         public int ProblemId { get; set; }
         public int UserId { get; set; }
         public DateTime StartedAt { get; set; }

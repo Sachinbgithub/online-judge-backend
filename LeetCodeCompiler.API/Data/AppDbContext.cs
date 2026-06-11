@@ -32,6 +32,18 @@ namespace LeetCodeCompiler.API.Data
         public DbSet<CodingTestSubmission> CodingTestSubmissions { get; set; }
         public DbSet<CodingTestSubmissionResult> CodingTestSubmissionResults { get; set; }
 
+        // Integrity and pools
+        public DbSet<ProctoringSession> ProctoringSessions { get; set; }
+        public DbSet<ProctoringEvent> ProctoringEvents { get; set; }
+        public DbSet<CodeActivitySnapshot> CodeActivitySnapshots { get; set; }
+        public DbSet<IntegrityFlag> IntegrityFlags { get; set; }
+        public DbSet<PlagiarismReport> PlagiarismReports { get; set; }
+        public DbSet<PlagiarismMatch> PlagiarismMatches { get; set; }
+        public DbSet<QuestionPool> QuestionPools { get; set; }
+        public DbSet<QuestionPoolItem> QuestionPoolItems { get; set; }
+        public DbSet<CodingTestPoolSection> CodingTestPoolSections { get; set; }
+        public DbSet<CodingTestAttemptQuestion> CodingTestAttemptQuestions { get; set; }
+
         // Practice Test Tables
         public DbSet<PracticeTest> PracticeTests { get; set; }
         public DbSet<PracticeTestQuestion> PracticeTestQuestions { get; set; }
@@ -154,7 +166,14 @@ namespace LeetCodeCompiler.API.Data
             modelBuilder.Entity<CodingTestQuestionAttempt>()
                 .HasOne(ctqa => ctqa.CodingTestQuestion)
                 .WithMany()
-                .HasForeignKey(ctqa => ctqa.CodingTestQuestionId);
+                .HasForeignKey(ctqa => ctqa.CodingTestQuestionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<CodingTestQuestionAttempt>()
+                .HasOne<CodingTestAttemptQuestion>()
+                .WithMany()
+                .HasForeignKey(ctqa => ctqa.CodingTestAttemptQuestionId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<CodingTestTopicData>()
                 .HasOne(cttd => cttd.CodingTest)
@@ -260,6 +279,77 @@ namespace LeetCodeCompiler.API.Data
                 .HasOne(r => r.Problem)
                 .WithMany()
                 .HasForeignKey(r => r.ProblemId);
+
+            // Integrity and pool entities
+            modelBuilder.Entity<CodingTestPoolSection>().Property(e => e.MarksPerQuestion).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<CodingTestAttemptQuestion>().Property(e => e.Marks).HasColumnType("decimal(6,2)");
+            modelBuilder.Entity<PlagiarismReport>().Property(e => e.MaxSimilarityScore).HasColumnType("decimal(5,2)");
+            modelBuilder.Entity<PlagiarismMatch>().Property(e => e.SimilarityScore).HasColumnType("decimal(5,2)");
+
+            modelBuilder.Entity<ProctoringSession>()
+                .HasOne(s => s.CodingTestAttempt)
+                .WithMany()
+                .HasForeignKey(s => s.CodingTestAttemptId);
+
+            modelBuilder.Entity<ProctoringEvent>()
+                .HasOne(e => e.Session)
+                .WithMany(s => s.Events)
+                .HasForeignKey(e => e.SessionId);
+
+            modelBuilder.Entity<CodeActivitySnapshot>()
+                .HasOne(s => s.CodingTestAttempt)
+                .WithMany()
+                .HasForeignKey(s => s.CodingTestAttemptId);
+
+            modelBuilder.Entity<IntegrityFlag>()
+                .HasOne(f => f.CodingTestAttempt)
+                .WithMany()
+                .HasForeignKey(f => f.CodingTestAttemptId);
+
+            modelBuilder.Entity<PlagiarismMatch>()
+                .HasOne(m => m.Report)
+                .WithMany(r => r.Matches)
+                .HasForeignKey(m => m.ReportId);
+
+            modelBuilder.Entity<QuestionPoolItem>()
+                .HasOne(i => i.Pool)
+                .WithMany(p => p.Items)
+                .HasForeignKey(i => i.PoolId);
+
+            modelBuilder.Entity<QuestionPoolItem>()
+                .HasOne(i => i.Problem)
+                .WithMany()
+                .HasForeignKey(i => i.ProblemId);
+
+            modelBuilder.Entity<QuestionPoolItem>()
+                .HasIndex(i => new { i.PoolId, i.ProblemId })
+                .IsUnique();
+
+            modelBuilder.Entity<CodingTestPoolSection>()
+                .HasOne(s => s.CodingTest)
+                .WithMany(t => t.PoolSections)
+                .HasForeignKey(s => s.CodingTestId);
+
+            modelBuilder.Entity<CodingTestPoolSection>()
+                .HasOne(s => s.Pool)
+                .WithMany()
+                .HasForeignKey(s => s.PoolId);
+
+            modelBuilder.Entity<CodingTestAttemptQuestion>()
+                .HasOne(q => q.CodingTestAttempt)
+                .WithMany(a => a.AttemptQuestions)
+                .HasForeignKey(q => q.CodingTestAttemptId);
+
+            modelBuilder.Entity<CodingTestAttemptQuestion>()
+                .HasOne(q => q.Problem)
+                .WithMany()
+                .HasForeignKey(q => q.ProblemId);
+
+            modelBuilder.Entity<ProctoringSession>().HasIndex(s => s.CodingTestAttemptId);
+            modelBuilder.Entity<CodeActivitySnapshot>().HasIndex(s => s.CodingTestAttemptId);
+            modelBuilder.Entity<IntegrityFlag>().HasIndex(f => f.CodingTestAttemptId);
+            modelBuilder.Entity<PlagiarismReport>().HasIndex(r => r.SubmissionId);
+            modelBuilder.Entity<CodingTestAttemptQuestion>().HasIndex(q => q.CodingTestAttemptId);
 
             // Domain and Subdomain table mappings and relationships
             modelBuilder.Entity<Domain>().ToTable("Domain");

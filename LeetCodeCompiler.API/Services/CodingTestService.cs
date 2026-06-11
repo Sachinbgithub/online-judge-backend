@@ -11,17 +11,29 @@ namespace LeetCodeCompiler.API.Services
         private readonly StudentProfileService _studentProfileService;
         private readonly IJudgeService _judgeService;
         private readonly ScoringOptions _scoringOptions;
+        private readonly IProctoringService _proctoringService;
+        private readonly IQuestionPoolService _questionPoolService;
+        private readonly IIntegrityAnalysisService _integrityAnalysisService;
+        private readonly IPlagiarismService _plagiarismService;
 
         public CodingTestService(
             AppDbContext context,
             StudentProfileService studentProfileService,
             IJudgeService judgeService,
-            IOptions<ScoringOptions> scoringOptions)
+            IOptions<ScoringOptions> scoringOptions,
+            IProctoringService proctoringService,
+            IQuestionPoolService questionPoolService,
+            IIntegrityAnalysisService integrityAnalysisService,
+            IPlagiarismService plagiarismService)
         {
             _context = context;
             _studentProfileService = studentProfileService;
             _judgeService = judgeService;
             _scoringOptions = scoringOptions.Value;
+            _proctoringService = proctoringService;
+            _questionPoolService = questionPoolService;
+            _integrityAnalysisService = integrityAnalysisService;
+            _plagiarismService = plagiarismService;
         }
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
@@ -64,6 +76,12 @@ namespace LeetCodeCompiler.API.Services
                 IsResultPublishAutomatically = request.IsResultPublishAutomatically,
                 ApplyBreachRule = request.ApplyBreachRule,
                 BreachRuleLimit = request.BreachRuleLimit,
+                WarningThreshold = request.WarningThreshold,
+                FlagThreshold = request.FlagThreshold,
+                RequireFullscreen = request.RequireFullscreen,
+                BlockPaste = request.BlockPaste,
+                EnableProctoring = request.EnableProctoring,
+                EnablePlagiarismCheck = request.EnablePlagiarismCheck,
                 HostIP = request.HostIP,
                 ClassId = request.ClassId,
                 IsGlobal = request.IsGlobal,
@@ -109,6 +127,20 @@ namespace LeetCodeCompiler.API.Services
                 _context.CodingTestTopicData.Add(topicData);
             }
 
+            foreach (var poolSection in request.PoolSections)
+            {
+                _context.CodingTestPoolSections.Add(new CodingTestPoolSection
+                {
+                    CodingTestId = codingTest.Id,
+                    PoolId = poolSection.PoolId,
+                    QuestionsToPick = poolSection.QuestionsToPick,
+                    SectionOrder = poolSection.SectionOrder,
+                    MarksPerQuestion = poolSection.MarksPerQuestion,
+                    TimeLimitMinutes = poolSection.TimeLimitMinutes,
+                    CustomInstructions = poolSection.CustomInstructions
+                });
+            }
+
             await _context.SaveChangesAsync();
             return await GetCodingTestCreatedResponseAsync(codingTest.Id);
         }
@@ -122,6 +154,7 @@ namespace LeetCodeCompiler.API.Services
             var codingTest = await _context.CodingTests
                 .Include(ct => ct.Questions)
                 .Include(ct => ct.TopicData)
+                .Include(ct => ct.PoolSections)
                 .Include(ct => ct.Attempts)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.Id == id);
@@ -310,6 +343,7 @@ namespace LeetCodeCompiler.API.Services
         {
             var codingTest = await _context.CodingTests
                 .Include(ct => ct.TopicData)
+                .Include(ct => ct.PoolSections)
                 .Include(ct => ct.Questions)
                     .ThenInclude(q => q.Problem)
                         .ThenInclude(p => p.TestCases)
@@ -870,6 +904,8 @@ namespace LeetCodeCompiler.API.Services
             if (existingAttempt != null)
                 return await GetCodingTestAttemptAsync(existingAttempt.Id);
 
+            var codingTest = await _context.CodingTests.FindAsync(request.CodingTestId);
+
             // Create new attempt
             var attempt = new CodingTestAttempt
             {
@@ -883,6 +919,11 @@ namespace LeetCodeCompiler.API.Services
 
             _context.CodingTestAttempts.Add(attempt);
             await _context.SaveChangesAsync();
+
+            await _questionPoolService.CreateAttemptQuestionSnapshotAsync(attempt);
+
+            if (codingTest?.EnableProctoring == true)
+                await _proctoringService.StartSessionAsync(attempt.Id);
 
             return await GetCodingTestAttemptAsync(attempt.Id);
         }
@@ -899,7 +940,7 @@ namespace LeetCodeCompiler.API.Services
             if (attempt == null)
                 throw new ArgumentException($"Coding test attempt with ID {attemptId} not found");
 
-            return MapToAttemptResponse(attempt);
+            return await BuildAttemptResponseAsync(attempt);
         }
 
         public async Task<List<CodingTestAttemptResponse>> GetUserCodingTestAttemptsAsync(int userId, int codingTestId)
@@ -913,25 +954,46 @@ namespace LeetCodeCompiler.API.Services
                 .OrderByDescending(cta => cta.CreatedAt)
                 .ToListAsync();
 
-            return attempts.Select(MapToAttemptResponse).ToList();
+            var results = new List<CodingTestAttemptResponse>();
+            foreach (var attempt in attempts)
+                results.Add(await BuildAttemptResponseAsync(attempt));
+            return results;
         }
 
         public async Task<SubmitCodingTestResponse> SubmitCodingTestAsync(SubmitCodingTestRequest request)
         {
             CodingTestQuestion? codingTestQuestion = null;
+            CodingTestAttemptQuestion? attemptQuestion = null;
             int targetCodingTestId;
 
             // Determine which coding test to use
             if (request.CodingTestId.HasValue)
             {
-                // Use the specified coding test
                 targetCodingTestId = request.CodingTestId.Value;
-                codingTestQuestion = await _context.CodingTestQuestions
-                    .Include(ctq => ctq.CodingTest)
-                    .FirstOrDefaultAsync(ctq => ctq.ProblemId == request.ProblemId && ctq.CodingTestId == targetCodingTestId);
 
-                if (codingTestQuestion == null)
-                    throw new ArgumentException($"Problem {request.ProblemId} is not part of coding test {targetCodingTestId}");
+                var inProgressAttempt = await _context.CodingTestAttempts
+                    .FirstOrDefaultAsync(a => a.UserId == request.UserId
+                                           && a.CodingTestId == targetCodingTestId
+                                           && (a.Status == "InProgress" || a.Status == "Started"));
+
+                if (inProgressAttempt != null)
+                {
+                    var resolved = await _questionPoolService.ResolveQuestionForAttemptAsync(
+                        inProgressAttempt.Id, request.ProblemId);
+                    if (!resolved.IsAllowed)
+                        throw new ArgumentException($"Problem {request.ProblemId} is not part of this test attempt");
+                    attemptQuestion = resolved.Snapshot;
+                    codingTestQuestion = resolved.FixedQuestion;
+                }
+                else
+                {
+                    codingTestQuestion = await _context.CodingTestQuestions
+                        .Include(ctq => ctq.CodingTest)
+                        .FirstOrDefaultAsync(ctq => ctq.ProblemId == request.ProblemId && ctq.CodingTestId == targetCodingTestId);
+
+                    if (codingTestQuestion == null)
+                        throw new ArgumentException($"Problem {request.ProblemId} is not part of coding test {targetCodingTestId}");
+                }
             }
             else
             {
@@ -1005,17 +1067,30 @@ namespace LeetCodeCompiler.API.Services
                 }
             }
 
+            if (attemptQuestion == null && attempt.QuestionSnapshotCreated)
+            {
+                attemptQuestion = await _context.CodingTestAttemptQuestions
+                    .FirstOrDefaultAsync(q => q.CodingTestAttemptId == attempt.Id && q.ProblemId == request.ProblemId);
+            }
+
+            if (codingTestQuestion == null && attemptQuestion?.CodingTestQuestionId != null)
+            {
+                codingTestQuestion = await _context.CodingTestQuestions
+                    .Include(ctq => ctq.CodingTest)
+                    .FirstOrDefaultAsync(ctq => ctq.Id == attemptQuestion.CodingTestQuestionId);
+            }
+
             // Find or create the specific question attempt for this problem
             var questionAttempt = attempt.QuestionAttempts
-                .FirstOrDefault(qa => qa.CodingTestQuestion.ProblemId == request.ProblemId);
+                .FirstOrDefault(qa => qa.ProblemId == request.ProblemId);
 
             if (questionAttempt == null)
             {
-                // Create the question attempt automatically
                 questionAttempt = new CodingTestQuestionAttempt
                 {
                     CodingTestAttemptId = attempt.Id,
-                    CodingTestQuestionId = codingTestQuestion?.Id ?? 0,
+                    CodingTestQuestionId = codingTestQuestion?.Id,
+                    CodingTestAttemptQuestionId = attemptQuestion?.Id,
                     ProblemId = request.ProblemId,
                     UserId = request.UserId,
                     StartedAt = DateTime.UtcNow,
@@ -1027,11 +1102,8 @@ namespace LeetCodeCompiler.API.Services
                 _context.CodingTestQuestionAttempts.Add(questionAttempt);
                 await _context.SaveChangesAsync();
 
-                // Set the navigation property
                 if (codingTestQuestion != null)
-                {
                     questionAttempt.CodingTestQuestion = codingTestQuestion;
-                }
             }
 
             var judgeResult = await _judgeService.EvaluateAsync(
@@ -1067,8 +1139,7 @@ namespace LeetCodeCompiler.API.Services
                 MemoryUsedKB = judgeResult.MemoryUsedKB
             };
 
-            // Calculate score based on server judge results
-            var maxScore = questionAttempt.CodingTestQuestion.Marks;
+            var maxScore = attemptQuestion?.Marks ?? codingTestQuestion?.Marks ?? questionAttempt.MaxScore;
             var score = ScoreCalculator.DecimalScore(
                 judgeResult.PassedTestCases, judgeResult.TotalTestCases, maxScore);
 
@@ -1076,7 +1147,7 @@ namespace LeetCodeCompiler.API.Services
             submission.MaxScore = maxScore;
             submission.IsCorrect = judgeResult.IsCorrect;
 
-            // Note: Removed CodingTestSubmissions.Add(submission) as submissions should not be stored in CodingTestSubmissions table
+            _context.CodingTestSubmissions.Add(submission);
 
             // Update the question attempt with the submitted code and results
             questionAttempt.Status = "Completed";
@@ -1126,13 +1197,29 @@ namespace LeetCodeCompiler.API.Services
 
             await _context.SaveChangesAsync();
 
+            await _integrityAnalysisService.RunSubmitHeuristicsAsync(
+                attempt.Id,
+                submission.SubmissionId,
+                request.ProblemId,
+                request.FinalCodeSnapshot,
+                judgeResult.IsCorrect,
+                attempt.StartedAt);
+
+            if (attempt.CodingTest?.EnablePlagiarismCheck == true)
+            {
+                _plagiarismService.EnqueueCheck(new PlagiarismCheckJob(
+                    submission.SubmissionId,
+                    attempt.CodingTestId,
+                    request.ProblemId,
+                    attempt.Id));
+            }
+
             // Get the problem details for response
             var problem = await _context.Problems.FindAsync(request.ProblemId);
 
-            // Map to response using questionAttempt data instead of submission
             return new SubmitCodingTestResponse
             {
-                SubmissionId = questionAttempt.Id, // Use question attempt ID as submission ID
+                SubmissionId = submission.SubmissionId,
                 CodingTestId = attempt.CodingTestId,
                 TestName = attempt.CodingTest?.TestName ?? "Unknown Test",
                 ProblemId = request.ProblemId,
@@ -1218,26 +1305,33 @@ namespace LeetCodeCompiler.API.Services
                     $"// Language: {q.LanguageUsed}\n" +
                     q.FinalCodeSnapshot));
 
-            // Server-side judge for every question before persisting aggregates (integrity)
+            if (!attempt.QuestionSnapshotCreated)
+                await _questionPoolService.CreateAttemptQuestionSnapshotAsync(attempt);
+
             var evaluatedQuestions =
-                new List<(QuestionSubmission Qs, JudgeResult Judge, CodingTestQuestion Ctq)>();
+                new List<(QuestionSubmission Qs, JudgeResult Judge, decimal Marks, int? CodingTestQuestionId, int? AttemptQuestionId)>();
             foreach (var questionSubmission in request.QuestionSubmissions)
             {
-                var codingTestQuestion = await _context.CodingTestQuestions
-                    .Include(ctq => ctq.Problem)
-                    .FirstOrDefaultAsync(ctq => ctq.ProblemId == questionSubmission.ProblemId &&
-                                               ctq.CodingTestId == request.CodingTestId);
+                var resolved = await _questionPoolService.ResolveQuestionForAttemptAsync(
+                    attempt.Id, questionSubmission.ProblemId);
 
-                if (codingTestQuestion == null)
+                if (!resolved.IsAllowed)
                     throw new ArgumentException(
                         $"Problem {questionSubmission.ProblemId} is not part of coding test {request.CodingTestId}");
+
+                var marks = resolved.Snapshot?.Marks ?? resolved.FixedQuestion?.Marks ?? 0m;
 
                 var judgeResult = await _judgeService.EvaluateAsync(
                     questionSubmission.ProblemId,
                     questionSubmission.LanguageUsed,
                     questionSubmission.FinalCodeSnapshot);
 
-                evaluatedQuestions.Add((questionSubmission, judgeResult, codingTestQuestion));
+                evaluatedQuestions.Add((
+                    questionSubmission,
+                    judgeResult,
+                    marks,
+                    resolved.FixedQuestion?.Id ?? resolved.Snapshot?.CodingTestQuestionId,
+                    resolved.Snapshot?.Id));
             }
 
             var serverTotalTests = evaluatedQuestions.Sum(x => x.Judge.TotalTestCases);
@@ -1291,20 +1385,20 @@ namespace LeetCodeCompiler.API.Services
             var totalScore = 0m;
             var totalMaxScore = 0m;
 
-            foreach (var (questionSubmission, judgeResult, codingTestQuestion) in evaluatedQuestions)
+            foreach (var (questionSubmission, judgeResult, marks, codingTestQuestionId, attemptQuestionId) in evaluatedQuestions)
             {
-                // Find or create the question attempt
                 var questionAttempt = attempt.QuestionAttempts?
-                    .FirstOrDefault(qa => qa.CodingTestQuestion?.ProblemId == questionSubmission.ProblemId);
+                    .FirstOrDefault(qa => qa.ProblemId == questionSubmission.ProblemId);
 
                 if (questionAttempt == null)
                 {
                     questionAttempt = new CodingTestQuestionAttempt
                     {
                         CodingTestAttemptId = attempt.Id,
-                        CodingTestQuestionId = codingTestQuestion.Id,
+                        CodingTestQuestionId = codingTestQuestionId,
+                        CodingTestAttemptQuestionId = attemptQuestionId,
                         ProblemId = questionSubmission.ProblemId,
-                        UserId = request.UserId, // Keep as int for CodingTestQuestionAttempt
+                        UserId = request.UserId,
                         StartedAt = DateTime.UtcNow,
                         Status = "InProgress",
                         LanguageUsed = questionSubmission.LanguageUsed,
@@ -1321,11 +1415,9 @@ namespace LeetCodeCompiler.API.Services
                     {
                         throw new InvalidOperationException($"Failed to save question attempt for ProblemId {questionSubmission.ProblemId}: {ex.Message}. Inner exception: {ex.InnerException?.Message}", ex);
                     }
-
-                    questionAttempt.CodingTestQuestion = codingTestQuestion;
                 }
 
-                var maxScore = codingTestQuestion.Marks;
+                var maxScore = marks;
                 var score = ScoreCalculator.DecimalScore(
                     judgeResult.PassedTestCases, judgeResult.TotalTestCases, maxScore);
 
@@ -1368,10 +1460,15 @@ namespace LeetCodeCompiler.API.Services
                     _context.CodingTestSubmissionResults.Add(submissionResult);
                 }
 
+                var problemTitle = await _context.Problems
+                    .Where(p => p.Id == questionSubmission.ProblemId)
+                    .Select(p => p.Title)
+                    .FirstOrDefaultAsync() ?? "Unknown Problem";
+
                 questionSubmissionResponses.Add(new QuestionSubmissionResponse
                 {
                     ProblemId = questionSubmission.ProblemId,
-                    ProblemTitle = codingTestQuestion.Problem?.Title ?? "Unknown Problem",
+                    ProblemTitle = problemTitle,
                     LanguageUsed = questionSubmission.LanguageUsed,
                     TotalTestCases = judgeResult.TotalTestCases,
                     PassedTestCases = judgeResult.PassedTestCases,
@@ -1426,7 +1523,29 @@ namespace LeetCodeCompiler.API.Services
                 throw new InvalidOperationException($"Failed to save final changes: {ex.Message}. Inner exception: {ex.InnerException?.Message}", ex);
             }
 
-            // Return response
+            foreach (var (questionSubmission, judgeResult, _, _, _) in evaluatedQuestions)
+            {
+                await _integrityAnalysisService.RunSubmitHeuristicsAsync(
+                    attempt.Id,
+                    submission.SubmissionId,
+                    questionSubmission.ProblemId,
+                    questionSubmission.FinalCodeSnapshot,
+                    judgeResult.IsCorrect,
+                    attempt.StartedAt);
+            }
+
+            if (codingTest.EnablePlagiarismCheck)
+            {
+                foreach (var qs in request.QuestionSubmissions)
+                {
+                    _plagiarismService.EnqueueCheck(new PlagiarismCheckJob(
+                        submission.SubmissionId,
+                        request.CodingTestId,
+                        qs.ProblemId,
+                        attempt.Id));
+                }
+            }
+
             return new SubmitWholeCodingTestResponse
             {
                 SubmissionId = submission.SubmissionId,
@@ -1866,7 +1985,9 @@ namespace LeetCodeCompiler.API.Services
                 request.LanguageUsed,
                 request.CodeSubmitted);
 
-            questionAttempt.MaxScore = questionAttempt.CodingTestQuestion.Marks;
+            var resolved = await _questionPoolService.ResolveQuestionForAttemptAsync(
+                questionAttempt.CodingTestAttemptId, questionAttempt.ProblemId);
+            questionAttempt.MaxScore = resolved.Snapshot?.Marks ?? resolved.FixedQuestion?.Marks ?? questionAttempt.MaxScore;
             questionAttempt.Score = ScoreCalculator.DecimalScore(
                 judgeResult.PassedTestCases, judgeResult.TotalTestCases, questionAttempt.MaxScore);
             questionAttempt.TestCasesPassed = judgeResult.PassedTestCases;
@@ -1874,6 +1995,19 @@ namespace LeetCodeCompiler.API.Services
             questionAttempt.IsCorrect = judgeResult.IsCorrect;
 
             await _context.SaveChangesAsync();
+
+            var attempt = await _context.CodingTestAttempts.FindAsync(questionAttempt.CodingTestAttemptId);
+            if (attempt != null)
+            {
+                await _integrityAnalysisService.RunSubmitHeuristicsAsync(
+                    attempt.Id,
+                    null,
+                    questionAttempt.ProblemId,
+                    request.CodeSubmitted,
+                    judgeResult.IsCorrect,
+                    attempt.StartedAt);
+            }
+
             return await GetQuestionAttemptAsync(questionAttempt.Id);
         }
 
@@ -1965,7 +2099,10 @@ namespace LeetCodeCompiler.API.Services
                 .OrderByDescending(cta => cta.Percentage)
                 .ToListAsync();
 
-            return attempts.Select(MapToAttemptResponse).ToList();
+            var results = new List<CodingTestAttemptResponse>();
+            foreach (var attempt in attempts)
+                results.Add(await BuildAttemptResponseAsync(attempt));
+            return results;
         }
 
         public async Task<PagedResult<CodingTestAttemptResponse>> GetCodingTestResultsPagedAsync(int codingTestId, int pageNumber, int pageSize)
@@ -1985,9 +2122,13 @@ namespace LeetCodeCompiler.API.Services
                 .Take(pageSize)
                 .ToListAsync();
 
+            var items = new List<CodingTestAttemptResponse>();
+            foreach (var attempt in attempts)
+                items.Add(await BuildAttemptResponseAsync(attempt));
+
             return new PagedResult<CodingTestAttemptResponse>
             {
-                Items = attempts.Select(MapToAttemptResponse).ToList(),
+                Items = items,
                 TotalCount = totalCount,
                 PageNumber = pageNumber,
                 PageSize = pageSize
@@ -2110,12 +2251,27 @@ namespace LeetCodeCompiler.API.Services
                 IsResultPublishAutomatically = codingTest.IsResultPublishAutomatically,
                 ApplyBreachRule = codingTest.ApplyBreachRule,
                 BreachRuleLimit = codingTest.BreachRuleLimit,
+                WarningThreshold = codingTest.WarningThreshold,
+                FlagThreshold = codingTest.FlagThreshold,
+                RequireFullscreen = codingTest.RequireFullscreen,
+                BlockPaste = codingTest.BlockPaste,
+                EnableProctoring = codingTest.EnableProctoring,
+                EnablePlagiarismCheck = codingTest.EnablePlagiarismCheck,
                 HostIP = codingTest.HostIP,
                 ClassId = codingTest.ClassId,
                 IsGlobal = codingTest.IsGlobal,
                 CollegeId = codingTest.CollegeId,
                 TopicData = codingTest.TopicData.Select(MapToTopicDataResponse).ToList(),
                 Questions = codingTest.Questions?.Select(MapToQuestionResponse).ToList() ?? new List<CodingTestQuestionResponse>(),
+                PoolSections = codingTest.PoolSections?.Select(s => new PoolSectionRequest
+                {
+                    PoolId = s.PoolId,
+                    QuestionsToPick = s.QuestionsToPick,
+                    SectionOrder = s.SectionOrder,
+                    MarksPerQuestion = s.MarksPerQuestion,
+                    TimeLimitMinutes = s.TimeLimitMinutes,
+                    CustomInstructions = s.CustomInstructions
+                }).ToList() ?? new List<PoolSectionRequest>(),
                 TotalAttempts = codingTest.Attempts.Count,
                 CompletedAttempts = codingTest.Attempts.Count(a => a.Status == "Submitted")
             };
@@ -2226,8 +2382,11 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        private CodingTestAttemptResponse MapToAttemptResponse(CodingTestAttempt attempt)
+        private async Task<CodingTestAttemptResponse> BuildAttemptResponseAsync(CodingTestAttempt attempt)
         {
+            var questions = await _questionPoolService.GetAttemptQuestionsAsync(attempt.Id);
+            var test = attempt.CodingTest;
+
             return new CodingTestAttemptResponse
             {
                 Id = attempt.Id,
@@ -2246,6 +2405,13 @@ namespace LeetCodeCompiler.API.Services
                 Notes = attempt.Notes,
                 CreatedAt = attempt.CreatedAt,
                 UpdatedAt = attempt.UpdatedAt,
+                IntegrityStatus = attempt.IntegrityStatus,
+                RequireFullscreen = test?.RequireFullscreen ?? false,
+                BlockPaste = test?.BlockPaste ?? false,
+                WarningThreshold = test?.WarningThreshold ?? 3,
+                FlagThreshold = test?.FlagThreshold ?? 5,
+                BreachRuleLimit = test?.BreachRuleLimit ?? 0,
+                Questions = questions,
                 QuestionAttempts = attempt.QuestionAttempts.Select(MapToQuestionAttemptResponse).ToList()
             };
         }

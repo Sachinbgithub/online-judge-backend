@@ -301,6 +301,11 @@ builder.Services.AddScoped<JavaExecutionService>();
 builder.Services.AddScoped<CppExecutionService>();
 builder.Services.AddScoped<CExecutionService>();
 builder.Services.AddScoped<IJudgeService, JudgeService>();
+builder.Services.AddScoped<IProctoringService, ProctoringService>();
+builder.Services.AddScoped<IQuestionPoolService, QuestionPoolService>();
+builder.Services.AddScoped<IIntegrityAnalysisService, IntegrityAnalysisService>();
+builder.Services.AddScoped<IPlagiarismService, PlagiarismService>();
+builder.Services.AddHostedService<PlagiarismBackgroundWorker>();
 builder.Services.Configure<ScoringOptions>(builder.Configuration.GetSection("Scoring"));
 
 // Add memory cache

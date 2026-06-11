@@ -76,8 +76,21 @@ namespace LeetCodeCompiler.API.Models
 
         public int CollegeId { get; set; } = 0;
 
+        public int WarningThreshold { get; set; } = 3;
+
+        public int FlagThreshold { get; set; } = 5;
+
+        public bool RequireFullscreen { get; set; } = false;
+
+        public bool BlockPaste { get; set; } = false;
+
+        public bool EnableProctoring { get; set; } = true;
+
+        public bool EnablePlagiarismCheck { get; set; } = true;
+
         // Navigation properties
         public virtual ICollection<CodingTestQuestion> Questions { get; set; } = new List<CodingTestQuestion>();
+        public virtual ICollection<CodingTestPoolSection> PoolSections { get; set; } = new List<CodingTestPoolSection>();
         public virtual ICollection<CodingTestAttempt> Attempts { get; set; } = new List<CodingTestAttempt>();
         public virtual ICollection<CodingTestTopicData> TopicData { get; set; } = new List<CodingTestTopicData>();
     }

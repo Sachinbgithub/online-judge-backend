@@ -46,10 +46,18 @@ namespace LeetCodeCompiler.API.Models
 
         public DateTime? UpdatedAt { get; set; }
 
+        [StringLength(20)]
+        public string IntegrityStatus { get; set; } = "Normal";
+
+        public Guid? PoolSelectionSeed { get; set; }
+
+        public bool QuestionSnapshotCreated { get; set; } = false;
+
         // Navigation properties
         [ForeignKey("CodingTestId")]
         public virtual CodingTest CodingTest { get; set; } = null!;
 
         public virtual ICollection<CodingTestQuestionAttempt> QuestionAttempts { get; set; } = new List<CodingTestQuestionAttempt>();
+        public virtual ICollection<CodingTestAttemptQuestion> AttemptQuestions { get; set; } = new List<CodingTestAttemptQuestion>();
     }
 }
