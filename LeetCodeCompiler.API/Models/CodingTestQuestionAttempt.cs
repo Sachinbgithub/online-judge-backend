@@ -12,8 +12,9 @@ namespace LeetCodeCompiler.API.Models
         [Required]
         public int CodingTestAttemptId { get; set; }
 
-        [Required]
-        public int CodingTestQuestionId { get; set; }
+        public int? CodingTestQuestionId { get; set; }
+
+        public int? CodingTestAttemptQuestionId { get; set; }
 
         [Required]
         public int ProblemId { get; set; }

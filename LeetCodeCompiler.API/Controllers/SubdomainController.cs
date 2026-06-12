@@ -20,10 +20,16 @@ namespace LeetCodeCompiler.API.Controllers
         /// </summary>
         /// <returns>List of all subdomains with their domain information</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllSubdomains()
+        public async Task<IActionResult> GetAllSubdomains([FromQuery] int? streamId)
         {
-            var subdomains = await _context.Subdomains
-                .Include(s => s.Domain)
+            IQueryable<Subdomain> query = _context.Subdomains.Include(s => s.Domain);
+
+            if (streamId.HasValue)
+            {
+                query = query.Where(s => s.StreamId == streamId);
+            }
+
+            var subdomains = await query
                 .OrderBy(s => s.SubdomainId)
                 .Select(s => new SubdomainDto
                 {
@@ -32,12 +38,14 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainName = s.SubdomainName,
                     StreamId = s.StreamId,
                     CreatedByUserId = s.CreatedByUserId,
+                    UpdatedByUserId = s.UpdatedByUserId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
                         DomainName = s.Domain.DomainName,
                         StreamId = s.Domain.StreamId,
-                        CreatedByUserId = s.Domain.CreatedByUserId
+                        CreatedByUserId = s.Domain.CreatedByUserId,
+                        UpdatedByUserId = s.Domain.UpdatedByUserId
                     } : null
                 })
                 .ToListAsync();
@@ -63,12 +71,14 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainName = s.SubdomainName,
                     StreamId = s.StreamId,
                     CreatedByUserId = s.CreatedByUserId,
+                    UpdatedByUserId = s.UpdatedByUserId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
                         DomainName = s.Domain.DomainName,
                         StreamId = s.Domain.StreamId,
-                        CreatedByUserId = s.Domain.CreatedByUserId
+                        CreatedByUserId = s.Domain.CreatedByUserId,
+                        UpdatedByUserId = s.Domain.UpdatedByUserId
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -98,12 +108,14 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainName = s.SubdomainName,
                     StreamId = s.StreamId,
                     CreatedByUserId = s.CreatedByUserId,
+                    UpdatedByUserId = s.UpdatedByUserId,
                     Domain = s.Domain != null ? new DomainBasicDto
                     {
                         DomainId = s.Domain.DomainId,
                         DomainName = s.Domain.DomainName,
                         StreamId = s.Domain.StreamId,
-                        CreatedByUserId = s.Domain.CreatedByUserId
+                        CreatedByUserId = s.Domain.CreatedByUserId,
+                        UpdatedByUserId = s.Domain.UpdatedByUserId
                     } : null
                 })
                 .ToListAsync();
@@ -340,11 +352,15 @@ namespace LeetCodeCompiler.API.Controllers
                         DomainId = s.DomainId,
                         SubdomainName = s.SubdomainName,
                         StreamId = s.StreamId,
+                        CreatedByUserId = s.CreatedByUserId,
+                        UpdatedByUserId = s.UpdatedByUserId,
                         Domain = s.Domain != null ? new DomainBasicDto
                         {
                             DomainId = s.Domain.DomainId,
                             DomainName = s.Domain.DomainName,
-                            StreamId = s.Domain.StreamId
+                            StreamId = s.Domain.StreamId,
+                            CreatedByUserId = s.Domain.CreatedByUserId,
+                            UpdatedByUserId = s.Domain.UpdatedByUserId
                         } : null
                     })
                     .ToListAsync();
@@ -390,12 +406,14 @@ namespace LeetCodeCompiler.API.Controllers
                     SubdomainName = subdomain.SubdomainName,
                     StreamId = subdomain.StreamId,
                     CreatedByUserId = subdomain.CreatedByUserId,
+                    UpdatedByUserId = subdomain.UpdatedByUserId,
                     Domain = subdomain.Domain != null ? new DomainBasicDto
                     {
                         DomainId = subdomain.Domain.DomainId,
                         DomainName = subdomain.Domain.DomainName,
                         StreamId = subdomain.Domain.StreamId,
-                        CreatedByUserId = subdomain.Domain.CreatedByUserId
+                        CreatedByUserId = subdomain.Domain.CreatedByUserId,
+                        UpdatedByUserId = subdomain.Domain.UpdatedByUserId
                     } : null
                 };
 
