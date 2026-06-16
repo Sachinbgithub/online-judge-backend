@@ -182,6 +182,26 @@ namespace LeetCodeCompiler.API.Services
             return MapFlag(flag);
         }
 
+        public async Task<List<CodeActivitySnapshotResponse>> GetActivitySnapshotsForAttemptAsync(int codingTestAttemptId)
+        {
+            return await _context.CodeActivitySnapshots
+                .Where(s => s.CodingTestAttemptId == codingTestAttemptId)
+                .OrderBy(s => s.Timestamp)
+                .Select(s => new CodeActivitySnapshotResponse
+                {
+                    Id = s.Id,
+                    CodingTestAttemptId = s.CodingTestAttemptId,
+                    ProblemId = s.ProblemId,
+                    Timestamp = s.Timestamp,
+                    CodeLength = s.CodeLength,
+                    DeltaChars = s.DeltaChars,
+                    Source = s.Source,
+                    PasteLength = s.PasteLength,
+                    CodeHash = s.CodeHash
+                })
+                .ToListAsync();
+        }
+
         private static IntegrityFlag CreateFlag(
             int attemptId, long? submissionId, string type, string severity, string details)
         {

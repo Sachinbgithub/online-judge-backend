@@ -7,6 +7,7 @@ namespace LeetCodeCompiler.API.Services
         Task<ProctoringSession> StartSessionAsync(int codingTestAttemptId);
         Task<ProctoringStatusResponse> IngestEventsAsync(IngestProctoringEventsRequest request);
         Task<ProctoringStatusResponse> GetStatusAsync(int attemptId, int userId);
+        Task<ProctoringStatusResponse> GetStatusForAttemptAsync(int attemptId);
         Task<List<ProctoringEventDto>> GetEventsForAttemptAsync(int attemptId);
     }
 }

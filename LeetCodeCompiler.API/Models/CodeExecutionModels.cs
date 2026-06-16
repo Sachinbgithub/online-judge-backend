@@ -57,6 +57,8 @@ namespace LeetCodeCompiler.API.Models
         public string Language { get; set; } = "";
         public string Code { get; set; } = "";
         public List<TestCase> TestCases { get; set; } = new List<TestCase>();
+        public int? CodingTestAttemptId { get; set; }
+        public int? RunClickCount { get; set; }
     }
 
     public class TrackedCodeExecutionResponse

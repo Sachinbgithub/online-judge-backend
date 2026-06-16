@@ -283,6 +283,8 @@ public class CombinedTestResultResponse
 
         public int? CodingTestId { get; set; } // Optional: Specify which test to submit for
 
+        public int? CodingTestAttemptId { get; set; }
+
         [Required]
         public int ProblemId { get; set; }
 
