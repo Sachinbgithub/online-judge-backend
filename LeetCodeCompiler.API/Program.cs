@@ -304,6 +304,7 @@ builder.Services.AddScoped<IJudgeService, JudgeService>();
 builder.Services.AddScoped<IProctoringService, ProctoringService>();
 builder.Services.AddScoped<IQuestionPoolService, QuestionPoolService>();
 builder.Services.AddScoped<IIntegrityAnalysisService, IntegrityAnalysisService>();
+builder.Services.AddScoped<IAttemptActivityReviewService, AttemptActivityReviewService>();
 builder.Services.AddScoped<IPlagiarismService, PlagiarismService>();
 builder.Services.AddHostedService<PlagiarismBackgroundWorker>();
 builder.Services.Configure<ScoringOptions>(builder.Configuration.GetSection("Scoring"));
