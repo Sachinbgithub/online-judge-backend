@@ -12,13 +12,16 @@ namespace LeetCodeCompiler.API.Controllers
     {
         private readonly IIntegrityAnalysisService _integrityService;
         private readonly IPlagiarismService _plagiarismService;
+        private readonly IAttemptActivityReviewService _attemptActivityReviewService;
 
         public IntegrityController(
             IIntegrityAnalysisService integrityService,
-            IPlagiarismService plagiarismService)
+            IPlagiarismService plagiarismService,
+            IAttemptActivityReviewService attemptActivityReviewService)
         {
             _integrityService = integrityService;
             _plagiarismService = plagiarismService;
+            _attemptActivityReviewService = attemptActivityReviewService;
         }
 
         [HttpPost("activity-snapshot")]
@@ -78,6 +81,29 @@ namespace LeetCodeCompiler.API.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("activity-snapshots/{attemptId}")]
+        [Authorize(Policy = "TestSetterOnly")]
+        public async Task<IActionResult> GetActivitySnapshots(int attemptId)
+        {
+            var snapshots = await _integrityService.GetActivitySnapshotsForAttemptAsync(attemptId);
+            return Ok(snapshots);
+        }
+
+        [HttpGet("attempt/{attemptId}/activity")]
+        [Authorize(Policy = "TestSetterOnly")]
+        public async Task<IActionResult> GetAttemptActivityReview(int attemptId)
+        {
+            try
+            {
+                var review = await _attemptActivityReviewService.GetAttemptActivityReviewAsync(attemptId);
+                return Ok(review);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
             }
         }
 

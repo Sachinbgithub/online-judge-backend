@@ -1,7 +1,7 @@
+using LeetCodeCompiler.API.Models;
+using LeetCodeCompiler.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using LeetCodeCompiler.API.Services;
-using LeetCodeCompiler.API.Models;
 
 namespace LeetCodeCompiler.API.Controllers
 {
@@ -23,14 +23,13 @@ namespace LeetCodeCompiler.API.Controllers
             try
             {
                 var pagedLogs = await _activityTrackingService.GetUserActivityLogsAsync(userId, problemId, pageNumber, pageSize);
-                
-                // Format response for user-friendly display
-                var formattedItems = pagedLogs.Items.Select(log => {
+
+                var formattedItems = pagedLogs.Items.Select(log =>
+                {
                     var sessionDuration = FormatDuration(log.TimeTakenSeconds);
-                    var passedCount = string.IsNullOrEmpty(log.PassedTestCaseIDs) ? 0 : log.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id));
-                    var failedCount = string.IsNullOrEmpty(log.FailedTestCaseIDs) ? 0 : log.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id));
-                    var totalCount = passedCount + failedCount;
-                    
+                    var passedCount = CountIds(log.PassedTestCaseIDs);
+                    var failedCount = CountIds(log.FailedTestCaseIDs);
+
                     return new
                     {
                         id = log.Id,
@@ -38,7 +37,7 @@ namespace LeetCodeCompiler.API.Controllers
                         problemId = log.ProblemId,
                         attemptNumber = log.AttemptNumber,
                         testType = log.TestType,
-                        sessionDuration = sessionDuration,
+                        sessionDuration,
                         timeTakenSeconds = log.TimeTakenSeconds,
                         languageSwitchCount = log.LanguageSwitchCount,
                         eraseCount = log.EraseCount,
@@ -49,9 +48,15 @@ namespace LeetCodeCompiler.API.Controllers
                         isSessionAbandoned = log.IsSessionAbandoned,
                         passedTestCaseIds = log.PassedTestCaseIDs,
                         failedTestCaseIds = log.FailedTestCaseIDs,
-                        totalTestCases = totalCount,
+                        totalTestCases = passedCount + failedCount,
                         passedTestCases = passedCount,
                         failedTestCases = failedCount,
+                        codingTestId = log.CodingTestId,
+                        codingTestAttemptId = log.CodingTestAttemptId,
+                        codingTestQuestionAttemptId = log.CodingTestQuestionAttemptId,
+                        submissionId = log.SubmissionId,
+                        sessionStatus = log.SessionStatus,
+                        source = log.Source,
                         createdAt = log.CreatedAt,
                         updatedAt = log.UpdatedAt,
                         startTime = log.StartTime,
@@ -60,7 +65,7 @@ namespace LeetCodeCompiler.API.Controllers
                     };
                 }).ToList();
 
-                var response = new 
+                return Ok(new
                 {
                     items = formattedItems,
                     totalCount = pagedLogs.TotalCount,
@@ -69,9 +74,7 @@ namespace LeetCodeCompiler.API.Controllers
                     totalPages = pagedLogs.TotalPages,
                     hasPreviousPage = pagedLogs.HasPreviousPage,
                     hasNextPage = pagedLogs.HasNextPage
-                };
-
-                return Ok(response);
+                });
             }
             catch (Exception ex)
             {
@@ -99,19 +102,20 @@ namespace LeetCodeCompiler.API.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                {
                     return BadRequest(ModelState);
-                }
 
-                var activityLog = await _activityTrackingService.LogUserActivityAsync(
-                    request.UserId,
-                    request.ProblemId,
-                    request.AttemptNumber,
-                    request.TestType,
-                    request.TimeTakenSeconds
-                );
-
-                return CreatedAtAction(nameof(GetUserActivityForProblem), new { userId = request.UserId, problemId = request.ProblemId }, activityLog);
+                var activityLog = await _activityTrackingService.LogUserActivityAsync(request);
+                return CreatedAtAction(nameof(GetUserActivityForProblem),
+                    new { userId = request.UserId, problemId = request.ProblemId },
+                    IActivityTrackingService.MapToResponse(activityLog));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -120,27 +124,35 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpPut("{activityLogId}/metrics")]
-        public async Task<IActionResult> UpdateActivityMetrics(int activityLogId, [FromBody] UpdateActivityMetricsRequest request)
+        public async Task<IActionResult> UpdateActivityMetrics(int activityLogId, [FromBody] UpdateActivityMetricsRequest request, [FromQuery] int userId)
         {
             try
             {
-                await _activityTrackingService.UpdateActivityMetricsAsync(
-                    activityLogId,
-                    timeTakenSeconds: null, // Add this parameter
-                    languageSwitchCount: request.LanguageSwitchCount,
-                    eraseCount: request.EraseCount,
-                    saveCount: request.SaveCount,
-                    runClickCount: request.RunClickCount,
-                    submitClickCount: request.SubmitClickCount,
-                    loginLogoutCount: request.LoginLogoutCount,
-                    isSessionAbandoned: request.IsSessionAbandoned,
-                    passedTestCaseIDs: request.PassedTestCaseIDs,
-                    failedTestCaseIDs: request.FailedTestCaseIDs,
-                    startTime: request.StartTime,
-                    endTime: request.EndTime
-                );
+                await _activityTrackingService.UpdateAssessmentMetricsAsync(activityLogId, userId, new AssessmentActivityMetrics
+                {
+                    TimeTakenSeconds = request.TimeTakenSeconds,
+                    LanguageSwitchCount = request.LanguageSwitchCount,
+                    EraseCount = request.EraseCount,
+                    SaveCount = request.SaveCount,
+                    RunClickCount = request.RunClickCount,
+                    SubmitClickCount = request.SubmitClickCount,
+                    LoginLogoutCount = request.LoginLogoutCount,
+                    IsSessionAbandoned = request.IsSessionAbandoned,
+                    PassedTestCaseIDs = request.PassedTestCaseIDs,
+                    FailedTestCaseIDs = request.FailedTestCaseIDs,
+                    StartTime = request.StartTime,
+                    EndTime = request.EndTime
+                });
 
                 return Ok(new { message = "Activity metrics updated successfully" });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -163,51 +175,60 @@ namespace LeetCodeCompiler.API.Controllers
         }
 
         [HttpGet("{userId}/problem/{problemId}/current-session")]
-        public async Task<IActionResult> GetCurrentSessionActivity(int userId, int problemId)
+        public async Task<IActionResult> GetCurrentSessionActivity(int userId, int problemId, [FromQuery] int? codingTestAttemptId = null)
         {
             try
             {
-                var activityLogs = await _activityTrackingService.GetUserActivityLogsAsync(userId, problemId);
-                
-                // Get only the most recent session for this problem
-                var currentSession = activityLogs
-                    .OrderByDescending(log => log.CreatedAt)
-                    .FirstOrDefault();
-                
-                if (currentSession == null)
+                if (codingTestAttemptId.HasValue)
                 {
-                    return Ok(new { 
+                    var currentSession = await _activityTrackingService.GetCurrentAssessmentSessionAsync(
+                        userId, problemId, codingTestAttemptId.Value);
+
+                    if (currentSession == null)
+                    {
+                        return Ok(new
+                        {
+                            message = "No active assessment session found for this problem",
+                            hasSession = false
+                        });
+                    }
+
+                    return Ok(new
+                    {
+                        hasSession = true,
+                        sessionData = BuildSessionData(currentSession)
+                    });
+                }
+
+                var activityLogs = await _activityTrackingService.GetUserActivityLogsAsync(userId, problemId);
+                var latest = activityLogs
+                    .Where(log => log.SessionStatus == "Active" && !log.IsSessionAbandoned)
+                    .OrderByDescending(log => log.CreatedAt)
+                    .FirstOrDefault()
+                    ?? activityLogs.OrderByDescending(log => log.CreatedAt).FirstOrDefault();
+
+                if (latest == null)
+                {
+                    return Ok(new
+                    {
                         message = "No current session found for this problem",
                         hasSession = false
                     });
                 }
 
-                // Calculate session duration
-                var sessionDuration = FormatDuration(currentSession.TimeTakenSeconds);
-                
                 return Ok(new
                 {
-                    hasSession = true,
-                    sessionData = new
-                    {
-                        id = currentSession.Id,
-                        userId = currentSession.UserId,
-                        problemId = currentSession.ProblemId,
-                        attemptNumber = currentSession.AttemptNumber,
-                        testType = currentSession.TestType,
-                        timeTakenSeconds = currentSession.TimeTakenSeconds,
-                        timeFormatted = sessionDuration,
-                        languageSwitchCount = currentSession.LanguageSwitchCount,
-                        startTime = currentSession.StartTime,
-                        endTime = currentSession.EndTime,
-                        createdAt = currentSession.CreatedAt,
-                        // Test case results
-                        passedTestCases = string.IsNullOrEmpty(currentSession.PassedTestCaseIDs) ? 0 : currentSession.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id)),
-                        failedTestCases = string.IsNullOrEmpty(currentSession.FailedTestCaseIDs) ? 0 : currentSession.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id)),
-                        totalTestCases = (string.IsNullOrEmpty(currentSession.PassedTestCaseIDs) ? 0 : currentSession.PassedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id))) +
-                                        (string.IsNullOrEmpty(currentSession.FailedTestCaseIDs) ? 0 : currentSession.FailedTestCaseIDs.Split(',').Count(id => !string.IsNullOrWhiteSpace(id)))
-                    }
+                    hasSession = latest.SessionStatus == "Active" && !latest.IsSessionAbandoned,
+                    sessionData = BuildSessionData(latest)
                 });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {
@@ -215,87 +236,68 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
-        [NonAction] // Hiding this endpoint for database security at scale
-        [HttpGet("debug/all")]
-        public async Task<IActionResult> GetAllActivityLogs()
+        private object BuildSessionData(UserCodingActivityLog currentSession)
         {
-            try
+            var sessionDuration = FormatDuration(currentSession.TimeTakenSeconds);
+            var passed = CountIds(currentSession.PassedTestCaseIDs);
+            var failed = CountIds(currentSession.FailedTestCaseIDs);
+
+            return new
             {
-                var allLogs = await _activityTrackingService.GetUserActivityLogsAsync(1); // Get all logs for user 1
-                return Ok(new { 
-                    totalLogs = allLogs.Count,
-                    logs = allLogs.Select(log => new {
-                        id = log.Id,
-                        userId = log.UserId,
-                        problemId = log.ProblemId,
-                        testType = log.TestType,
-                        timeTakenSeconds = log.TimeTakenSeconds,
-                        createdAt = log.CreatedAt,
-                        startTime = log.StartTime,
-                        endTime = log.EndTime
-                    }).ToList()
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Failed to get all activity logs", details = ex.Message });
-            }
+                id = currentSession.Id,
+                userId = currentSession.UserId,
+                problemId = currentSession.ProblemId,
+                attemptNumber = currentSession.AttemptNumber,
+                testType = currentSession.TestType,
+                timeTakenSeconds = currentSession.TimeTakenSeconds,
+                timeFormatted = sessionDuration,
+                languageSwitchCount = currentSession.LanguageSwitchCount,
+                eraseCount = currentSession.EraseCount,
+                saveCount = currentSession.SaveCount,
+                runClickCount = currentSession.RunClickCount,
+                submitClickCount = currentSession.SubmitClickCount,
+                codingTestAttemptId = currentSession.CodingTestAttemptId,
+                sessionStatus = currentSession.SessionStatus,
+                source = currentSession.Source,
+                startTime = currentSession.StartTime,
+                endTime = currentSession.EndTime,
+                createdAt = currentSession.CreatedAt,
+                passedTestCases = passed,
+                failedTestCases = failed,
+                totalTestCases = passed + failed
+            };
         }
+
+        private static int CountIds(string? ids) =>
+            string.IsNullOrEmpty(ids) ? 0 : ids.Split(',').Count(id => !string.IsNullOrWhiteSpace(id));
 
         private string FormatDuration(int seconds)
         {
             if (seconds < 60)
                 return $"{seconds} second{(seconds == 1 ? "" : "s")}";
-            else if (seconds < 3600)
+            if (seconds < 3600)
             {
                 var minutes = seconds / 60;
                 var remainingSeconds = seconds % 60;
                 return $"{minutes} minute{(minutes == 1 ? "" : "s")} {remainingSeconds} second{(remainingSeconds == 1 ? "" : "s")}";
             }
-            else
-            {
-                var hours = seconds / 3600;
-                var remainingMinutes = (seconds % 3600) / 60;
-                return $"{hours} hour{(hours == 1 ? "" : "s")} {remainingMinutes} minute{(remainingMinutes == 1 ? "" : "s")}";
-            }
+
+            var hours = seconds / 3600;
+            var remainingMinutes = (seconds % 3600) / 60;
+            return $"{hours} hour{(hours == 1 ? "" : "s")} {remainingMinutes} minute{(remainingMinutes == 1 ? "" : "s")}";
         }
 
         private string GetTimeAgo(DateTime dateTime)
         {
             var timeSpan = DateTime.UtcNow - dateTime;
-            
+
             if (timeSpan.TotalMinutes < 1)
                 return "Just now";
-            else if (timeSpan.TotalMinutes < 60)
+            if (timeSpan.TotalMinutes < 60)
                 return $"{(int)timeSpan.TotalMinutes} minute{(timeSpan.TotalMinutes == 1 ? "" : "s")} ago";
-            else if (timeSpan.TotalHours < 24)
+            if (timeSpan.TotalHours < 24)
                 return $"{(int)timeSpan.TotalHours} hour{(timeSpan.TotalHours == 1 ? "" : "s")} ago";
-            else
-                return $"{(int)timeSpan.TotalDays} day{(timeSpan.TotalDays == 1 ? "" : "s")} ago";
+            return $"{(int)timeSpan.TotalDays} day{(timeSpan.TotalDays == 1 ? "" : "s")} ago";
         }
     }
-
-    public class LogUserActivityRequest
-    {
-        public int UserId { get; set; }
-        public int ProblemId { get; set; }
-        public int AttemptNumber { get; set; }
-        public string TestType { get; set; } = "";
-        public int TimeTakenSeconds { get; set; }
-    }
-
-    public class UpdateActivityMetricsRequest
-    {
-        public int? LanguageSwitchCount { get; set; }
-        public int? EraseCount { get; set; }
-        public int? SaveCount { get; set; }
-        public int? RunClickCount { get; set; }
-        public int? SubmitClickCount { get; set; }
-        public int? LoginLogoutCount { get; set; }
-        public bool? IsSessionAbandoned { get; set; }
-        public string? PassedTestCaseIDs { get; set; }
-        public string? FailedTestCaseIDs { get; set; }
-        public DateTime? StartTime { get; set; }
-        public DateTime? EndTime { get; set; }
-    }
-} 
+}

@@ -7,10 +7,227 @@ namespace LeetCodeCompiler.API.Services
     public class ActivityTrackingService : IActivityTrackingService
     {
         private readonly AppDbContext _context;
+        private readonly IQuestionPoolService _questionPoolService;
 
-        public ActivityTrackingService(AppDbContext context)
+        public ActivityTrackingService(AppDbContext context, IQuestionPoolService questionPoolService)
         {
             _context = context;
+            _questionPoolService = questionPoolService;
+        }
+
+        public async Task<UserCodingActivityLog> LogUserActivityAsync(LogUserActivityRequest request)
+        {
+            if (request.CodingTestAttemptId.HasValue)
+            {
+                await EnsureUserOwnsAttemptAsync(request.CodingTestAttemptId.Value, request.UserId);
+                await ValidateProblemInAttemptAsync(request.CodingTestAttemptId.Value, request.ProblemId);
+
+                return await GetOrCreateAssessmentSessionAsync(
+                    request.UserId,
+                    request.ProblemId,
+                    request.CodingTestAttemptId.Value,
+                    string.IsNullOrWhiteSpace(request.TestType) ? "session" : request.TestType,
+                    request.CodingTestId,
+                    request.CodingTestQuestionAttemptId);
+            }
+
+            return await LogUserActivityAsync(
+                request.UserId,
+                request.ProblemId,
+                request.AttemptNumber,
+                request.TestType,
+                request.TimeTakenSeconds);
+        }
+
+        public async Task EnsureUserOwnsAttemptAsync(int codingTestAttemptId, int userId)
+        {
+            var attempt = await _context.CodingTestAttempts.FindAsync(codingTestAttemptId);
+            if (attempt == null)
+                throw new ArgumentException($"Attempt {codingTestAttemptId} not found");
+            if (attempt.UserId != userId)
+                throw new UnauthorizedAccessException("You do not own this attempt.");
+        }
+
+        public async Task EnsureUserOwnsActivityLogAsync(int activityLogId, int userId)
+        {
+            var log = await _context.UserCodingActivityLogs.FindAsync(activityLogId);
+            if (log == null)
+                throw new ArgumentException($"Activity log {activityLogId} not found");
+            if (log.UserId != userId)
+                throw new UnauthorizedAccessException("You do not own this activity log.");
+        }
+
+        public async Task<UserCodingActivityLog> GetOrCreateAssessmentSessionAsync(
+            int userId,
+            int problemId,
+            int codingTestAttemptId,
+            string testType,
+            int? codingTestId = null,
+            int? codingTestQuestionAttemptId = null)
+        {
+            await EnsureUserOwnsAttemptAsync(codingTestAttemptId, userId);
+            await ValidateProblemInAttemptAsync(codingTestAttemptId, problemId);
+
+            var attempt = await _context.CodingTestAttempts.FindAsync(codingTestAttemptId);
+            var existing = await _context.UserCodingActivityLogs
+                .Where(l => l.CodingTestAttemptId == codingTestAttemptId
+                         && l.ProblemId == problemId
+                         && l.SessionStatus == "Active"
+                         && !l.IsSessionAbandoned)
+                .OrderByDescending(l => l.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+                return existing;
+
+            var now = DateTime.UtcNow;
+            var log = new UserCodingActivityLog
+            {
+                UserId = userId,
+                ProblemId = problemId,
+                AttemptNumber = attempt?.AttemptNumber ?? 0,
+                TestType = testType,
+                TimeTakenSeconds = 0,
+                CreatedAt = now,
+                UpdatedAt = now,
+                StartTime = now,
+                EndTime = now,
+                CodingTestId = codingTestId ?? attempt?.CodingTestId,
+                CodingTestAttemptId = codingTestAttemptId,
+                CodingTestQuestionAttemptId = codingTestQuestionAttemptId,
+                SessionStatus = "Active",
+                Source = "assessment"
+            };
+
+            _context.UserCodingActivityLogs.Add(log);
+            await _context.SaveChangesAsync();
+            return log;
+        }
+
+        public async Task UpdateAssessmentMetricsAsync(int activityLogId, int userId, AssessmentActivityMetrics metrics)
+        {
+            await EnsureUserOwnsActivityLogAsync(activityLogId, userId);
+
+            await UpdateActivityMetricsAsync(
+                activityLogId,
+                metrics.TimeTakenSeconds,
+                metrics.LanguageSwitchCount,
+                metrics.EraseCount,
+                metrics.SaveCount,
+                metrics.RunClickCount,
+                metrics.SubmitClickCount,
+                metrics.LoginLogoutCount,
+                metrics.IsSessionAbandoned,
+                metrics.PassedTestCaseIDs,
+                metrics.FailedTestCaseIDs,
+                metrics.StartTime,
+                metrics.EndTime ?? DateTime.UtcNow);
+        }
+
+        public async Task<UserCodingActivityLog> CompleteAssessmentSessionAsync(
+            int userId,
+            int problemId,
+            int codingTestAttemptId,
+            long? submissionId,
+            AssessmentActivityMetrics metrics,
+            string testType = "submit",
+            int? codingTestQuestionAttemptId = null)
+        {
+            await EnsureUserOwnsAttemptAsync(codingTestAttemptId, userId);
+
+            var active = await _context.UserCodingActivityLogs
+                .Where(l => l.CodingTestAttemptId == codingTestAttemptId
+                         && l.ProblemId == problemId
+                         && l.SessionStatus == "Active")
+                .OrderByDescending(l => l.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            var attempt = await _context.CodingTestAttempts.FindAsync(codingTestAttemptId);
+            var now = DateTime.UtcNow;
+
+            if (active == null)
+            {
+                active = new UserCodingActivityLog
+                {
+                    UserId = userId,
+                    ProblemId = problemId,
+                    AttemptNumber = attempt?.AttemptNumber ?? 0,
+                    TestType = testType,
+                    CreatedAt = now,
+                    StartTime = metrics.StartTime ?? attempt?.StartedAt ?? now,
+                    CodingTestId = attempt?.CodingTestId,
+                    CodingTestAttemptId = codingTestAttemptId,
+                    Source = "assessment"
+                };
+                _context.UserCodingActivityLogs.Add(active);
+            }
+
+            active.TestType = testType;
+            active.SessionStatus = "Completed";
+            active.SubmissionId = submissionId;
+            if (codingTestQuestionAttemptId.HasValue)
+                active.CodingTestQuestionAttemptId = codingTestQuestionAttemptId;
+            active.TimeTakenSeconds = metrics.TimeTakenSeconds ?? active.TimeTakenSeconds;
+            active.LanguageSwitchCount = metrics.LanguageSwitchCount ?? active.LanguageSwitchCount;
+            active.EraseCount = metrics.EraseCount ?? active.EraseCount;
+            active.SaveCount = metrics.SaveCount ?? active.SaveCount;
+            active.RunClickCount = metrics.RunClickCount ?? active.RunClickCount;
+            active.SubmitClickCount = metrics.SubmitClickCount ?? active.SubmitClickCount;
+            active.LoginLogoutCount = metrics.LoginLogoutCount ?? active.LoginLogoutCount;
+            active.IsSessionAbandoned = metrics.IsSessionAbandoned ?? active.IsSessionAbandoned;
+            if (metrics.PassedTestCaseIDs != null) active.PassedTestCaseIDs = metrics.PassedTestCaseIDs;
+            if (metrics.FailedTestCaseIDs != null) active.FailedTestCaseIDs = metrics.FailedTestCaseIDs;
+            if (metrics.StartTime.HasValue) active.StartTime = metrics.StartTime.Value;
+            active.EndTime = metrics.EndTime ?? now;
+            active.UpdatedAt = now;
+
+            await _context.SaveChangesAsync();
+            return active;
+        }
+
+        public async Task<UserCodingActivityLog?> GetCurrentAssessmentSessionAsync(int userId, int problemId, int codingTestAttemptId)
+        {
+            await EnsureUserOwnsAttemptAsync(codingTestAttemptId, userId);
+
+            return await _context.UserCodingActivityLogs
+                .Where(l => l.UserId == userId
+                         && l.ProblemId == problemId
+                         && l.CodingTestAttemptId == codingTestAttemptId
+                         && l.SessionStatus == "Active"
+                         && !l.IsSessionAbandoned)
+                .OrderByDescending(l => l.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<UserCodingActivityLog>> GetAttemptActivityLogsAsync(int codingTestAttemptId)
+        {
+            return await _context.UserCodingActivityLogs
+                .Where(l => l.CodingTestAttemptId == codingTestAttemptId)
+                .OrderBy(l => l.ProblemId)
+                .ThenByDescending(l => l.CreatedAt)
+                .ToListAsync();
+        }
+
+        private async Task ValidateProblemInAttemptAsync(int codingTestAttemptId, int problemId)
+        {
+            var resolved = await _questionPoolService.ResolveQuestionForAttemptAsync(codingTestAttemptId, problemId);
+            if (resolved.IsAllowed)
+                return;
+
+            var inSnapshot = await _context.CodingTestAttemptQuestions
+                .AnyAsync(q => q.CodingTestAttemptId == codingTestAttemptId && q.ProblemId == problemId);
+
+            if (!inSnapshot)
+            {
+                var attempt = await _context.CodingTestAttempts
+                    .Include(a => a.CodingTest)
+                    .ThenInclude(t => t!.Questions)
+                    .FirstOrDefaultAsync(a => a.Id == codingTestAttemptId);
+
+                var inFixed = attempt?.CodingTest?.Questions.Any(q => q.ProblemId == problemId) == true;
+                if (!inFixed)
+                    throw new ArgumentException($"Problem {problemId} is not part of attempt {codingTestAttemptId}");
+            }
         }
 
         public async Task<UserCodingActivityLog> LogUserActivityAsync(int userId, int problemId, int attemptNumber, string testType, int timeTakenSeconds)
@@ -25,7 +242,8 @@ namespace LeetCodeCompiler.API.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 StartTime = DateTime.UtcNow,
-                EndTime = DateTime.UtcNow
+                EndTime = DateTime.UtcNow,
+                Source = "practice"
             };
 
             _context.UserCodingActivityLogs.Add(activityLog);
@@ -356,8 +574,8 @@ namespace LeetCodeCompiler.API.Services
             await _context.SaveChangesAsync();
         }
 
-        // Second overload for the interface
-        public async Task UpdateActivityMetricsAsync(int userId, int problemId, int attemptNumber, string testType, int timeTakenSeconds, int languageSwitchCount, int eraseCount, int saveCount, int runClickCount, int submitClickCount, int loginLogoutCount, bool isSessionAbandoned, string passedTestCaseIDs, string failedTestCaseIDs)
+        // Renamed: creates a new log row with full metrics (practice flows)
+        public async Task<UserCodingActivityLog> CreateActivityLogWithMetricsAsync(int userId, int problemId, int attemptNumber, string testType, int timeTakenSeconds, int languageSwitchCount, int eraseCount, int saveCount, int runClickCount, int submitClickCount, int loginLogoutCount, bool isSessionAbandoned, string passedTestCaseIDs, string failedTestCaseIDs)
         {
             var log = new UserCodingActivityLog
             {
@@ -378,11 +596,13 @@ namespace LeetCodeCompiler.API.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 StartTime = DateTime.UtcNow,
-                EndTime = DateTime.UtcNow
+                EndTime = DateTime.UtcNow,
+                Source = "practice"
             };
 
             _context.UserCodingActivityLogs.Add(log);
             await _context.SaveChangesAsync();
+            return log;
         }
 
         public async Task<List<CoreQuestionResult>> GetAllQuestionResultsAsync()

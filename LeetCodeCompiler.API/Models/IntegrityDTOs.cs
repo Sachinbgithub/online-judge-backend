@@ -34,6 +34,7 @@ namespace LeetCodeCompiler.API.Models
         public int TabSwitchCount { get; set; }
         public int WindowBlurCount { get; set; }
         public int PasteCount { get; set; }
+        public int ScreenshotCount { get; set; }
         public int WarningThreshold { get; set; }
         public int FlagThreshold { get; set; }
         public int BreachRuleLimit { get; set; }

@@ -130,6 +130,18 @@ namespace LeetCodeCompiler.API.Data
                 .Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
 
+            modelBuilder.Entity<UserCodingActivityLog>()
+                .Property(e => e.Source)
+                .HasDefaultValue("practice");
+
+            modelBuilder.Entity<UserCodingActivityLog>()
+                .HasIndex(e => e.CodingTestAttemptId)
+                .HasDatabaseName("IX_UserCodingActivityLog_AttemptId");
+
+            modelBuilder.Entity<UserCodingActivityLog>()
+                .HasIndex(e => new { e.CodingTestAttemptId, e.ProblemId, e.SessionStatus })
+                .HasDatabaseName("IX_UserCodingActivityLog_Attempt_Problem_Status");
+
             modelBuilder.Entity<CoreQuestionResult>()
                 .Property(e => e.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");

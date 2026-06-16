@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Services;
@@ -390,6 +391,7 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+        [Obsolete("Use GET /api/UserActivity/{userId}/problem/{problemId} instead.")]
         [HttpGet("{userId}/problem/{problemId}/activity-logs")]
         public async Task<IActionResult> GetUserActivityLogsForProblem(int userId, int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
@@ -460,7 +462,7 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
-        // ✅ NEW: Add the correct endpoint as shown in the image
+        [Obsolete("Use GET /api/UserActivity/{userId}/problem/{problemId} instead.")]
         [HttpGet("{userId}/problem/{problemId}/activity")]
         public async Task<IActionResult> GetUserActivityForProblem(int userId, int problemId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {

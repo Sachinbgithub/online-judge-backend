@@ -135,12 +135,25 @@ namespace LeetCodeCompiler.API.Controllers
             try
             {
                 var startTime = DateTime.UtcNow;
-                var activityLog = await _activityTrackingService.LogUserActivityAsync(
-                    request.UserId,
-                    request.ProblemId,
-                    request.AttemptNumber,
-                    "run",
-                    0);
+                UserCodingActivityLog activityLog;
+
+                if (request.CodingTestAttemptId.HasValue)
+                {
+                    activityLog = await _activityTrackingService.GetOrCreateAssessmentSessionAsync(
+                        request.UserId,
+                        request.ProblemId,
+                        request.CodingTestAttemptId.Value,
+                        "run");
+                }
+                else
+                {
+                    activityLog = await _activityTrackingService.LogUserActivityAsync(
+                        request.UserId,
+                        request.ProblemId,
+                        request.AttemptNumber,
+                        "run",
+                        0);
+                }
 
                 var judgeResult = await _judgeService.EvaluateTestCasesAsync(
                     request.Language, request.Code, request.TestCases);
@@ -149,9 +162,31 @@ namespace LeetCodeCompiler.API.Controllers
                 var timeTaken = (endTime - startTime).TotalSeconds;
                 var results = JudgeResultMapper.ToTestCaseResults(judgeResult);
 
-                await _activityTrackingService.UpdateActivityMetricsAsync(
-                    activityLog.Id,
-                    timeTakenSeconds: (int)timeTaken);
+                var passedIds = string.Join(",", results.Select((r, i) => new { r.Passed, Index = i + 1 }).Where(x => x.Passed).Select(x => x.Index));
+                var failedIds = string.Join(",", results.Select((r, i) => new { r.Passed, Index = i + 1 }).Where(x => !x.Passed).Select(x => x.Index));
+
+                if (request.CodingTestAttemptId.HasValue)
+                {
+                    await _activityTrackingService.UpdateAssessmentMetricsAsync(activityLog.Id, request.UserId, new AssessmentActivityMetrics
+                    {
+                        TimeTakenSeconds = (int)timeTaken,
+                        RunClickCount = request.RunClickCount ?? activityLog.RunClickCount + 1,
+                        PassedTestCaseIDs = passedIds,
+                        FailedTestCaseIDs = failedIds,
+                        EndTime = endTime
+                    });
+                }
+                else
+                {
+                    await _activityTrackingService.UpdateActivityMetricsAsync(
+                        activityLog.Id,
+                        timeTakenSeconds: (int)timeTaken);
+
+                    await _activityTrackingService.UpdateActivityMetricsAsync(
+                        activityLog.Id,
+                        passedTestCaseIDs: passedIds,
+                        failedTestCaseIDs: failedIds);
+                }
 
                 var passedCount = judgeResult.PassedTestCases;
                 var failedCount = judgeResult.FailedTestCases;
@@ -180,14 +215,6 @@ namespace LeetCodeCompiler.API.Controllers
                         result.RuntimeMs);
                 }
 
-                var passedIds = string.Join(",", results.Select((r, i) => new { r.Passed, Index = i + 1 }).Where(x => x.Passed).Select(x => x.Index));
-                var failedIds = string.Join(",", results.Select((r, i) => new { r.Passed, Index = i + 1 }).Where(x => !x.Passed).Select(x => x.Index));
-
-                await _activityTrackingService.UpdateActivityMetricsAsync(
-                    activityLog.Id,
-                    passedTestCaseIDs: passedIds,
-                    failedTestCaseIDs: failedIds);
-
                 return Ok(new TrackedCodeExecutionResponse
                 {
                     Results = results,
@@ -195,6 +222,10 @@ namespace LeetCodeCompiler.API.Controllers
                     QuestionResultId = questionResult.Id,
                     TimeTakenSeconds = timeTaken
                 });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
             catch (ArgumentException ex)
             {

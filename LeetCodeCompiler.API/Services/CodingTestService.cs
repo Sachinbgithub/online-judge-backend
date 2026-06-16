@@ -15,6 +15,7 @@ namespace LeetCodeCompiler.API.Services
         private readonly IQuestionPoolService _questionPoolService;
         private readonly IIntegrityAnalysisService _integrityAnalysisService;
         private readonly IPlagiarismService _plagiarismService;
+        private readonly IActivityTrackingService _activityTrackingService;
 
         public CodingTestService(
             AppDbContext context,
@@ -24,7 +25,8 @@ namespace LeetCodeCompiler.API.Services
             IProctoringService proctoringService,
             IQuestionPoolService questionPoolService,
             IIntegrityAnalysisService integrityAnalysisService,
-            IPlagiarismService plagiarismService)
+            IPlagiarismService plagiarismService,
+            IActivityTrackingService activityTrackingService)
         {
             _context = context;
             _studentProfileService = studentProfileService;
@@ -34,6 +36,7 @@ namespace LeetCodeCompiler.API.Services
             _questionPoolService = questionPoolService;
             _integrityAnalysisService = integrityAnalysisService;
             _plagiarismService = plagiarismService;
+            _activityTrackingService = activityTrackingService;
         }
 
         public async Task<CodingTestResponse> CreateCodingTestAsync(CreateCodingTestRequest request)
@@ -1026,7 +1029,23 @@ namespace LeetCodeCompiler.API.Services
             }
 
             // Find or create the coding test attempt for this user
-            var attempt = await _context.CodingTestAttempts
+            CodingTestAttempt? attempt = null;
+            if (request.CodingTestAttemptId.HasValue)
+            {
+                attempt = await _context.CodingTestAttempts
+                    .Include(cta => cta.CodingTest)
+                    .Include(cta => cta.QuestionAttempts)
+                        .ThenInclude(qa => qa.CodingTestQuestion)
+                    .FirstOrDefaultAsync(cta => cta.Id == request.CodingTestAttemptId.Value
+                                             && cta.UserId == request.UserId);
+
+                if (attempt == null)
+                    throw new ArgumentException($"Attempt {request.CodingTestAttemptId} not found for user {request.UserId}");
+
+                targetCodingTestId = attempt.CodingTestId;
+            }
+
+            attempt ??= await _context.CodingTestAttempts
                 .Include(cta => cta.CodingTest)
                 .Include(cta => cta.QuestionAttempts)
                     .ThenInclude(qa => qa.CodingTestQuestion)
@@ -1196,6 +1215,30 @@ namespace LeetCodeCompiler.API.Services
             }
 
             await _context.SaveChangesAsync();
+
+            var passedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => r.IsPassed).Select(r => r.TestCaseId));
+            var failedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => !r.IsPassed).Select(r => r.TestCaseId));
+            await _activityTrackingService.CompleteAssessmentSessionAsync(
+                request.UserId,
+                request.ProblemId,
+                attempt.Id,
+                submission.SubmissionId,
+                new AssessmentActivityMetrics
+                {
+                    TimeTakenSeconds = (int)(DateTime.UtcNow - questionAttempt.StartedAt).TotalSeconds,
+                    LanguageSwitchCount = request.LanguageSwitchCount,
+                    RunClickCount = request.RunClickCount,
+                    SubmitClickCount = request.SubmitClickCount,
+                    EraseCount = request.EraseCount,
+                    SaveCount = request.SaveCount,
+                    LoginLogoutCount = request.LoginLogoutCount,
+                    IsSessionAbandoned = request.IsSessionAbandoned,
+                    PassedTestCaseIDs = passedIds,
+                    FailedTestCaseIDs = failedIds,
+                    StartTime = questionAttempt.StartedAt,
+                    EndTime = DateTime.UtcNow
+                },
+                "submit");
 
             await _integrityAnalysisService.RunSubmitHeuristicsAsync(
                 attempt.Id,
@@ -1525,6 +1568,34 @@ namespace LeetCodeCompiler.API.Services
 
             foreach (var (questionSubmission, judgeResult, _, _, _) in evaluatedQuestions)
             {
+                var passedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => r.IsPassed).Select(r => r.TestCaseId));
+                var failedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => !r.IsPassed).Select(r => r.TestCaseId));
+                var qa = attempt.QuestionAttempts?.FirstOrDefault(q => q.ProblemId == questionSubmission.ProblemId);
+
+                await _activityTrackingService.CompleteAssessmentSessionAsync(
+                    request.UserId,
+                    questionSubmission.ProblemId,
+                    attempt.Id,
+                    submission.SubmissionId,
+                    new AssessmentActivityMetrics
+                    {
+                        LanguageSwitchCount = questionSubmission.LanguageSwitchCount,
+                        RunClickCount = questionSubmission.RunClickCount,
+                        SubmitClickCount = questionSubmission.SubmitClickCount,
+                        EraseCount = questionSubmission.EraseCount,
+                        SaveCount = questionSubmission.SaveCount,
+                        LoginLogoutCount = questionSubmission.LoginLogoutCount,
+                        IsSessionAbandoned = questionSubmission.IsSessionAbandoned,
+                        PassedTestCaseIDs = passedIds,
+                        FailedTestCaseIDs = failedIds,
+                        StartTime = qa?.StartedAt ?? attempt.StartedAt,
+                        EndTime = DateTime.UtcNow,
+                        TimeTakenSeconds = qa != null
+                            ? (int)(DateTime.UtcNow - qa.StartedAt).TotalSeconds
+                            : request.TotalTimeSpentMinutes * 60
+                    },
+                    "submit");
+
                 await _integrityAnalysisService.RunSubmitHeuristicsAsync(
                     attempt.Id,
                     submission.SubmissionId,
@@ -1999,6 +2070,27 @@ namespace LeetCodeCompiler.API.Services
             var attempt = await _context.CodingTestAttempts.FindAsync(questionAttempt.CodingTestAttemptId);
             if (attempt != null)
             {
+                var passedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => r.IsPassed).Select(r => r.TestCaseId));
+                var failedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => !r.IsPassed).Select(r => r.TestCaseId));
+
+                await _activityTrackingService.CompleteAssessmentSessionAsync(
+                    request.UserId,
+                    questionAttempt.ProblemId,
+                    attempt.Id,
+                    null,
+                    new AssessmentActivityMetrics
+                    {
+                        RunClickCount = request.RunCount,
+                        SubmitClickCount = request.SubmitCount,
+                        PassedTestCaseIDs = passedIds,
+                        FailedTestCaseIDs = failedIds,
+                        StartTime = questionAttempt.StartedAt,
+                        EndTime = DateTime.UtcNow,
+                        TimeTakenSeconds = (int)(DateTime.UtcNow - questionAttempt.StartedAt).TotalSeconds
+                    },
+                    "submit",
+                    questionAttempt.Id);
+
                 await _integrityAnalysisService.RunSubmitHeuristicsAsync(
                     attempt.Id,
                     null,
