@@ -10,10 +10,14 @@ namespace LeetCodeCompiler.API.Controllers
     public class CodingTestController : ControllerBase
     {
         private readonly ICodingTestService _codingTestService;
+        private readonly INetworkDisconnectService _networkDisconnectService;
 
-        public CodingTestController(ICodingTestService codingTestService)
+        public CodingTestController(
+            ICodingTestService codingTestService,
+            INetworkDisconnectService networkDisconnectService)
         {
             _codingTestService = codingTestService;
+            _networkDisconnectService = networkDisconnectService;
         }
 
         // Test Management Endpoints
@@ -595,6 +599,29 @@ public async Task<IActionResult> GetCombinedTestResults(
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to end test", details = ex.Message });
+            }
+        }
+
+        [HttpPost("attempt/{attemptId}/network-timeout")]
+        [Authorize(Policy = "AnyAuthenticated")]
+        public async Task<IActionResult> NetworkTimeout(int attemptId, [FromQuery] int userId)
+        {
+            try
+            {
+                await _networkDisconnectService.HandleDisconnectTimeoutAsync(attemptId, userId);
+                return Ok(new { success = true });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to process network timeout", details = ex.Message });
             }
         }
 

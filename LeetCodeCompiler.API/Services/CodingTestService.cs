@@ -902,22 +902,26 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<CodingTestAttemptResponse> StartCodingTestAsync(StartCodingTestRequest request)
         {
-            // Validate access (pass access code so global tests with a code can be validated)
-            if (!await CanUserAttemptTestAsync(request.UserId, request.CodingTestId, request.AccessCode))
-                throw new InvalidOperationException("User cannot attempt this test");
+            var codingTest = await _context.CodingTests.FindAsync(request.CodingTestId);
+            if (codingTest == null)
+                throw new InvalidOperationException("Coding test not found");
 
-            // Check if user already has an attempt
             var existingAttempt = await _context.CodingTestAttempts
-                .FirstOrDefaultAsync(cta => cta.CodingTestId == request.CodingTestId && 
-                                          cta.UserId == request.UserId && 
+                .FirstOrDefaultAsync(cta => cta.CodingTestId == request.CodingTestId &&
+                                          cta.UserId == request.UserId &&
                                           cta.Status == "InProgress");
 
             if (existingAttempt != null)
                 return await GetCodingTestAttemptAsync(existingAttempt.Id);
 
-            var codingTest = await _context.CodingTests.FindAsync(request.CodingTestId);
+            var pendingGrant = await GetPendingResumeGrantAsync(request.UserId, request.CodingTestId);
+            var canStart = pendingGrant != null
+                ? await CanUserResumeTestAsync(request.UserId, request.CodingTestId, request.AccessCode, pendingGrant)
+                : await CanUserAttemptTestAsync(request.UserId, request.CodingTestId, request.AccessCode);
 
-            // Create new attempt
+            if (!canStart)
+                throw new InvalidOperationException("User cannot attempt this test");
+
             var attempt = new CodingTestAttempt
             {
                 CodingTestId = request.CodingTestId,
@@ -925,15 +929,30 @@ namespace LeetCodeCompiler.API.Services
                 AttemptNumber = await GetNextAttemptNumber(request.UserId, request.CodingTestId),
                 StartedAt = DateTime.UtcNow,
                 Status = "InProgress",
+                IntegrityStatus = "Normal",
                 CreatedAt = DateTime.UtcNow
             };
+
+            if (pendingGrant != null)
+            {
+                attempt.ParentAttemptId = pendingGrant.PriorAttemptId;
+                attempt.AllowedEndAt = pendingGrant.AllowedEndAt;
+                pendingGrant.Status = ResumeGrantStatuses.Used;
+                pendingGrant.UsedByAttemptId = null;
+            }
 
             _context.CodingTestAttempts.Add(attempt);
             await _context.SaveChangesAsync();
 
+            if (pendingGrant != null)
+            {
+                pendingGrant.UsedByAttemptId = attempt.Id;
+                await _context.SaveChangesAsync();
+            }
+
             await _questionPoolService.CreateAttemptQuestionSnapshotAsync(attempt);
 
-            if (codingTest?.EnableProctoring == true)
+            if (codingTest.EnableProctoring)
                 await _proctoringService.StartSessionAsync(attempt.Id);
 
             return await GetCodingTestAttemptAsync(attempt.Id);
@@ -1205,6 +1224,9 @@ namespace LeetCodeCompiler.API.Services
             attempt.IsLateSubmission = submission.IsLateSubmission;
             attempt.UpdatedAt = DateTime.UtcNow;
 
+            if (string.IsNullOrEmpty(attempt.SubmissionReason))
+                attempt.SubmissionReason = SubmissionReasons.Manual;
+
             // Update the AssignedCodingTests status if this is an assigned test
             var assignment = await _context.AssignedCodingTests
                 .FirstOrDefaultAsync(act => act.AssignedToUserId == request.UserId && 
@@ -1217,11 +1239,13 @@ namespace LeetCodeCompiler.API.Services
                 assignment.Status = attempt.Status; // "Submitted"
                 assignment.StartedAt = assignment.StartedAt ?? attempt.StartedAt;
                 assignment.CompletedAt = attempt.CompletedAt;
-                assignment.TimeSpentMinutes = attempt.TimeSpentMinutes;
                 assignment.IsLateSubmission = attempt.IsLateSubmission;
                 assignment.UpdatedAt = DateTime.UtcNow;
             }
 
+            await _context.SaveChangesAsync();
+
+            await ApplyActiveTimeToAttemptAsync(attempt, assignment);
             await _context.SaveChangesAsync();
 
             var passedIds = string.Join(",", judgeResult.TestCaseResults.Where(r => r.IsPassed).Select(r => r.TestCaseId));
@@ -1549,6 +1573,9 @@ namespace LeetCodeCompiler.API.Services
             attempt.IsLateSubmission = request.IsLateSubmission;
             attempt.UpdatedAt = DateTime.UtcNow;
 
+            if (string.IsNullOrEmpty(attempt.SubmissionReason))
+                attempt.SubmissionReason = SubmissionReasons.Manual;
+
             // Update the AssignedCodingTests status if this is an assigned test
             var assignment = await _context.AssignedCodingTests
                 .FirstOrDefaultAsync(act => act.AssignedToUserId == request.UserId && 
@@ -1560,7 +1587,6 @@ namespace LeetCodeCompiler.API.Services
                 assignment.Status = "Completed";
                 assignment.StartedAt = assignment.StartedAt ?? attempt.StartedAt;
                 assignment.CompletedAt = attempt.CompletedAt;
-                assignment.TimeSpentMinutes = attempt.TimeSpentMinutes;
                 assignment.IsLateSubmission = attempt.IsLateSubmission;
                 assignment.UpdatedAt = DateTime.UtcNow;
             }
@@ -1573,6 +1599,9 @@ namespace LeetCodeCompiler.API.Services
             {
                 throw new InvalidOperationException($"Failed to save final changes: {ex.Message}. Inner exception: {ex.InnerException?.Message}", ex);
             }
+
+            await ApplyActiveTimeToAttemptAsync(attempt, assignment);
+            await _context.SaveChangesAsync();
 
             foreach (var (questionSubmission, judgeResult, _, _, _) in evaluatedQuestions)
             {
@@ -1643,7 +1672,10 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        public async Task AutoSubmitDisqualifiedAttemptAsync(int codingTestAttemptId)
+        public Task AutoSubmitDisqualifiedAttemptAsync(int codingTestAttemptId)
+            => AutoSubmitAttemptAsync(codingTestAttemptId, AutoSubmitReason.Disqualified);
+
+        public async Task AutoSubmitAttemptAsync(int codingTestAttemptId, AutoSubmitReason reason)
         {
             var attempt = await _context.CodingTestAttempts
                 .Include(a => a.QuestionAttempts)
@@ -1653,20 +1685,26 @@ namespace LeetCodeCompiler.API.Services
             if (attempt == null || attempt.Status is "Submitted" or "Completed")
                 return;
 
-            var questionSubmissions = await BuildAutoDqQuestionSubmissionsAsync(attempt);
+            if (reason == AutoSubmitReason.Disqualified)
+                attempt.IntegrityStatus = "Disqualified";
+
+            var questionSubmissions = await BuildPartialQuestionSubmissionsAsync(attempt, reason);
             if (questionSubmissions.Count == 0)
             {
-                await FinalizeDisqualifiedAttemptWithoutSubmitAsync(attempt);
+                await FinalizeAttemptWithoutSubmitAsync(attempt, reason);
                 return;
             }
 
+            var activeSeconds = await _activityTrackingService.GetAttemptActiveTimeSecondsAsync(attempt.Id);
             var endDate = attempt.CodingTest?.EndDate ?? DateTime.UtcNow;
             var request = new SubmitWholeCodingTestRequest
             {
                 UserId = attempt.UserId,
                 CodingTestId = attempt.CodingTestId,
                 AttemptNumber = attempt.AttemptNumber,
-                TotalTimeSpentMinutes = Math.Max(1, (int)(DateTime.UtcNow - attempt.StartedAt).TotalMinutes),
+                TotalTimeSpentMinutes = activeSeconds > 0
+                    ? Math.Max(1, (activeSeconds + 59) / 60)
+                    : Math.Max(1, (int)(DateTime.UtcNow - attempt.StartedAt).TotalMinutes),
                 IsLateSubmission = DateTime.UtcNow > endDate,
                 QuestionSubmissions = questionSubmissions
             };
@@ -1677,20 +1715,31 @@ namespace LeetCodeCompiler.API.Services
             }
             catch (Exception)
             {
-                await FinalizeDisqualifiedAttemptWithoutSubmitAsync(attempt);
+                await FinalizeAttemptWithoutSubmitAsync(attempt, reason);
                 return;
             }
 
             var updated = await _context.CodingTestAttempts.FindAsync(codingTestAttemptId);
             if (updated != null)
             {
-                updated.IntegrityStatus = "Disqualified";
+                updated.SubmissionReason = reason == AutoSubmitReason.Disqualified
+                    ? SubmissionReasons.AutoDQ
+                    : SubmissionReasons.NetworkLoss;
+                if (reason == AutoSubmitReason.Disqualified)
+                    updated.IntegrityStatus = "Disqualified";
                 updated.UpdatedAt = DateTime.UtcNow;
+
+                var assignment = await _context.AssignedCodingTests
+                    .FirstOrDefaultAsync(a => a.AssignedToUserId == updated.UserId
+                                           && a.CodingTestId == updated.CodingTestId
+                                           && !a.IsDeleted);
+                await ApplyActiveTimeToAttemptAsync(updated, assignment);
                 await _context.SaveChangesAsync();
             }
         }
 
-        private async Task<List<QuestionSubmission>> BuildAutoDqQuestionSubmissionsAsync(CodingTestAttempt attempt)
+        private async Task<List<QuestionSubmission>> BuildPartialQuestionSubmissionsAsync(
+            CodingTestAttempt attempt, AutoSubmitReason reason)
         {
             var attemptQuestions = await _context.CodingTestAttemptQuestions
                 .Where(q => q.CodingTestAttemptId == attempt.Id)
@@ -1707,22 +1756,26 @@ namespace LeetCodeCompiler.API.Services
                 return fixedQuestions.Select(fq =>
                 {
                     var qa = attempt.QuestionAttempts.FirstOrDefault(x => x.ProblemId == fq.ProblemId);
-                    return BuildAutoDqQuestionSubmission(fq.ProblemId, qa);
+                    return BuildPartialQuestionSubmission(fq.ProblemId, qa, reason);
                 }).ToList();
             }
 
             return attemptQuestions.Select(aq =>
             {
                 var qa = attempt.QuestionAttempts.FirstOrDefault(x => x.ProblemId == aq.ProblemId);
-                return BuildAutoDqQuestionSubmission(aq.ProblemId, qa);
+                return BuildPartialQuestionSubmission(aq.ProblemId, qa, reason);
             }).ToList();
         }
 
-        private static QuestionSubmission BuildAutoDqQuestionSubmission(int problemId, CodingTestQuestionAttempt? qa)
+        private static QuestionSubmission BuildPartialQuestionSubmission(
+            int problemId, CodingTestQuestionAttempt? qa, AutoSubmitReason reason)
         {
+            var placeholder = reason == AutoSubmitReason.Disqualified
+                ? "# auto-submitted after disqualification\npass\n"
+                : "# auto-submitted after network disconnect\npass\n";
             var code = qa?.CodeSubmitted;
             if (string.IsNullOrWhiteSpace(code))
-                code = "# auto-submitted after disqualification\npass\n";
+                code = placeholder;
 
             return new QuestionSubmission
             {
@@ -1733,13 +1786,16 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        private async Task FinalizeDisqualifiedAttemptWithoutSubmitAsync(CodingTestAttempt attempt)
+        private async Task FinalizeAttemptWithoutSubmitAsync(CodingTestAttempt attempt, AutoSubmitReason reason)
         {
             attempt.Status = "Submitted";
             attempt.SubmittedAt = DateTime.UtcNow;
             attempt.CompletedAt = DateTime.UtcNow;
-            attempt.IntegrityStatus = "Disqualified";
-            attempt.TimeSpentMinutes = (int)(DateTime.UtcNow - attempt.StartedAt).TotalMinutes;
+            attempt.SubmissionReason = reason == AutoSubmitReason.Disqualified
+                ? SubmissionReasons.AutoDQ
+                : SubmissionReasons.NetworkLoss;
+            if (reason == AutoSubmitReason.Disqualified)
+                attempt.IntegrityStatus = "Disqualified";
             attempt.UpdatedAt = DateTime.UtcNow;
 
             var assignment = await _context.AssignedCodingTests
@@ -1751,10 +1807,11 @@ namespace LeetCodeCompiler.API.Services
             {
                 assignment.Status = "Submitted";
                 assignment.CompletedAt = attempt.CompletedAt;
-                assignment.TimeSpentMinutes = attempt.TimeSpentMinutes;
+                assignment.IsLateSubmission = attempt.IsLateSubmission;
                 assignment.UpdatedAt = DateTime.UtcNow;
             }
 
+            await ApplyActiveTimeToAttemptAsync(attempt, assignment);
             await _context.SaveChangesAsync();
         }
 
@@ -2395,17 +2452,91 @@ namespace LeetCodeCompiler.API.Services
                 var existingAttempt = await _context.CodingTestAttempts
                     .AnyAsync(cta => cta.CodingTestId == codingTestId && cta.UserId == userId);
                 if (existingAttempt)
-                    return false;
+                {
+                    var pendingGrant = await GetPendingResumeGrantAsync(userId, codingTestId);
+                    if (pendingGrant == null)
+                        return false;
+                }
             }
             else
             {
                 var attemptCount = await _context.CodingTestAttempts
                     .CountAsync(cta => cta.CodingTestId == codingTestId && cta.UserId == userId);
                 if (attemptCount >= codingTest.MaxAttempts)
+                {
+                    var pendingGrant = await GetPendingResumeGrantAsync(userId, codingTestId);
+                    if (pendingGrant == null)
+                        return false;
+                }
+            }
+
+            var latestAttempt = await _context.CodingTestAttempts
+                .Where(cta => cta.CodingTestId == codingTestId && cta.UserId == userId)
+                .OrderByDescending(cta => cta.AttemptNumber)
+                .FirstOrDefaultAsync();
+
+            if (latestAttempt != null
+                && latestAttempt.Status is "Submitted" or "Completed"
+                && (latestAttempt.IntegrityStatus == "Disqualified"
+                    || latestAttempt.SubmissionReason == SubmissionReasons.NetworkLoss))
+            {
+                var pendingGrant = await GetPendingResumeGrantAsync(userId, codingTestId);
+                if (pendingGrant == null)
                     return false;
             }
 
             return true;
+        }
+
+        private async Task<CodingTestResumeGrant?> GetPendingResumeGrantAsync(int userId, int codingTestId)
+        {
+            var now = DateTime.UtcNow;
+            return await _context.CodingTestResumeGrants
+                .Where(g => g.CodingTestId == codingTestId
+                         && g.UserId == userId
+                         && g.Status == ResumeGrantStatuses.Pending
+                         && g.AllowedEndAt > now)
+                .OrderByDescending(g => g.GrantedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        private async Task<bool> CanUserResumeTestAsync(
+            int userId, int codingTestId, string? accessCode, CodingTestResumeGrant grant)
+        {
+            var codingTest = await _context.CodingTests.FindAsync(codingTestId);
+            if (codingTest == null || !codingTest.IsActive || !codingTest.IsPublished)
+                return false;
+
+            var now = DateTime.UtcNow;
+            if (now < codingTest.StartDate || now > codingTest.EndDate || grant.AllowedEndAt <= now)
+                return false;
+
+            if (!codingTest.IsGlobal)
+            {
+                var isAssigned = await _context.AssignedCodingTests
+                    .AnyAsync(act => act.CodingTestId == codingTestId
+                                  && act.AssignedToUserId == userId
+                                  && !act.IsDeleted);
+                if (!isAssigned)
+                    return false;
+            }
+            else if (!string.IsNullOrEmpty(codingTest.AccessCode))
+            {
+                if (string.IsNullOrEmpty(accessCode) || codingTest.AccessCode != accessCode)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private async Task ApplyActiveTimeToAttemptAsync(CodingTestAttempt attempt, AssignedCodingTest? assignment = null)
+        {
+            var activeSeconds = await _activityTrackingService.GetAttemptActiveTimeSecondsAsync(attempt.Id);
+            if (activeSeconds > 0)
+                attempt.TimeSpentMinutes = Math.Max(1, (activeSeconds + 59) / 60);
+
+            if (assignment != null)
+                assignment.TimeSpentMinutes = attempt.TimeSpentMinutes;
         }
 
         public async Task<bool> IsTestActiveAsync(int codingTestId)
@@ -2601,6 +2732,7 @@ namespace LeetCodeCompiler.API.Services
         {
             var questions = await _questionPoolService.GetAttemptQuestionsAsync(attempt.Id);
             var test = attempt.CodingTest;
+            var activeSeconds = await _activityTrackingService.GetAttemptActiveTimeSecondsAsync(attempt.Id);
 
             return new CodingTestAttemptResponse
             {
@@ -2626,6 +2758,12 @@ namespace LeetCodeCompiler.API.Services
                 WarningThreshold = test?.WarningThreshold ?? 3,
                 FlagThreshold = test?.FlagThreshold ?? 5,
                 BreachRuleLimit = test?.BreachRuleLimit ?? 0,
+                ActiveTimeSpentSeconds = activeSeconds,
+                ParentAttemptId = attempt.ParentAttemptId,
+                AllowedEndAt = attempt.AllowedEndAt,
+                RemainingSeconds = AttemptTimeBudgetService.ComputeRemainingSeconds(attempt.AllowedEndAt),
+                IsResumeAttempt = attempt.ParentAttemptId.HasValue,
+                SubmissionReason = attempt.SubmissionReason,
                 Questions = questions,
                 QuestionAttempts = attempt.QuestionAttempts.Select(MapToQuestionAttemptResponse).ToList()
             };
@@ -2732,7 +2870,7 @@ namespace LeetCodeCompiler.API.Services
                 .OrderByDescending(act => act.AssignedDate)
                 .ToListAsync();
 
-            return assignments.Select(MapToAssignedSummaryResponse).ToList();
+            return await MapAssignedSummariesAsync(assignments);
         }
 
         public async Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByUserPagedAsync(long userId, int pageNumber, int pageSize, int? testType = null, long? classId = null)
@@ -2762,7 +2900,7 @@ namespace LeetCodeCompiler.API.Services
 
             return new PagedResult<AssignedCodingTestSummaryResponse>
             {
-                Items = assignments.Select(MapToAssignedSummaryResponse).ToList(),
+                Items = await MapAssignedSummariesAsync(assignments),
                 TotalCount = totalCount,
                 PageNumber = pageNumber,
                 PageSize = pageSize
@@ -2791,7 +2929,7 @@ namespace LeetCodeCompiler.API.Services
                 .OrderByDescending(act => act.AssignedDate)
                 .ToListAsync();
 
-            return assignments.Select(MapToAssignedSummaryResponse).ToList();
+            return await MapAssignedSummariesAsync(assignments);
         }
 
         public async Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByTestPagedAsync(int codingTestId, int pageNumber, int pageSize)
@@ -2811,7 +2949,7 @@ namespace LeetCodeCompiler.API.Services
 
             return new PagedResult<AssignedCodingTestSummaryResponse>
             {
-                Items = assignments.Select(MapToAssignedSummaryResponse).ToList(),
+                Items = await MapAssignedSummariesAsync(assignments),
                 TotalCount = totalCount,
                 PageNumber = pageNumber,
                 PageSize = pageSize
@@ -2886,9 +3024,51 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        private AssignedCodingTestSummaryResponse MapToAssignedSummaryResponse(AssignedCodingTest assignment)
+        private async Task<List<AssignedCodingTestSummaryResponse>> MapAssignedSummariesAsync(
+            List<AssignedCodingTest> assignments)
+        {
+            if (assignments.Count == 0)
+                return new List<AssignedCodingTestSummaryResponse>();
+
+            var now = DateTime.UtcNow;
+            var userIds = assignments.Select(a => (int)a.AssignedToUserId).Distinct().ToList();
+            var testIds = assignments.Select(a => a.CodingTestId).Distinct().ToList();
+
+            var attempts = await _context.CodingTestAttempts
+                .Where(a => userIds.Contains(a.UserId) && testIds.Contains(a.CodingTestId))
+                .ToListAsync();
+
+            var latestAttempts = attempts
+                .GroupBy(a => (a.UserId, a.CodingTestId))
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(a => a.AttemptNumber).First());
+
+            var grants = await _context.CodingTestResumeGrants
+                .Where(g => userIds.Contains(g.UserId)
+                         && testIds.Contains(g.CodingTestId)
+                         && g.Status == ResumeGrantStatuses.Pending
+                         && g.AllowedEndAt > now)
+                .ToListAsync();
+
+            var pendingGrants = grants
+                .GroupBy(g => (g.UserId, g.CodingTestId))
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.GrantedAt).First());
+
+            return assignments.Select(a =>
+            {
+                latestAttempts.TryGetValue(((int)a.AssignedToUserId, a.CodingTestId), out var latest);
+                pendingGrants.TryGetValue(((int)a.AssignedToUserId, a.CodingTestId), out var grant);
+                return MapToAssignedSummaryResponse(a, latest, grant, now);
+            }).ToList();
+        }
+
+        private AssignedCodingTestSummaryResponse MapToAssignedSummaryResponse(
+            AssignedCodingTest assignment,
+            CodingTestAttempt? latestAttempt = null,
+            CodingTestResumeGrant? pendingGrant = null,
+            DateTime? nowUtc = null)
         {
             var codingTest = assignment.CodingTest;
+            var now = nowUtc ?? DateTime.UtcNow;
             
             // Use the actual Status column from AssignedCodingTests table
             string status = assignment.Status;
@@ -2910,6 +3090,12 @@ namespace LeetCodeCompiler.API.Services
                 topicName = subdomain?.SubdomainName;
             }
 
+            var studentAction = StudentTestActionBuilder.Compute(codingTest, latestAttempt, pendingGrant, now);
+            var canResume = pendingGrant != null
+                         && pendingGrant.Status == ResumeGrantStatuses.Pending
+                         && pendingGrant.AllowedEndAt > now
+                         && now <= codingTest.EndDate;
+
             return new AssignedCodingTestSummaryResponse
             {
                 AssignedId = assignment.AssignedId,
@@ -2923,10 +3109,25 @@ namespace LeetCodeCompiler.API.Services
                 TotalMarks = codingTest.TotalMarks,
                 TestType = assignment.TestType,
                 TestMode = assignment.TestMode,
-                Status = status, // Now using the actual Status column from AssignedCodingTests
+                Status = status,
                 AssignedByUserId = assignment.AssignedByUserId,
                 SubjectName = subjectName,
-                TopicName = topicName
+                TopicName = topicName,
+                LatestAttemptId = latestAttempt?.Id,
+                LatestAttemptNumber = latestAttempt?.AttemptNumber,
+                AttemptStatus = latestAttempt?.Status,
+                IntegrityStatus = latestAttempt?.IntegrityStatus,
+                SubmissionReason = latestAttempt?.SubmissionReason,
+                CanResume = canResume,
+                StudentAction = studentAction,
+                ResumeGrant = canResume && pendingGrant != null
+                    ? new ResumeGrantSummaryResponse
+                    {
+                        PriorAttemptId = pendingGrant.PriorAttemptId,
+                        AllowedEndAt = pendingGrant.AllowedEndAt,
+                        RemainingSeconds = AttemptTimeBudgetService.ComputeRemainingSeconds(pendingGrant.AllowedEndAt)
+                    }
+                    : null
             };
         }
 

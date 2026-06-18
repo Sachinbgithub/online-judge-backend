@@ -301,6 +301,8 @@ builder.Services.AddScoped<JavaExecutionService>();
 builder.Services.AddScoped<CppExecutionService>();
 builder.Services.AddScoped<CExecutionService>();
 builder.Services.AddScoped<IJudgeService, JudgeService>();
+builder.Services.AddScoped<IAutoDisqualifyService, AutoDisqualifyService>();
+builder.Services.AddScoped<INetworkDisconnectService, NetworkDisconnectService>();
 builder.Services.AddScoped<IProctoringService, ProctoringService>();
 builder.Services.AddScoped<IQuestionPoolService, QuestionPoolService>();
 builder.Services.AddScoped<IIntegrityAnalysisService, IntegrityAnalysisService>();

@@ -16,5 +16,6 @@ namespace LeetCodeCompiler.API.Services
         Task<List<IntegrityReviewSummaryResponse>> GetReviewSummaryAsync(int codingTestId);
         Task<IntegrityFlagResponse?> ReviewFlagAsync(long flagId, ReviewIntegrityFlagRequest request, int reviewedBy);
         Task<List<CodeActivitySnapshotResponse>> GetActivitySnapshotsForAttemptAsync(int codingTestAttemptId);
+        Task<GrantResumeResponse> GrantResumeAsync(int codingTestAttemptId, int grantedByUserId);
     }
 }

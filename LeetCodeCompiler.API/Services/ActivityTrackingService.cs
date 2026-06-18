@@ -208,6 +208,34 @@ namespace LeetCodeCompiler.API.Services
                 .ToListAsync();
         }
 
+        public async Task<int> GetAttemptActiveTimeSecondsAsync(int codingTestAttemptId)
+        {
+            return await _context.UserCodingActivityLogs
+                .Where(l => l.CodingTestAttemptId == codingTestAttemptId && l.Source == "assessment")
+                .SumAsync(l => l.TimeTakenSeconds);
+        }
+
+        public async Task<int> GetAttemptChainActiveTimeSecondsAsync(int codingTestAttemptId)
+        {
+            var attemptIds = new List<int>();
+            var currentId = (int?)codingTestAttemptId;
+
+            while (currentId.HasValue)
+            {
+                attemptIds.Add(currentId.Value);
+                currentId = await _context.CodingTestAttempts
+                    .Where(a => a.Id == currentId.Value)
+                    .Select(a => a.ParentAttemptId)
+                    .FirstOrDefaultAsync();
+            }
+
+            return await _context.UserCodingActivityLogs
+                .Where(l => l.CodingTestAttemptId != null
+                         && attemptIds.Contains(l.CodingTestAttemptId.Value)
+                         && l.Source == "assessment")
+                .SumAsync(l => l.TimeTakenSeconds);
+        }
+
         private async Task ValidateProblemInAttemptAsync(int codingTestAttemptId, int problemId)
         {
             var resolved = await _questionPoolService.ResolveQuestionForAttemptAsync(codingTestAttemptId, problemId);

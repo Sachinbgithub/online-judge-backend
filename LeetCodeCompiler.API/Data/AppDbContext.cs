@@ -43,6 +43,7 @@ namespace LeetCodeCompiler.API.Data
         public DbSet<QuestionPoolItem> QuestionPoolItems { get; set; }
         public DbSet<CodingTestPoolSection> CodingTestPoolSections { get; set; }
         public DbSet<CodingTestAttemptQuestion> CodingTestAttemptQuestions { get; set; }
+        public DbSet<CodingTestResumeGrant> CodingTestResumeGrants { get; set; }
 
         // Practice Test Tables
         public DbSet<PracticeTest> PracticeTests { get; set; }
@@ -362,6 +363,7 @@ namespace LeetCodeCompiler.API.Data
             modelBuilder.Entity<IntegrityFlag>().HasIndex(f => f.CodingTestAttemptId);
             modelBuilder.Entity<PlagiarismReport>().HasIndex(r => r.SubmissionId);
             modelBuilder.Entity<CodingTestAttemptQuestion>().HasIndex(q => q.CodingTestAttemptId);
+            modelBuilder.Entity<CodingTestResumeGrant>().HasIndex(g => new { g.CodingTestId, g.UserId, g.Status });
 
             // Domain and Subdomain table mappings and relationships
             modelBuilder.Entity<Domain>().ToTable("Domain");

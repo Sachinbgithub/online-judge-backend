@@ -9,12 +9,15 @@ namespace LeetCodeCompiler.API.Services
         public const string FlagTypeAutoDq = "AutoDQ";
         public const string FlagTypeBreachWarning = "BreachWarning";
         public const string FlagTypeBreachFlagged = "BreachFlagged";
+        public const string FlagTypeNetworkLoss = "NetworkLoss";
 
         private readonly AppDbContext _context;
+        private readonly IActivityTrackingService _activityTrackingService;
 
-        public IntegrityAnalysisService(AppDbContext context)
+        public IntegrityAnalysisService(AppDbContext context, IActivityTrackingService activityTrackingService)
         {
             _context = context;
+            _activityTrackingService = activityTrackingService;
         }
 
         public async Task SaveActivitySnapshotAsync(CodeActivitySnapshotRequest request)
@@ -186,6 +189,70 @@ namespace LeetCodeCompiler.API.Services
             await _context.SaveChangesAsync();
 
             return MapFlag(flag);
+        }
+
+        public async Task<GrantResumeResponse> GrantResumeAsync(int codingTestAttemptId, int grantedByUserId)
+        {
+            var attempt = await _context.CodingTestAttempts
+                .Include(a => a.CodingTest)
+                .FirstOrDefaultAsync(a => a.Id == codingTestAttemptId);
+
+            if (attempt == null)
+                throw new ArgumentException($"Attempt {codingTestAttemptId} not found");
+
+            if (attempt.Status is not ("Submitted" or "Completed"))
+                throw new InvalidOperationException("Resume can only be granted for submitted attempts");
+
+            var canGrant = attempt.IntegrityStatus == "Disqualified"
+                        || attempt.SubmissionReason == SubmissionReasons.NetworkLoss;
+
+            if (!canGrant)
+                throw new InvalidOperationException("Resume is only allowed after disqualification or network-loss submission");
+
+            var now = DateTime.UtcNow;
+            if (now > attempt.CodingTest!.EndDate)
+                throw new InvalidOperationException("Test window has ended");
+
+            var existingPending = await _context.CodingTestResumeGrants
+                .AnyAsync(g => g.CodingTestId == attempt.CodingTestId
+                            && g.UserId == attempt.UserId
+                            && g.Status == ResumeGrantStatuses.Pending
+                            && g.AllowedEndAt > now);
+
+            if (existingPending)
+                throw new InvalidOperationException("A pending resume grant already exists for this student");
+
+            var activeSeconds = await _activityTrackingService.GetAttemptChainActiveTimeSecondsAsync(codingTestAttemptId);
+            var allowedEndAt = AttemptTimeBudgetService.ComputeAllowedEndAt(attempt.CodingTest, now, activeSeconds);
+
+            if (allowedEndAt <= now)
+                throw new InvalidOperationException("No remaining time in test window for resume");
+
+            var grant = new CodingTestResumeGrant
+            {
+                CodingTestId = attempt.CodingTestId,
+                UserId = attempt.UserId,
+                PriorAttemptId = attempt.Id,
+                GrantedByUserId = grantedByUserId,
+                GrantedAt = now,
+                ActiveTimeSecondsAtGrant = activeSeconds,
+                AllowedEndAt = allowedEndAt,
+                Status = ResumeGrantStatuses.Pending
+            };
+
+            _context.CodingTestResumeGrants.Add(grant);
+            await _context.SaveChangesAsync();
+
+            return new GrantResumeResponse
+            {
+                GrantId = grant.Id,
+                CodingTestId = grant.CodingTestId,
+                UserId = grant.UserId,
+                PriorAttemptId = grant.PriorAttemptId,
+                AllowedEndAt = grant.AllowedEndAt,
+                AllowedMinutes = Math.Max(1, (int)Math.Ceiling((grant.AllowedEndAt - now).TotalMinutes)),
+                ActiveTimeSecondsAtGrant = grant.ActiveTimeSecondsAtGrant
+            };
         }
 
         public async Task<List<CodeActivitySnapshotResponse>> GetActivitySnapshotsForAttemptAsync(int codingTestAttemptId)
