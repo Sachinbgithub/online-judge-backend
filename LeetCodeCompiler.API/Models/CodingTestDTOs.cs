@@ -176,6 +176,12 @@ namespace LeetCodeCompiler.API.Models
 
         public int? CollegeId { get; set; }
 
+        public bool? ApplyBreachRule { get; set; }
+
+        public int? BreachRuleLimit { get; set; }
+
+        public bool? EnableProctoring { get; set; }
+
         // Question updates
         public List<QuestionUpdateRequest>? Questions { get; set; }
     }
@@ -674,6 +680,12 @@ public class CombinedTestResultResponse
         public int WarningThreshold { get; set; }
         public int FlagThreshold { get; set; }
         public int BreachRuleLimit { get; set; }
+        public int ActiveTimeSpentSeconds { get; set; }
+        public int? ParentAttemptId { get; set; }
+        public DateTime? AllowedEndAt { get; set; }
+        public int RemainingSeconds { get; set; }
+        public bool IsResumeAttempt { get; set; }
+        public string? SubmissionReason { get; set; }
         public List<AttemptQuestionResponse> Questions { get; set; } = new();
         public List<CodingTestQuestionAttemptResponse> QuestionAttempts { get; set; } = new List<CodingTestQuestionAttemptResponse>();
     }
@@ -788,6 +800,33 @@ public class CombinedTestResultResponse
         // Subject and Topic information
         public string? SubjectName { get; set; } // Domain name
         public string? TopicName { get; set; } // Subdomain name
+
+        public int? LatestAttemptId { get; set; }
+        public int? LatestAttemptNumber { get; set; }
+        public string? AttemptStatus { get; set; }
+        public string? IntegrityStatus { get; set; }
+        public string? SubmissionReason { get; set; }
+        public bool CanResume { get; set; }
+        public string StudentAction { get; set; } = StudentTestActions.Start;
+        public ResumeGrantSummaryResponse? ResumeGrant { get; set; }
+    }
+
+    public class ResumeGrantSummaryResponse
+    {
+        public int PriorAttemptId { get; set; }
+        public DateTime AllowedEndAt { get; set; }
+        public int RemainingSeconds { get; set; }
+    }
+
+    public class GrantResumeResponse
+    {
+        public int GrantId { get; set; }
+        public int CodingTestId { get; set; }
+        public int UserId { get; set; }
+        public int PriorAttemptId { get; set; }
+        public DateTime AllowedEndAt { get; set; }
+        public int AllowedMinutes { get; set; }
+        public int ActiveTimeSecondsAtGrant { get; set; }
     }
 
     /// <summary>

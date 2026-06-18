@@ -53,6 +53,13 @@ namespace LeetCodeCompiler.API.Models
 
         public bool QuestionSnapshotCreated { get; set; } = false;
 
+        public int? ParentAttemptId { get; set; }
+
+        public DateTime? AllowedEndAt { get; set; }
+
+        [StringLength(20)]
+        public string? SubmissionReason { get; set; }
+
         // Navigation properties
         [ForeignKey("CodingTestId")]
         public virtual CodingTest CodingTest { get; set; } = null!;

@@ -18,6 +18,8 @@ namespace LeetCodeCompiler.API.Services
         Task<UserCodingActivityLog> CompleteAssessmentSessionAsync(int userId, int problemId, int codingTestAttemptId, long? submissionId, AssessmentActivityMetrics metrics, string testType = "submit", int? codingTestQuestionAttemptId = null);
         Task<UserCodingActivityLog?> GetCurrentAssessmentSessionAsync(int userId, int problemId, int codingTestAttemptId);
         Task<List<UserCodingActivityLog>> GetAttemptActivityLogsAsync(int codingTestAttemptId);
+        Task<int> GetAttemptActiveTimeSecondsAsync(int codingTestAttemptId);
+        Task<int> GetAttemptChainActiveTimeSecondsAsync(int codingTestAttemptId);
         Task EnsureUserOwnsActivityLogAsync(int activityLogId, int userId);
         Task EnsureUserOwnsAttemptAsync(int codingTestAttemptId, int userId);
 

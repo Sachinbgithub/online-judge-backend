@@ -84,6 +84,25 @@ namespace LeetCodeCompiler.API.Controllers
             }
         }
 
+        [HttpPost("attempt/{attemptId}/grant-resume")]
+        [Authorize(Policy = "TestSetterOnly")]
+        public async Task<IActionResult> GrantResume(int attemptId, [FromQuery] int grantedBy)
+        {
+            try
+            {
+                var result = await _integrityService.GrantResumeAsync(attemptId, grantedBy);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         [HttpGet("activity-snapshots/{attemptId}")]
         [Authorize(Policy = "TestSetterOnly")]
         public async Task<IActionResult> GetActivitySnapshots(int attemptId)
