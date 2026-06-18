@@ -92,6 +92,8 @@ namespace LeetCodeCompiler.API.Services
                 CreatedAt = DateTime.UtcNow
             };
 
+            BreachThresholdHelper.ApplyBreachDefaults(codingTest);
+
             _context.CodingTests.Add(codingTest);
             await _context.SaveChangesAsync();
 
@@ -793,6 +795,12 @@ namespace LeetCodeCompiler.API.Services
             if (request.AllowCodeReview.HasValue) codingTest.AllowCodeReview = request.AllowCodeReview.Value;
             if (request.AccessCode != null) codingTest.AccessCode = request.AccessCode;
             if (request.Tags != null) codingTest.Tags = request.Tags;
+            if (request.ApplyBreachRule.HasValue) codingTest.ApplyBreachRule = request.ApplyBreachRule.Value;
+            if (request.BreachRuleLimit.HasValue) codingTest.BreachRuleLimit = request.BreachRuleLimit.Value;
+            if (request.EnableProctoring.HasValue) codingTest.EnableProctoring = request.EnableProctoring.Value;
+
+            if (request.BreachRuleLimit.HasValue)
+                BreachThresholdHelper.ApplyBreachDefaults(codingTest);
 
             // Handle question updates if provided
             if (request.Questions != null && request.Questions.Any())
@@ -1633,6 +1641,121 @@ namespace LeetCodeCompiler.API.Services
                 QuestionSubmissions = questionSubmissionResponses,
                 CreatedAt = submission.CreatedAt
             };
+        }
+
+        public async Task AutoSubmitDisqualifiedAttemptAsync(int codingTestAttemptId)
+        {
+            var attempt = await _context.CodingTestAttempts
+                .Include(a => a.QuestionAttempts)
+                .Include(a => a.CodingTest)
+                .FirstOrDefaultAsync(a => a.Id == codingTestAttemptId);
+
+            if (attempt == null || attempt.Status is "Submitted" or "Completed")
+                return;
+
+            var questionSubmissions = await BuildAutoDqQuestionSubmissionsAsync(attempt);
+            if (questionSubmissions.Count == 0)
+            {
+                await FinalizeDisqualifiedAttemptWithoutSubmitAsync(attempt);
+                return;
+            }
+
+            var endDate = attempt.CodingTest?.EndDate ?? DateTime.UtcNow;
+            var request = new SubmitWholeCodingTestRequest
+            {
+                UserId = attempt.UserId,
+                CodingTestId = attempt.CodingTestId,
+                AttemptNumber = attempt.AttemptNumber,
+                TotalTimeSpentMinutes = Math.Max(1, (int)(DateTime.UtcNow - attempt.StartedAt).TotalMinutes),
+                IsLateSubmission = DateTime.UtcNow > endDate,
+                QuestionSubmissions = questionSubmissions
+            };
+
+            try
+            {
+                await SubmitWholeCodingTestAsync(request);
+            }
+            catch (Exception)
+            {
+                await FinalizeDisqualifiedAttemptWithoutSubmitAsync(attempt);
+                return;
+            }
+
+            var updated = await _context.CodingTestAttempts.FindAsync(codingTestAttemptId);
+            if (updated != null)
+            {
+                updated.IntegrityStatus = "Disqualified";
+                updated.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task<List<QuestionSubmission>> BuildAutoDqQuestionSubmissionsAsync(CodingTestAttempt attempt)
+        {
+            var attemptQuestions = await _context.CodingTestAttemptQuestions
+                .Where(q => q.CodingTestAttemptId == attempt.Id)
+                .OrderBy(q => q.QuestionOrder)
+                .ToListAsync();
+
+            if (attemptQuestions.Count == 0)
+            {
+                var fixedQuestions = await _context.CodingTestQuestions
+                    .Where(q => q.CodingTestId == attempt.CodingTestId)
+                    .OrderBy(q => q.QuestionOrder)
+                    .ToListAsync();
+
+                return fixedQuestions.Select(fq =>
+                {
+                    var qa = attempt.QuestionAttempts.FirstOrDefault(x => x.ProblemId == fq.ProblemId);
+                    return BuildAutoDqQuestionSubmission(fq.ProblemId, qa);
+                }).ToList();
+            }
+
+            return attemptQuestions.Select(aq =>
+            {
+                var qa = attempt.QuestionAttempts.FirstOrDefault(x => x.ProblemId == aq.ProblemId);
+                return BuildAutoDqQuestionSubmission(aq.ProblemId, qa);
+            }).ToList();
+        }
+
+        private static QuestionSubmission BuildAutoDqQuestionSubmission(int problemId, CodingTestQuestionAttempt? qa)
+        {
+            var code = qa?.CodeSubmitted;
+            if (string.IsNullOrWhiteSpace(code))
+                code = "# auto-submitted after disqualification\npass\n";
+
+            return new QuestionSubmission
+            {
+                ProblemId = problemId,
+                LanguageUsed = string.IsNullOrWhiteSpace(qa?.LanguageUsed) ? "python" : qa!.LanguageUsed,
+                FinalCodeSnapshot = code,
+                IsSessionAbandoned = true
+            };
+        }
+
+        private async Task FinalizeDisqualifiedAttemptWithoutSubmitAsync(CodingTestAttempt attempt)
+        {
+            attempt.Status = "Submitted";
+            attempt.SubmittedAt = DateTime.UtcNow;
+            attempt.CompletedAt = DateTime.UtcNow;
+            attempt.IntegrityStatus = "Disqualified";
+            attempt.TimeSpentMinutes = (int)(DateTime.UtcNow - attempt.StartedAt).TotalMinutes;
+            attempt.UpdatedAt = DateTime.UtcNow;
+
+            var assignment = await _context.AssignedCodingTests
+                .FirstOrDefaultAsync(a => a.AssignedToUserId == attempt.UserId
+                                       && a.CodingTestId == attempt.CodingTestId
+                                       && !a.IsDeleted);
+
+            if (assignment != null)
+            {
+                assignment.Status = "Submitted";
+                assignment.CompletedAt = attempt.CompletedAt;
+                assignment.TimeSpentMinutes = attempt.TimeSpentMinutes;
+                assignment.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<CodingTestSubmissionSummaryResponse>> GetCodingTestSubmissionsAsync(GetCodingTestSubmissionsRequest request)

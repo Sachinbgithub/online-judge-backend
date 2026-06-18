@@ -176,6 +176,12 @@ namespace LeetCodeCompiler.API.Models
 
         public int? CollegeId { get; set; }
 
+        public bool? ApplyBreachRule { get; set; }
+
+        public int? BreachRuleLimit { get; set; }
+
+        public bool? EnableProctoring { get; set; }
+
         // Question updates
         public List<QuestionUpdateRequest>? Questions { get; set; }
     }

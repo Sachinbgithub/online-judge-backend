@@ -33,6 +33,7 @@ namespace LeetCodeCompiler.API.Services
         Task<List<CodingTestAttemptResponse>> GetUserCodingTestAttemptsAsync(int userId, int codingTestId);
         Task<SubmitCodingTestResponse> SubmitCodingTestAsync(SubmitCodingTestRequest request);
         Task<SubmitWholeCodingTestResponse> SubmitWholeCodingTestAsync(SubmitWholeCodingTestRequest request);
+        Task AutoSubmitDisqualifiedAttemptAsync(int codingTestAttemptId);
         Task<bool> AbandonCodingTestAsync(int attemptId, int userId);
 
         // Question Attempts

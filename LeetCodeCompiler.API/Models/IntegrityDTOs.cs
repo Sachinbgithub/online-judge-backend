@@ -31,6 +31,7 @@ namespace LeetCodeCompiler.API.Models
     {
         public int CodingTestAttemptId { get; set; }
         public string IntegrityStatus { get; set; } = "Normal";
+        public int BreachCount { get; set; }
         public int TabSwitchCount { get; set; }
         public int WindowBlurCount { get; set; }
         public int PasteCount { get; set; }

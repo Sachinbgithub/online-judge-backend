@@ -6,6 +6,10 @@ namespace LeetCodeCompiler.API.Services
 {
     public class IntegrityAnalysisService : IIntegrityAnalysisService
     {
+        public const string FlagTypeAutoDq = "AutoDQ";
+        public const string FlagTypeBreachWarning = "BreachWarning";
+        public const string FlagTypeBreachFlagged = "BreachFlagged";
+
         private readonly AppDbContext _context;
 
         public IntegrityAnalysisService(AppDbContext context)
@@ -140,7 +144,9 @@ namespace LeetCodeCompiler.API.Services
         {
             var attempts = await _context.CodingTestAttempts
                 .Where(a => a.CodingTestId == codingTestId
-                         && (a.IntegrityStatus == "Flagged" || a.IntegrityStatus == "Warning"))
+                         && (a.IntegrityStatus == "Flagged"
+                          || a.IntegrityStatus == "Warning"
+                          || a.IntegrityStatus == "Disqualified"))
                 .ToListAsync();
 
             var result = new List<IntegrityReviewSummaryResponse>();

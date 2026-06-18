@@ -7,6 +7,7 @@ namespace LeetCodeCompiler.API.Services
     public class ProctoringService : IProctoringService
     {
         private readonly AppDbContext _context;
+        private readonly IAutoDisqualifyService _autoDisqualifyService;
 
         private static readonly HashSet<string> TabSwitchTypes = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -18,13 +19,10 @@ namespace LeetCodeCompiler.API.Services
             "Screenshot", "PrintScreen", "ScreenCapture"
         };
 
-        /// <summary>First detected screenshot attempt triggers Warning; second+ triggers Flagged.</summary>
-        private const int ScreenshotWarningThreshold = 1;
-        private const int ScreenshotFlagThreshold = 2;
-
-        public ProctoringService(AppDbContext context)
+        public ProctoringService(AppDbContext context, IAutoDisqualifyService autoDisqualifyService)
         {
             _context = context;
+            _autoDisqualifyService = autoDisqualifyService;
         }
 
         public async Task<ProctoringSession> StartSessionAsync(int codingTestAttemptId)
@@ -58,6 +56,9 @@ namespace LeetCodeCompiler.API.Services
 
             if (attempt.UserId != request.UserId)
                 throw new UnauthorizedAccessException("You do not own this attempt.");
+
+            if (attempt.IntegrityStatus == "Disqualified" || attempt.Status is "Submitted" or "Completed")
+                return await BuildStatusResponseAsync(attempt);
 
             var session = await _context.ProctoringSessions
                 .FirstOrDefaultAsync(s => s.CodingTestAttemptId == request.CodingTestAttemptId && s.Status == "Active");
@@ -131,50 +132,47 @@ namespace LeetCodeCompiler.API.Services
         {
             var test = attempt.CodingTest;
             var counts = await GetEventCountsAsync(attempt.Id);
+            var breachCount = counts.BreachCount;
+            var previousStatus = attempt.IntegrityStatus;
 
-            var tabStatus = ComputeTabIntegrityStatus(counts.TabSwitchCount, test);
-            var screenshotStatus = ComputeScreenshotIntegrityStatus(counts.ScreenshotCount);
-            var newStatus = MaxIntegrityStatus(tabStatus, screenshotStatus);
+            if (test.BreachRuleLimit <= 0)
+            {
+                attempt.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return;
+            }
+
+            var breachStatus = ComputeIntegrityStatusFromBreaches(breachCount, test);
+            var newStatus = MaxIntegrityStatus(previousStatus, breachStatus);
 
             attempt.IntegrityStatus = newStatus;
             attempt.UpdatedAt = DateTime.UtcNow;
 
-            if (tabStatus == "Flagged")
+            if (breachCount >= test.WarningThreshold && test.WarningThreshold > 0)
             {
-                await EnsureIntegrityFlagAsync(attempt.Id, "TabSwitch", "High",
-                    $"{{\"tabSwitchCount\":{counts.TabSwitchCount},\"warningThreshold\":{test.WarningThreshold},\"flagThreshold\":{test.FlagThreshold},\"breachRuleLimit\":{test.BreachRuleLimit}}}");
+                await EnsureIntegrityFlagAsync(attempt.Id, "BreachWarning", "Medium",
+                    $"{{\"breachCount\":{breachCount},\"warningThreshold\":{test.WarningThreshold}}}");
             }
 
-            if (counts.ScreenshotCount >= ScreenshotFlagThreshold)
+            if (breachCount >= test.FlagThreshold && test.FlagThreshold > 0)
             {
-                await EnsureIntegrityFlagAsync(attempt.Id, "Screenshot", "High",
-                    $"{{\"screenshotCount\":{counts.ScreenshotCount},\"flagThreshold\":{ScreenshotFlagThreshold}}}");
-            }
-            else if (counts.ScreenshotCount >= ScreenshotWarningThreshold)
-            {
-                await EnsureIntegrityFlagAsync(attempt.Id, "Screenshot", "Medium",
-                    $"{{\"screenshotCount\":{counts.ScreenshotCount},\"warningThreshold\":{ScreenshotWarningThreshold}}}");
+                await EnsureIntegrityFlagAsync(attempt.Id, "BreachFlagged", "High",
+                    $"{{\"breachCount\":{breachCount},\"flagThreshold\":{test.FlagThreshold}}}");
             }
 
             await _context.SaveChangesAsync();
+
+            if (newStatus == "Disqualified" && previousStatus != "Disqualified")
+                await _autoDisqualifyService.DisqualifyAndAutoSubmitAsync(attempt.Id, breachCount);
         }
 
-        private static string ComputeTabIntegrityStatus(int tabSwitchCount, CodingTest test)
+        private static string ComputeIntegrityStatusFromBreaches(int breachCount, CodingTest test)
         {
-            if (test.BreachRuleLimit > 0 && tabSwitchCount >= test.BreachRuleLimit)
+            if (test.BreachRuleLimit > 0 && breachCount >= test.BreachRuleLimit)
+                return "Disqualified";
+            if (test.FlagThreshold > 0 && breachCount >= test.FlagThreshold)
                 return "Flagged";
-            if (tabSwitchCount >= test.FlagThreshold)
-                return "Flagged";
-            if (tabSwitchCount >= test.WarningThreshold)
-                return "Warning";
-            return "Normal";
-        }
-
-        private static string ComputeScreenshotIntegrityStatus(int screenshotCount)
-        {
-            if (screenshotCount >= ScreenshotFlagThreshold)
-                return "Flagged";
-            if (screenshotCount >= ScreenshotWarningThreshold)
+            if (test.WarningThreshold > 0 && breachCount >= test.WarningThreshold)
                 return "Warning";
             return "Normal";
         }
@@ -185,7 +183,8 @@ namespace LeetCodeCompiler.API.Services
             {
                 ["Normal"] = 0,
                 ["Warning"] = 1,
-                ["Flagged"] = 2
+                ["Flagged"] = 2,
+                ["Disqualified"] = 3
             };
             return rank.GetValueOrDefault(a, 0) >= rank.GetValueOrDefault(b, 0) ? a : b;
         }
@@ -229,28 +228,19 @@ namespace LeetCodeCompiler.API.Services
             var counts = await GetEventCountsAsync(attempt.Id);
             var test = attempt.CodingTest;
 
-            string? lastWarning = null;
-            if (attempt.IntegrityStatus == "Warning")
+            string? lastWarning = attempt.IntegrityStatus switch
             {
-                if (counts.ScreenshotCount >= ScreenshotWarningThreshold)
-                    lastWarning = $"Screenshot attempt detected ({counts.ScreenshotCount})";
-                else
-                    lastWarning = $"Tab switch warning ({counts.TabSwitchCount}/{test.WarningThreshold})";
-            }
-            else if (attempt.IntegrityStatus == "Flagged")
-            {
-                if (counts.ScreenshotCount >= ScreenshotFlagThreshold)
-                    lastWarning = $"Screenshot limit reached ({counts.ScreenshotCount})";
-                else if (counts.ScreenshotCount >= ScreenshotWarningThreshold)
-                    lastWarning = $"Screenshot attempt detected ({counts.ScreenshotCount})";
-                else
-                    lastWarning = $"Attempt flagged ({counts.TabSwitchCount} tab switches)";
-            }
+                "Disqualified" => $"Disqualified: breach limit reached ({counts.BreachCount}/{test.BreachRuleLimit})",
+                "Warning" => $"Proctoring warning ({counts.BreachCount}/{test.WarningThreshold})",
+                "Flagged" => $"Proctoring flagged ({counts.BreachCount}/{test.FlagThreshold})",
+                _ => null
+            };
 
             return new ProctoringStatusResponse
             {
                 CodingTestAttemptId = attempt.Id,
                 IntegrityStatus = attempt.IntegrityStatus,
+                BreachCount = counts.BreachCount,
                 TabSwitchCount = counts.TabSwitchCount,
                 WindowBlurCount = counts.WindowBlurCount,
                 PasteCount = counts.PasteCount,
@@ -264,19 +254,21 @@ namespace LeetCodeCompiler.API.Services
             };
         }
 
-        private async Task<(int TabSwitchCount, int WindowBlurCount, int PasteCount, int ScreenshotCount)> GetEventCountsAsync(int attemptId)
+        private async Task<(int BreachCount, int TabSwitchCount, int WindowBlurCount, int PasteCount, int ScreenshotCount)> GetEventCountsAsync(int attemptId)
         {
             var events = await _context.ProctoringEvents
                 .Where(e => e.Session.CodingTestAttemptId == attemptId)
                 .Select(e => e.EventType)
                 .ToListAsync();
 
+            var breachCount = events.Count;
             var tabSwitch = events.Count(e => TabSwitchTypes.Contains(e));
             var windowBlur = events.Count(e => e.Equals("WindowBlur", StringComparison.OrdinalIgnoreCase));
-            var paste = events.Count(e => e.Equals("Paste", StringComparison.OrdinalIgnoreCase));
+            var paste = events.Count(e => e.Equals("Paste", StringComparison.OrdinalIgnoreCase)
+                                       || e.Equals("Copy", StringComparison.OrdinalIgnoreCase));
             var screenshot = events.Count(e => ScreenshotTypes.Contains(e));
 
-            return (tabSwitch, windowBlur, paste, screenshot);
+            return (breachCount, tabSwitch, windowBlur, paste, screenshot);
         }
     }
 }
