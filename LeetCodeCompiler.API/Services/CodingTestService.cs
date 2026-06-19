@@ -2758,6 +2758,8 @@ namespace LeetCodeCompiler.API.Services
                 WarningThreshold = test?.WarningThreshold ?? 3,
                 FlagThreshold = test?.FlagThreshold ?? 5,
                 BreachRuleLimit = test?.BreachRuleLimit ?? 0,
+                DurationMinutes = test?.DurationMinutes ?? 0,
+                TestEndDate = test?.EndDate,
                 ActiveTimeSpentSeconds = activeSeconds,
                 ParentAttemptId = attempt.ParentAttemptId,
                 AllowedEndAt = attempt.AllowedEndAt,
