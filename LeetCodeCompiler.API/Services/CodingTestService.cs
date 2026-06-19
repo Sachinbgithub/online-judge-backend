@@ -3127,7 +3127,8 @@ namespace LeetCodeCompiler.API.Services
                         AllowedEndAt = pendingGrant.AllowedEndAt,
                         RemainingSeconds = AttemptTimeBudgetService.ComputeRemainingSeconds(pendingGrant.AllowedEndAt)
                     }
-                    : null
+                    : null,
+                RequireFullscreen = codingTest.RequireFullscreen
             };
         }
 

@@ -809,6 +809,7 @@ public class CombinedTestResultResponse
         public bool CanResume { get; set; }
         public string StudentAction { get; set; } = StudentTestActions.Start;
         public ResumeGrantSummaryResponse? ResumeGrant { get; set; }
+        public bool RequireFullscreen { get; set; }
     }
 
     public class ResumeGrantSummaryResponse
