@@ -680,6 +680,8 @@ public class CombinedTestResultResponse
         public int WarningThreshold { get; set; }
         public int FlagThreshold { get; set; }
         public int BreachRuleLimit { get; set; }
+        public int DurationMinutes { get; set; }
+        public DateTime? TestEndDate { get; set; }
         public int ActiveTimeSpentSeconds { get; set; }
         public int? ParentAttemptId { get; set; }
         public DateTime? AllowedEndAt { get; set; }
@@ -809,6 +811,7 @@ public class CombinedTestResultResponse
         public bool CanResume { get; set; }
         public string StudentAction { get; set; } = StudentTestActions.Start;
         public ResumeGrantSummaryResponse? ResumeGrant { get; set; }
+        public bool RequireFullscreen { get; set; }
     }
 
     public class ResumeGrantSummaryResponse
