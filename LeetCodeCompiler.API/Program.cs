@@ -310,6 +310,7 @@ builder.Services.AddScoped<IAttemptActivityReviewService, AttemptActivityReviewS
 builder.Services.AddScoped<IPlagiarismService, PlagiarismService>();
 builder.Services.AddHostedService<PlagiarismBackgroundWorker>();
 builder.Services.Configure<ScoringOptions>(builder.Configuration.GetSection("Scoring"));
+builder.Services.Configure<CodeExamLinkOptions>(builder.Configuration.GetSection(CodeExamLinkOptions.SectionName));
 
 // Add memory cache
 builder.Services.AddMemoryCache();

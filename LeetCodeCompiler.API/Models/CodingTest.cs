@@ -56,6 +56,9 @@ namespace LeetCodeCompiler.API.Models
         [StringLength(100)]
         public string AccessCode { get; set; } = ""; // Optional access code for test
 
+        [StringLength(64)]
+        public string? ShareToken { get; set; }
+
         [StringLength(200)]
         public string Tags { get; set; } = ""; // Comma-separated tags
 

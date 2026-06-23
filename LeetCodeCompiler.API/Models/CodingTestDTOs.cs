@@ -209,6 +209,31 @@ namespace LeetCodeCompiler.API.Models
         public string? AccessCode { get; set; }
     }
 
+    public class GenerateCodingTestLinkResponse
+    {
+        public int CodingTestId { get; set; }
+        public string Token { get; set; } = "";
+        public string TestLink { get; set; } = "";
+        public bool IsGlobal { get; set; }
+        public string Message { get; set; } = "";
+    }
+
+    public class ResolveCodingTestLinkResponse
+    {
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int DurationMinutes { get; set; }
+        public int TotalQuestions { get; set; }
+        public bool IsGlobal { get; set; }
+        public bool IsPublished { get; set; }
+        public bool IsActive { get; set; }
+        public string Status { get; set; } = "";
+        public bool? CanAttempt { get; set; }
+        public string? AccessStatus { get; set; }
+    }
+
 
 
 
@@ -564,6 +589,8 @@ public class CombinedTestResultResponse
         public int ClassId { get; set; }
         public bool IsGlobal { get; set; }
         public int CollegeId { get; set; }
+        public string? ShareToken { get; set; }
+        public string? TestLink { get; set; }
         public List<TopicDataResponse> TopicData { get; set; } = new List<TopicDataResponse>();
         public List<CodingTestQuestionResponse> Questions { get; set; } = new List<CodingTestQuestionResponse>();
         public List<PoolSectionRequest> PoolSections { get; set; } = new();

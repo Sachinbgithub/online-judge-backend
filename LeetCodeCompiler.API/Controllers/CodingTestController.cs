@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeetCodeCompiler.API.Models;
 using LeetCodeCompiler.API.Services;
+using System.Security.Claims;
 
 namespace LeetCodeCompiler.API.Controllers
 {
@@ -350,6 +351,56 @@ public async Task<IActionResult> GetCombinedTestResults(
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Failed to unpublish coding test", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Generates (or returns existing) shareable link for a coding test.
+        /// Link format: https://gatetutor.in/codeexam/{token}
+        /// </summary>
+        [HttpPost("{id}/generate-link")]
+        [Authorize(Policy = "TestSetterOnly")]
+        public async Task<IActionResult> GenerateCodingTestLink(int id)
+        {
+            try
+            {
+                var result = await _codingTestService.GenerateCodingTestLinkAsync(id);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to generate coding test link", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Resolves a share token to coding test landing metadata.
+        /// </summary>
+        [HttpGet("link/{token}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResolveCodingTestLink(string token)
+        {
+            try
+            {
+                var userId = GetAuthenticatedUserId();
+                var result = await _codingTestService.ResolveCodingTestLinkAsync(token, userId);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to resolve coding test link", details = ex.Message });
             }
         }
 
@@ -1112,6 +1163,13 @@ public async Task<IActionResult> GetCombinedTestResults(
             {
                 return StatusCode(500, new { error = "Failed to retrieve debug data", details = ex.Message });
             }
+        }
+
+        private int? GetAuthenticatedUserId()
+        {
+            var sub = User.FindFirst("sub")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(sub, out var userId) ? userId : null;
         }
     }
 }

@@ -2,6 +2,8 @@ using LeetCodeCompiler.API.Data;
 using LeetCodeCompiler.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LeetCodeCompiler.API.Services
 {
@@ -11,6 +13,7 @@ namespace LeetCodeCompiler.API.Services
         private readonly StudentProfileService _studentProfileService;
         private readonly IJudgeService _judgeService;
         private readonly ScoringOptions _scoringOptions;
+        private readonly CodeExamLinkOptions _codeExamLinkOptions;
         private readonly IProctoringService _proctoringService;
         private readonly IQuestionPoolService _questionPoolService;
         private readonly IIntegrityAnalysisService _integrityAnalysisService;
@@ -22,6 +25,7 @@ namespace LeetCodeCompiler.API.Services
             StudentProfileService studentProfileService,
             IJudgeService judgeService,
             IOptions<ScoringOptions> scoringOptions,
+            IOptions<CodeExamLinkOptions> codeExamLinkOptions,
             IProctoringService proctoringService,
             IQuestionPoolService questionPoolService,
             IIntegrityAnalysisService integrityAnalysisService,
@@ -32,6 +36,7 @@ namespace LeetCodeCompiler.API.Services
             _studentProfileService = studentProfileService;
             _judgeService = judgeService;
             _scoringOptions = scoringOptions.Value;
+            _codeExamLinkOptions = codeExamLinkOptions.Value;
             _proctoringService = proctoringService;
             _questionPoolService = questionPoolService;
             _integrityAnalysisService = integrityAnalysisService;
@@ -2408,6 +2413,91 @@ namespace LeetCodeCompiler.API.Services
         }
 
         // Validation methods
+        public async Task<GenerateCodingTestLinkResponse> GenerateCodingTestLinkAsync(int codingTestId)
+        {
+            var codingTest = await _context.CodingTests.FindAsync(codingTestId);
+            if (codingTest == null)
+                throw new ArgumentException($"Coding test with ID {codingTestId} not found");
+
+            var message = "Link generated successfully.";
+            if (!string.IsNullOrEmpty(codingTest.ShareToken))
+            {
+                message = "Link already exists. Returning existing link.";
+            }
+            else
+            {
+                for (var attempt = 0; attempt < 5; attempt++)
+                {
+                    var candidate = GenerateShareToken();
+                    var exists = await _context.CodingTests
+                        .AnyAsync(ct => ct.ShareToken == candidate);
+                    if (!exists)
+                    {
+                        codingTest.ShareToken = candidate;
+                        codingTest.UpdatedAt = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(codingTest.ShareToken))
+                    throw new InvalidOperationException("Failed to generate a unique share token");
+            }
+
+            return new GenerateCodingTestLinkResponse
+            {
+                CodingTestId = codingTest.Id,
+                Token = codingTest.ShareToken!,
+                TestLink = BuildTestLink(codingTest.ShareToken!),
+                IsGlobal = codingTest.IsGlobal,
+                Message = message
+            };
+        }
+
+        public async Task<ResolveCodingTestLinkResponse> ResolveCodingTestLinkAsync(string token, int? userId = null)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentException("Token is required");
+
+            var codingTest = await _context.CodingTests
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ct => ct.ShareToken == token);
+
+            if (codingTest == null)
+                throw new ArgumentException("Invalid or expired link");
+
+            var now = DateTime.UtcNow;
+            var status = "Upcoming";
+            if (now >= codingTest.StartDate && now <= codingTest.EndDate && codingTest.IsActive && codingTest.IsPublished)
+                status = "Active";
+            else if (now > codingTest.EndDate)
+                status = "Completed";
+            else if (!codingTest.IsActive)
+                status = "Expired";
+
+            var response = new ResolveCodingTestLinkResponse
+            {
+                CodingTestId = codingTest.Id,
+                TestName = codingTest.TestName,
+                StartDate = codingTest.StartDate,
+                EndDate = codingTest.EndDate,
+                DurationMinutes = codingTest.DurationMinutes,
+                TotalQuestions = codingTest.TotalQuestions,
+                IsGlobal = codingTest.IsGlobal,
+                IsPublished = codingTest.IsPublished,
+                IsActive = codingTest.IsActive,
+                Status = status
+            };
+
+            if (userId.HasValue)
+            {
+                response.CanAttempt = await CanUserAttemptTestAsync(userId.Value, codingTest.Id);
+                response.AccessStatus = await GetLinkAccessStatusAsync(userId.Value, codingTest, now, response.CanAttempt.Value);
+            }
+
+            return response;
+        }
+
         public async Task<bool> ValidateAccessCodeAsync(int codingTestId, string accessCode)
         {
             var codingTest = await _context.CodingTests.FindAsync(codingTestId);
@@ -2607,6 +2697,10 @@ namespace LeetCodeCompiler.API.Services
                 ClassId = codingTest.ClassId,
                 IsGlobal = codingTest.IsGlobal,
                 CollegeId = codingTest.CollegeId,
+                ShareToken = codingTest.ShareToken,
+                TestLink = string.IsNullOrEmpty(codingTest.ShareToken)
+                    ? null
+                    : BuildTestLink(codingTest.ShareToken),
                 TopicData = codingTest.TopicData.Select(MapToTopicDataResponse).ToList(),
                 Questions = codingTest.Questions?.Select(MapToQuestionResponse).ToList() ?? new List<CodingTestQuestionResponse>(),
                 PoolSections = codingTest.PoolSections?.Select(s => new PoolSectionRequest
@@ -3712,6 +3806,64 @@ namespace LeetCodeCompiler.API.Services
                 ErrorMessage = r.ErrorMessage,
                 ErrorType = r.ErrorType
             };
+        }
+
+        private string BuildTestLink(string shareToken)
+        {
+            var baseUrl = _codeExamLinkOptions.BaseUrl?.Trim();
+            if (string.IsNullOrEmpty(baseUrl))
+            {
+                throw new InvalidOperationException(
+                    "CodeExamLink:BaseUrl is not configured. Set it in appsettings.json or environment variable CodeExamLink__BaseUrl.");
+            }
+
+            return $"{baseUrl.TrimEnd('/')}/{shareToken}";
+        }
+
+        private static string GenerateShareToken()
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            var segments = new string[3];
+            var bytes = new byte[3 * 3];
+
+            RandomNumberGenerator.Fill(bytes);
+            for (var s = 0; s < 3; s++)
+            {
+                var segment = new StringBuilder(3);
+                for (var i = 0; i < 3; i++)
+                    segment.Append(chars[bytes[s * 3 + i] % chars.Length]);
+                segments[s] = segment.ToString();
+            }
+
+            return string.Join('-', segments);
+        }
+
+        private async Task<string> GetLinkAccessStatusAsync(
+            int userId, CodingTest codingTest, DateTime now, bool canAttempt)
+        {
+            if (canAttempt)
+                return "Allowed";
+
+            if (!codingTest.IsPublished)
+                return "NotPublished";
+
+            if (!codingTest.IsActive)
+                return "NotActive";
+
+            if (now < codingTest.StartDate || now > codingTest.EndDate)
+                return "OutsideWindow";
+
+            if (!codingTest.IsGlobal)
+            {
+                var isAssigned = await _context.AssignedCodingTests
+                    .AnyAsync(act => act.CodingTestId == codingTest.Id
+                                  && act.AssignedToUserId == userId
+                                  && !act.IsDeleted);
+                if (!isAssigned)
+                    return "NotAssigned";
+            }
+
+            return "AttemptLimitReached";
         }
 
         private async Task ValidateCodingTestMarksAlignmentAsync(int codingTestId)
