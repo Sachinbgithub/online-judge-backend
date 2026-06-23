@@ -458,7 +458,6 @@ namespace LeetCodeCompiler.API.Services
             var result = new List<ClassStudentSummaryItem>();
             foreach (var userId in userIds)
             {
-                var profile = await _studentProfileService.GetStudentProfileAsync(userId);
                 var assignments = await _context.AssignedCodingTests
                     .Include(a => a.CodingTest)
                     .Where(a => a.AssignedToUserId == userId && a.CodingTest.ClassId == classId && !a.IsDeleted)
@@ -471,9 +470,9 @@ namespace LeetCodeCompiler.API.Services
                 result.Add(new ClassStudentSummaryItem
                 {
                     UserId = userId,
-                    FullName = profile?.FullName ?? ("User " + userId),
-                    EmailId = profile?.EmailId ?? "",
-                    RollNo = profile?.RollNo ?? "",
+                    FullName = "User " + userId,
+                    EmailId = "",
+                    RollNo = "",
                     TotalTestsAssigned = assignments.Count,
                     TestsAttempted = attempts.Select(a => a.CodingTestId).Distinct().Count(),
                     AverageScorePercentage = attempts.Any() ? attempts.Average(a => a.Percentage) : 0,
