@@ -66,6 +66,10 @@ namespace LeetCodeCompiler.API.Services
         Task<bool> IsTestActiveAsync(int codingTestId);
         Task<bool> IsTestExpiredAsync(int codingTestId);
 
+        // Share links
+        Task<GenerateCodingTestLinkResponse> GenerateCodingTestLinkAsync(int codingTestId);
+        Task<ResolveCodingTestLinkResponse> ResolveCodingTestLinkAsync(string token, int? userId = null);
+
         // Submission methods
         Task<List<CodingTestSubmissionSummaryResponse>> GetCodingTestSubmissionsAsync(GetCodingTestSubmissionsRequest request);
         Task<PagedResult<CodingTestSubmissionSummaryResponse>> GetCodingTestSubmissionsPagedAsync(GetCodingTestSubmissionsRequest request);

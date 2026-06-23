@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using LeetCodeCompiler.API.Models;
 
 namespace LeetCodeCompiler.API.Services
@@ -9,20 +9,28 @@ namespace LeetCodeCompiler.API.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<StudentProfileService> _logger;
+        private readonly string? _baseUrl;
 
         public StudentProfileService(
             IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
             ILogger<StudentProfileService> logger)
         {
             _httpClient = httpClientFactory.CreateClient("StudentProfileAPI");
             _logger = logger;
+            _baseUrl = configuration["StudentProfileApi:BaseUrl"]?.TrimEnd('/');
         }
 
         public async Task<StudentProfileData?> GetStudentProfileAsync(long userId)
         {
+            if (string.IsNullOrWhiteSpace(_baseUrl))
+            {
+                return null;
+            }
+
             try
             {
-                var url = $"http://192.168.0.102:5125/api/UserProfileData/profile/{userId}";
+                var url = $"{_baseUrl}/api/UserProfileData/profile/{userId}";
                 _logger.LogInformation("Fetching student profile for UserId: {UserId} from {Url}", userId, url);
 
                 var response = await _httpClient.GetAsync(url);
@@ -36,18 +44,14 @@ namespace LeetCodeCompiler.API.Services
                         _logger.LogInformation("Successfully retrieved student profile for UserId: {UserId}", userId);
                         return apiResponse.Data;
                     }
-                    else
-                    {
-                        _logger.LogWarning("External API returned success=false or null data for UserId: {UserId}", userId);
-                        return null;
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("External API returned status {StatusCode} for UserId: {UserId}",
-                        response.StatusCode, userId);
+
+                    _logger.LogWarning("External API returned success=false or null data for UserId: {UserId}", userId);
                     return null;
                 }
+
+                _logger.LogWarning("External API returned status {StatusCode} for UserId: {UserId}",
+                    response.StatusCode, userId);
+                return null;
             }
             catch (Exception ex)
             {
