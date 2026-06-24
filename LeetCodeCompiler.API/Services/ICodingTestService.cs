@@ -57,6 +57,7 @@ namespace LeetCodeCompiler.API.Services
         Task<bool> UnassignCodingTestAsync(long assignedId, long unassignedByUserId);
         Task<List<AssignedCodingTestSummaryResponse>> GetAssignedTestsByTestAsync(int codingTestId);
         Task<PagedResult<AssignedCodingTestSummaryResponse>> GetAssignedTestsByTestPagedAsync(int codingTestId, int pageNumber, int pageSize);
+        Task<TestLiveMonitorResponse> GetTestLiveMonitorAsync(int codingTestId, int pageNumber, int pageSize, string? monitorStatus = null);
         Task<List<AssignedCodingTestResponse>> GetAssignmentsByTestIdAsync(int codingTestId);
         Task<PagedResult<AssignedCodingTestResponse>> GetAssignmentsByTestIdPagedAsync(int codingTestId, int pageNumber, int pageSize);
 

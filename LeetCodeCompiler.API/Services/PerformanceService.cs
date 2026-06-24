@@ -209,14 +209,16 @@ namespace LeetCodeCompiler.API.Services
 
         public async Task<PagedResult<FacultyStudentResultItem>> GetStudentsForTestAsync(int codingTestId, int pageNumber, int pageSize)
         {
-            var query = _context.CodingTestAttempts
+            var attemptsForTest = _context.CodingTestAttempts
                 .Where(a => a.CodingTestId == codingTestId);
 
-            var totalCount = await query.Select(a => a.UserId).Distinct().CountAsync();
-            
-            var latestAttempts = await query
-                .GroupBy(a => a.UserId)
-                .Select(g => g.OrderByDescending(a => a.AttemptNumber).First())
+            var totalCount = await attemptsForTest.Select(a => a.UserId).Distinct().CountAsync();
+
+            // EF Core cannot translate GroupBy + OrderBy + First(); use Max(AttemptNumber) instead.
+            var latestAttempts = await attemptsForTest
+                .Where(a => a.AttemptNumber == attemptsForTest
+                    .Where(x => x.UserId == a.UserId)
+                    .Max(x => x.AttemptNumber))
                 .OrderByDescending(a => a.Percentage)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -262,14 +264,16 @@ namespace LeetCodeCompiler.API.Services
 
             var totalCount = await query.Select(a => a.UserId).Distinct().CountAsync();
 
-            var bestAttempts = await query
+            // EF Core cannot translate GroupBy + OrderBy + First(); pick best attempt per user in memory.
+            var submittedAttempts = await query.ToListAsync();
+            var bestAttempts = submittedAttempts
                 .GroupBy(a => a.UserId)
                 .Select(g => g.OrderByDescending(a => a.Percentage).ThenBy(a => a.TimeSpentMinutes).First())
                 .OrderByDescending(a => a.Percentage)
                 .ThenBy(a => a.TimeSpentMinutes)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToList();
 
             var result = new List<LeaderboardItem>();
             int rank = ((pageNumber - 1) * pageSize) + 1;
@@ -307,8 +311,9 @@ namespace LeetCodeCompiler.API.Services
             var totalCount = await query.Select(r => r.UserId).Distinct().CountAsync();
 
             var latestResults = await query
-                .GroupBy(r => r.UserId)
-                .Select(g => g.OrderByDescending(r => r.AttemptNumber).First())
+                .Where(r => r.AttemptNumber == query
+                    .Where(x => x.UserId == r.UserId)
+                    .Max(x => x.AttemptNumber))
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
