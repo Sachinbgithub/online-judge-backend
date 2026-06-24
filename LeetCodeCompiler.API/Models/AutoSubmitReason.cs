@@ -30,4 +30,13 @@ namespace LeetCodeCompiler.API.Models
         public const string Used = "Used";
         public const string Expired = "Expired";
     }
+
+    public static class TestMonitorStatuses
+    {
+        public const string NotStarted = "NotStarted";
+        public const string TestRunning = "TestRunning";
+        public const string Breached = "Breached";
+        public const string StoppedAbnormally = "StoppedAbnormally";
+        public const string Submitted = "Submitted";
+    }
 }

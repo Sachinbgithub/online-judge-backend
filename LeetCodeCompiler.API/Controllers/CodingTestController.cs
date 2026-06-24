@@ -976,6 +976,33 @@ public async Task<IActionResult> GetCombinedTestResults(
         }
 
         /// <summary>
+        /// Live monitor: per-user attempt status for faculty (global and local tests).
+        /// </summary>
+        [HttpGet("{codingTestId}/live-monitor")]
+        [Authorize(Policy = "TestSetterOnly")]
+        public async Task<IActionResult> GetTestLiveMonitor(
+            int codingTestId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 50,
+            [FromQuery] string? monitorStatus = null)
+        {
+            try
+            {
+                var result = await _codingTestService.GetTestLiveMonitorAsync(
+                    codingTestId, pageNumber, pageSize, monitorStatus);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve live monitor data", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Gets raw assignment records for a specific test, including AssignedToUserId.
         /// </summary>
         /// <param name="codingTestId">Coding test ID</param>

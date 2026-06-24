@@ -859,6 +859,49 @@ public class CombinedTestResultResponse
         public int ActiveTimeSecondsAtGrant { get; set; }
     }
 
+    public class TestLiveMonitorSummaryResponse
+    {
+        public int TotalUsers { get; set; }
+        public int NotStarted { get; set; }
+        public int TestRunning { get; set; }
+        public int Breached { get; set; }
+        public int StoppedAbnormally { get; set; }
+        public int Submitted { get; set; }
+    }
+
+    public class TestLiveMonitorUserItem
+    {
+        public long UserId { get; set; }
+        public string FullName { get; set; } = "";
+        public string EmailId { get; set; } = "";
+        public string RollNo { get; set; } = "";
+        public long AssignedId { get; set; }
+        public int? LatestAttemptId { get; set; }
+        public int? LatestAttemptNumber { get; set; }
+        public string? AttemptStatus { get; set; }
+        public string? IntegrityStatus { get; set; }
+        public string? SubmissionReason { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public DateTime? SubmittedAt { get; set; }
+        public int TimeSpentMinutes { get; set; }
+        public int ActiveTimeSpentSeconds { get; set; }
+        public string MonitorStatus { get; set; } = TestMonitorStatuses.NotStarted;
+    }
+
+    public class TestLiveMonitorResponse
+    {
+        public int CodingTestId { get; set; }
+        public string TestName { get; set; } = "";
+        public bool IsGlobal { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public TestLiveMonitorSummaryResponse Summary { get; set; } = new();
+        public List<TestLiveMonitorUserItem> Items { get; set; } = new();
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+    }
+
     /// <summary>
     /// Detailed AssignedCodingTest response that mirrors the AssignedCodingTests table columns.
     /// </summary>

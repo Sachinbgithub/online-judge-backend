@@ -20,6 +20,8 @@ namespace LeetCodeCompiler.API.Services
         private readonly IPlagiarismService _plagiarismService;
         private readonly IActivityTrackingService _activityTrackingService;
 
+        private const byte GlobalAutoAssignUserType = 25;
+
         public CodingTestService(
             AppDbContext context,
             StudentProfileService studentProfileService,
@@ -917,7 +919,11 @@ namespace LeetCodeCompiler.API.Services
                                           cta.Status == "InProgress");
 
             if (existingAttempt != null)
+            {
+                if (codingTest.IsGlobal)
+                    await EnsureGlobalTestAssignmentAsync(request.UserId, codingTest, existingAttempt.StartedAt);
                 return await GetCodingTestAttemptAsync(existingAttempt.Id);
+            }
 
             var pendingGrant = await GetPendingResumeGrantAsync(request.UserId, request.CodingTestId);
             var canStart = pendingGrant != null
@@ -926,6 +932,9 @@ namespace LeetCodeCompiler.API.Services
 
             if (!canStart)
                 throw new InvalidOperationException("User cannot attempt this test");
+
+            if (codingTest.IsGlobal)
+                await EnsureGlobalTestAssignmentAsync(request.UserId, codingTest);
 
             var attempt = new CodingTestAttempt
             {
@@ -2051,28 +2060,16 @@ namespace LeetCodeCompiler.API.Services
                 if (codingTest == null)
                     throw new ArgumentException($"Test {request.CodingTestId} not found");
 
-                // For global tests, create assignment record on-the-fly
-                if (codingTest.IsGlobal)
-                {
-                    assignment = new AssignedCodingTest
-                    {
-                        CodingTestId = request.CodingTestId,
-                        AssignedToUserId = request.UserId,
-                        AssignedToUserType = 1, // Default user type
-                        AssignedByUserId = request.UserId, // Self-assigned for global tests
-                        AssignedDate = DateTime.UtcNow,
-                        TestType = 1002, // Default test type
-                        TestMode = 5, // Default test mode
-                        CreatedAt = DateTime.UtcNow,
-                        CodingTest = codingTest // Include the test data
-                    };
-                    _context.AssignedCodingTests.Add(assignment);
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
+                if (!codingTest.IsGlobal)
                     throw new ArgumentException($"Test assignment not found for user {request.UserId} and test {request.CodingTestId}");
-                }
+
+                var ensured = await EnsureGlobalTestAssignmentAsync((int)request.UserId, codingTest);
+                if (ensured == null)
+                    throw new InvalidOperationException("Failed to ensure global test assignment");
+
+                assignment = await _context.AssignedCodingTests
+                    .Include(act => act.CodingTest)
+                    .FirstAsync(act => act.AssignedId == ensured.AssignedId);
             }
 
             var now = DateTime.UtcNow;
@@ -2578,6 +2575,53 @@ namespace LeetCodeCompiler.API.Services
             return true;
         }
 
+        private async Task<AssignedCodingTest?> EnsureGlobalTestAssignmentAsync(
+            int userId, CodingTest codingTest, DateTime? startedAt = null)
+        {
+            if (!codingTest.IsGlobal)
+                return null;
+
+            var assignment = await _context.AssignedCodingTests
+                .Where(act => act.CodingTestId == codingTest.Id
+                           && act.AssignedToUserId == userId
+                           && !act.IsDeleted)
+                .OrderByDescending(act => act.AssignedDate)
+                .FirstOrDefaultAsync();
+
+            var now = DateTime.UtcNow;
+            var effectiveStartedAt = startedAt ?? now;
+
+            if (assignment == null)
+            {
+                assignment = new AssignedCodingTest
+                {
+                    CodingTestId = codingTest.Id,
+                    AssignedToUserId = userId,
+                    AssignedToUserType = GlobalAutoAssignUserType,
+                    AssignedByUserId = codingTest.CreatedBy,
+                    AssignedDate = now,
+                    TestType = codingTest.TestType,
+                    TestMode = 5,
+                    Status = "InProgress",
+                    StartedAt = effectiveStartedAt,
+                    CreatedAt = now
+                };
+                _context.AssignedCodingTests.Add(assignment);
+                await _context.SaveChangesAsync();
+                return assignment;
+            }
+
+            if (assignment.Status == "Assigned")
+            {
+                assignment.Status = "InProgress";
+                assignment.StartedAt ??= effectiveStartedAt;
+                assignment.UpdatedAt = now;
+                await _context.SaveChangesAsync();
+            }
+
+            return assignment;
+        }
+
         private async Task<CodingTestResumeGrant?> GetPendingResumeGrantAsync(int userId, int codingTestId)
         {
             var now = DateTime.UtcNow;
@@ -3014,6 +3058,136 @@ namespace LeetCodeCompiler.API.Services
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<TestLiveMonitorResponse> GetTestLiveMonitorAsync(
+            int codingTestId, int pageNumber, int pageSize, string? monitorStatus = null)
+        {
+            var codingTest = await _context.CodingTests.FindAsync(codingTestId);
+            if (codingTest == null)
+                throw new ArgumentException($"Coding test with ID {codingTestId} not found");
+
+            var assignments = await _context.AssignedCodingTests
+                .Where(act => act.CodingTestId == codingTestId && !act.IsDeleted)
+                .OrderByDescending(act => act.AssignedDate)
+                .ToListAsync();
+
+            var attempts = await _context.CodingTestAttempts
+                .Where(a => a.CodingTestId == codingTestId)
+                .ToListAsync();
+
+            var latestAttempts = attempts
+                .GroupBy(a => a.UserId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(a => a.AttemptNumber).First());
+
+            // Global tests: backfill assignment rows for users who started before auto-assign
+            // or who are in-session without a fresh POST /start.
+            if (codingTest.IsGlobal && latestAttempts.Count > 0)
+            {
+                var assignedUserIds = assignments.Select(a => (int)a.AssignedToUserId).ToHashSet();
+                var backfilled = false;
+                foreach (var (userId, latestAttempt) in latestAttempts)
+                {
+                    if (assignedUserIds.Contains(userId))
+                        continue;
+
+                    await EnsureGlobalTestAssignmentAsync(userId, codingTest, latestAttempt.StartedAt);
+                    backfilled = true;
+                }
+
+                if (backfilled)
+                {
+                    assignments = await _context.AssignedCodingTests
+                        .Where(act => act.CodingTestId == codingTestId && !act.IsDeleted)
+                        .OrderByDescending(act => act.AssignedDate)
+                        .ToListAsync();
+                }
+            }
+
+            // One row per user (in case of duplicate assignment types).
+            var assignmentByUserId = assignments
+                .GroupBy(a => (int)a.AssignedToUserId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(a => a.AssignedDate).First());
+
+            var rosterUserIds = codingTest.IsGlobal
+                ? assignmentByUserId.Keys.Union(latestAttempts.Keys).Distinct().ToList()
+                : assignmentByUserId.Keys.ToList();
+
+            var attemptIds = latestAttempts.Values.Select(a => a.Id).ToList();
+            var activeSecondsByAttempt = attemptIds.Count == 0
+                ? new Dictionary<int, int>()
+                : await _context.UserCodingActivityLogs
+                    .Where(l => l.Source == "assessment"
+                             && l.CodingTestAttemptId != null
+                             && attemptIds.Contains(l.CodingTestAttemptId.Value))
+                    .GroupBy(l => l.CodingTestAttemptId!.Value)
+                    .Select(g => new { AttemptId = g.Key, Seconds = g.Sum(l => l.TimeTakenSeconds) })
+                    .ToDictionaryAsync(x => x.AttemptId, x => x.Seconds);
+
+            var allItems = new List<TestLiveMonitorUserItem>();
+            foreach (var userId in rosterUserIds)
+            {
+                assignmentByUserId.TryGetValue(userId, out var assignment);
+                latestAttempts.TryGetValue(userId, out var latestAttempt);
+                var status = TestMonitorStatusBuilder.Compute(latestAttempt);
+                var profile = await _studentProfileService.GetStudentProfileAsync(userId);
+
+                allItems.Add(new TestLiveMonitorUserItem
+                {
+                    UserId = userId,
+                    FullName = profile?.FullName ?? $"User {userId}",
+                    EmailId = profile?.EmailId ?? "",
+                    RollNo = profile?.RollNo ?? "",
+                    AssignedId = assignment?.AssignedId ?? 0,
+                    LatestAttemptId = latestAttempt?.Id,
+                    LatestAttemptNumber = latestAttempt?.AttemptNumber,
+                    AttemptStatus = latestAttempt?.Status,
+                    IntegrityStatus = latestAttempt?.IntegrityStatus,
+                    SubmissionReason = latestAttempt?.SubmissionReason,
+                    StartedAt = latestAttempt?.StartedAt,
+                    SubmittedAt = latestAttempt?.SubmittedAt,
+                    TimeSpentMinutes = latestAttempt?.TimeSpentMinutes ?? 0,
+                    ActiveTimeSpentSeconds = latestAttempt != null
+                        && activeSecondsByAttempt.TryGetValue(latestAttempt.Id, out var seconds)
+                        ? seconds
+                        : 0,
+                    MonitorStatus = status
+                });
+            }
+
+            var summary = new TestLiveMonitorSummaryResponse
+            {
+                TotalUsers = allItems.Count,
+                NotStarted = allItems.Count(i => i.MonitorStatus == TestMonitorStatuses.NotStarted),
+                TestRunning = allItems.Count(i => i.MonitorStatus == TestMonitorStatuses.TestRunning),
+                Breached = allItems.Count(i => i.MonitorStatus == TestMonitorStatuses.Breached),
+                StoppedAbnormally = allItems.Count(i => i.MonitorStatus == TestMonitorStatuses.StoppedAbnormally),
+                Submitted = allItems.Count(i => i.MonitorStatus == TestMonitorStatuses.Submitted)
+            };
+
+            var filtered = string.IsNullOrWhiteSpace(monitorStatus)
+                ? allItems
+                : allItems.Where(i => i.MonitorStatus == monitorStatus).ToList();
+
+            var totalCount = filtered.Count;
+            var pageItems = filtered
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new TestLiveMonitorResponse
+            {
+                CodingTestId = codingTestId,
+                TestName = codingTest.TestName,
+                IsGlobal = codingTest.IsGlobal,
+                StartDate = codingTest.StartDate,
+                EndDate = codingTest.EndDate,
+                Summary = summary,
+                Items = pageItems,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<List<AssignedCodingTestSummaryResponse>> GetAssignedTestsByTestAsync(int codingTestId)
