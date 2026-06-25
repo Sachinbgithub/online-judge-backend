@@ -920,9 +920,14 @@ namespace LeetCodeCompiler.API.Services
 
             if (existingAttempt != null)
             {
-                if (codingTest.IsGlobal)
-                    await EnsureGlobalTestAssignmentAsync(request.UserId, codingTest, existingAttempt.StartedAt);
-                return await GetCodingTestAttemptAsync(existingAttempt.Id);
+                if (AttemptStaleHelper.IsStale(codingTest, existingAttempt, DateTime.UtcNow))
+                    await FinalizeStaleAttemptAsync(existingAttempt, codingTest);
+                else
+                {
+                    if (codingTest.IsGlobal)
+                        await EnsureGlobalTestAssignmentAsync(request.UserId, codingTest, existingAttempt.StartedAt);
+                    return await GetCodingTestAttemptAsync(existingAttempt.Id);
+                }
             }
 
             var pendingGrant = await GetPendingResumeGrantAsync(request.UserId, request.CodingTestId);
@@ -983,6 +988,13 @@ namespace LeetCodeCompiler.API.Services
 
             if (attempt == null)
                 throw new ArgumentException($"Coding test attempt with ID {attemptId} not found");
+
+            if (attempt.Status == "InProgress"
+                && AttemptStaleHelper.IsStale(attempt.CodingTest, attempt, DateTime.UtcNow))
+            {
+                await FinalizeStaleAttemptAsync(attempt, attempt.CodingTest);
+                await _context.Entry(attempt).ReloadAsync();
+            }
 
             return await BuildAttemptResponseAsync(attempt);
         }
@@ -2673,6 +2685,61 @@ namespace LeetCodeCompiler.API.Services
                 assignment.TimeSpentMinutes = attempt.TimeSpentMinutes;
         }
 
+        private async Task<bool> FinalizeStaleAttemptsAsync(
+            CodingTest test, IEnumerable<CodingTestAttempt> attempts, DateTime nowUtc)
+        {
+            var changed = false;
+            foreach (var attempt in attempts.Where(a => a.Status == "InProgress"))
+            {
+                if (!AttemptStaleHelper.IsStale(test, attempt, nowUtc))
+                    continue;
+
+                await FinalizeStaleAttemptAsync(attempt, test);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private async Task<bool> FinalizeStaleAttemptsAsync(
+            IReadOnlyDictionary<int, CodingTest> testsById,
+            IEnumerable<CodingTestAttempt> attempts,
+            DateTime nowUtc)
+        {
+            var changed = false;
+            foreach (var attempt in attempts.Where(a => a.Status == "InProgress"))
+            {
+                if (!testsById.TryGetValue(attempt.CodingTestId, out var test))
+                    continue;
+
+                if (!AttemptStaleHelper.IsStale(test, attempt, nowUtc))
+                    continue;
+
+                await FinalizeStaleAttemptAsync(attempt, test);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private async Task FinalizeStaleAttemptAsync(CodingTestAttempt attempt, CodingTest test)
+        {
+            if (!AttemptStaleHelper.IsStale(test, attempt, DateTime.UtcNow))
+                return;
+
+            attempt.Status = "Abandoned";
+            attempt.CompletedAt = DateTime.UtcNow;
+            attempt.UpdatedAt = DateTime.UtcNow;
+
+            var assignment = await _context.AssignedCodingTests
+                .FirstOrDefaultAsync(a => a.AssignedToUserId == attempt.UserId
+                                       && a.CodingTestId == attempt.CodingTestId
+                                       && !a.IsDeleted);
+
+            await ApplyActiveTimeToAttemptAsync(attempt, assignment);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<bool> IsTestActiveAsync(int codingTestId)
         {
             var codingTest = await _context.CodingTests.FindAsync(codingTestId);
@@ -3072,9 +3139,17 @@ namespace LeetCodeCompiler.API.Services
                 .OrderByDescending(act => act.AssignedDate)
                 .ToListAsync();
 
+            var now = DateTime.UtcNow;
             var attempts = await _context.CodingTestAttempts
                 .Where(a => a.CodingTestId == codingTestId)
                 .ToListAsync();
+
+            if (await FinalizeStaleAttemptsAsync(codingTest, attempts, now))
+            {
+                attempts = await _context.CodingTestAttempts
+                    .Where(a => a.CodingTestId == codingTestId)
+                    .ToListAsync();
+            }
 
             var latestAttempts = attempts
                 .GroupBy(a => a.UserId)
@@ -3129,7 +3204,7 @@ namespace LeetCodeCompiler.API.Services
             {
                 assignmentByUserId.TryGetValue(userId, out var assignment);
                 latestAttempts.TryGetValue(userId, out var latestAttempt);
-                var status = TestMonitorStatusBuilder.Compute(latestAttempt);
+                var status = TestMonitorStatusBuilder.Compute(latestAttempt, codingTest, now);
                 var profile = await _studentProfileService.GetStudentProfileAsync(userId);
 
                 allItems.Add(new TestLiveMonitorUserItem
@@ -3311,6 +3386,22 @@ namespace LeetCodeCompiler.API.Services
             var latestAttempts = attempts
                 .GroupBy(a => (a.UserId, a.CodingTestId))
                 .ToDictionary(g => g.Key, g => g.OrderByDescending(a => a.AttemptNumber).First());
+
+            var testsById = assignments
+                .Select(a => a.CodingTest)
+                .DistinctBy(t => t.Id)
+                .ToDictionary(t => t.Id);
+
+            if (await FinalizeStaleAttemptsAsync(testsById, latestAttempts.Values, now))
+            {
+                attempts = await _context.CodingTestAttempts
+                    .Where(a => userIds.Contains(a.UserId) && testIds.Contains(a.CodingTestId))
+                    .ToListAsync();
+
+                latestAttempts = attempts
+                    .GroupBy(a => (a.UserId, a.CodingTestId))
+                    .ToDictionary(g => g.Key, g => g.OrderByDescending(a => a.AttemptNumber).First());
+            }
 
             var grants = await _context.CodingTestResumeGrants
                 .Where(g => userIds.Contains(g.UserId)
