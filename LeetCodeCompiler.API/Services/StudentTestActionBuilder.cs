@@ -27,7 +27,12 @@ namespace LeetCodeCompiler.API.Services
                 return StudentTestActions.Start;
 
             if (latestAttempt.Status == "InProgress")
+            {
+                if (AttemptStaleHelper.IsStale(test, latestAttempt, nowUtc))
+                    return StudentTestActions.Start;
+
                 return StudentTestActions.Continue;
+            }
 
             if (latestAttempt.Status is "Submitted" or "Completed")
             {

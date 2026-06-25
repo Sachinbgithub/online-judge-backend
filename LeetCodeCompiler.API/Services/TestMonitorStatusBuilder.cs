@@ -4,13 +4,23 @@ namespace LeetCodeCompiler.API.Services
 {
     public static class TestMonitorStatusBuilder
     {
-        public static string Compute(CodingTestAttempt? latestAttempt)
+        public static string Compute(
+            CodingTestAttempt? latestAttempt,
+            CodingTest? test = null,
+            DateTime? nowUtc = null)
         {
             if (latestAttempt == null)
                 return TestMonitorStatuses.NotStarted;
 
+            var now = nowUtc ?? DateTime.UtcNow;
+
             if (latestAttempt.Status == "InProgress")
+            {
+                if (test != null && AttemptStaleHelper.IsStale(test, latestAttempt, now))
+                    return TestMonitorStatuses.StoppedAbnormally;
+
                 return TestMonitorStatuses.TestRunning;
+            }
 
             if (latestAttempt.Status == "Abandoned")
                 return TestMonitorStatuses.StoppedAbnormally;
