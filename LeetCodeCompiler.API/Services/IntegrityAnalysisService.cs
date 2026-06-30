@@ -200,14 +200,15 @@ namespace LeetCodeCompiler.API.Services
             if (attempt == null)
                 throw new ArgumentException($"Attempt {codingTestAttemptId} not found");
 
-            if (attempt.Status is not ("Submitted" or "Completed"))
-                throw new InvalidOperationException("Resume can only be granted for submitted attempts");
+            if (attempt.Status is not ("Submitted" or "Completed" or "Abandoned"))
+                throw new InvalidOperationException("Resume can only be granted for submitted or abandoned attempts");
 
-            var canGrant = attempt.IntegrityStatus == "Disqualified"
+            var canGrant = attempt.Status == "Abandoned"
+                        || attempt.IntegrityStatus == "Disqualified"
                         || attempt.SubmissionReason == SubmissionReasons.NetworkLoss;
 
             if (!canGrant)
-                throw new InvalidOperationException("Resume is only allowed after disqualification or network-loss submission");
+                throw new InvalidOperationException("Resume is only allowed after disqualification, network-loss submission, or abandoned session");
 
             var now = DateTime.UtcNow;
             if (now > attempt.CodingTest!.EndDate)
